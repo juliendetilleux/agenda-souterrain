@@ -1,0 +1,135 @@
+{
+  "title": "Einstellungen",
+  "notFound": "Kalender nicht gefunden",
+  "notFoundDetail": "Die Kennung \"{{slug}}\" existiert nicht.",
+  "accessDenied": "Zugriff verweigert",
+  "accessDeniedDetail": "Sie haben keine Berechtigung für die Einstellungen.",
+  "backToCalendar": "Zurück zum Kalender",
+  "tabs": {
+    "general": "Allgemein",
+    "links": "Links",
+    "users": "Benutzer",
+    "groups": "Gruppen",
+    "tags": "Tags",
+    "superadminUsers": "App-Benutzer",
+    "superadminCalendars": "App-Kalender"
+  },
+  "general": {
+    "calendarTitle": "Kalendertitel",
+    "timezone": "Zeitzone",
+    "language": "Sprache",
+    "weekStart": "Erster Wochentag",
+    "defaultView": "Standardansicht",
+    "visibleTimeStart": "Sichtbare Startzeit",
+    "visibleTimeEnd": "Sichtbare Endzeit",
+    "defaultDuration": "Standarddauer (Minuten)",
+    "showWeekends": "Wochenenden anzeigen",
+    "monday": "Montag",
+    "sunday": "Sonntag",
+    "saved": "Einstellungen gespeichert",
+    "saveError": "Fehler beim Speichern"
+  },
+  "links": {
+    "createTitle": "Neuen Link erstellen",
+    "labelPlaceholder": "Label (optional)",
+    "noLabel": "Ohne Label",
+    "permission": "Berechtigung",
+    "subCalendar": "Unterkalender",
+    "createBtn": "Link erstellen",
+    "copied": "Link kopiert!",
+    "empty": "Keine Zugangslinks erstellt.",
+    "deleteTitle": "Link löschen",
+    "deleteMsg": "Personen mit diesem Link verlieren den Zugang.",
+    "toast": {
+      "created": "Link erstellt",
+      "createError": "Fehler beim Erstellen des Links",
+      "updateError": "Fehler beim Aktualisieren",
+      "deleted": "Link gelöscht",
+      "deleteError": "Fehler beim Löschen"
+    },
+    "disable": "Deaktivieren",
+    "enable": "Aktivieren",
+    "copyLink": "Link kopieren"
+  },
+  "users": {
+    "inviteTitle": "Benutzer einladen",
+    "emailPlaceholder": "adresse@email.com",
+    "permission": "Berechtigung",
+    "subCalendar": "Unterkalender",
+    "empty": "Keine Benutzer eingeladen.",
+    "revokeTooltip": "Widerrufen",
+    "toast": {
+      "invited": "Benutzer eingeladen",
+      "notFound": "Benutzer nicht gefunden oder bereits eingeladen",
+      "updateError": "Fehler beim Aktualisieren",
+      "revoked": "Zugang widerrufen",
+      "revokeError": "Fehler beim Widerrufen"
+    }
+  },
+  "groups": {
+    "createTitle": "Gruppe erstellen",
+    "namePlaceholder": "Gruppenname",
+    "memberEmailPlaceholder": "E-Mail des Mitglieds",
+    "members": "Mitglieder",
+    "groupPermission": "Gruppenberechtigung",
+    "level": "Stufe",
+    "subCal": "Unterk.",
+    "empty": "Keine Gruppen erstellt.",
+    "noMembers": "Keine Mitglieder.",
+    "deleteTitle": "Gruppe löschen",
+    "deleteMsg": "Gruppe \"{{name}}\" löschen? Zugehörige Zugriffe gehen verloren.",
+    "toast": {
+      "memberAdded": "Mitglied hinzugefügt",
+      "userNotFound": "Benutzer nicht gefunden",
+      "deleteError": "Fehler beim Löschen",
+      "permissionUpdated": "Berechtigung aktualisiert",
+      "updateError": "Fehler beim Aktualisieren",
+      "deleted": "Gruppe gelöscht",
+      "groupDeleteError": "Fehler beim Löschen",
+      "created": "Gruppe erstellt",
+      "createError": "Fehler beim Erstellen"
+    }
+  },
+  "tags": {
+    "newTag": "Neuer Tag",
+    "namePlaceholder": "Tag-Name",
+    "empty": "Keine Tags",
+    "deleteTitle": "Tag löschen",
+    "deleteMsg": "\"{{name}}\" löschen? Er wird von allen Terminen entfernt.",
+    "toast": {
+      "created": "Tag erstellt",
+      "createError": "Fehler beim Erstellen",
+      "updated": "Tag aktualisiert",
+      "updateError": "Fehler beim Aktualisieren",
+      "deleted": "Tag gelöscht",
+      "deleteError": "Fehler beim Löschen"
+    }
+  },
+  "superadminUsers": {
+    "user": "Benutzer",
+    "role": "Rolle",
+    "superadmin": "Superadmin",
+    "admin": "Admin",
+    "regularUser": "Benutzer",
+    "promote": "Zum Admin befördern",
+    "revoke": "Widerrufen",
+    "empty": "Keine Benutzer.",
+    "toast": {
+      "promoted": "Benutzer zum Admin befördert",
+      "promoteError": "Fehler beim Befördern",
+      "demoted": "Admin-Rechte widerrufen",
+      "demoteError": "Fehler beim Widerrufen"
+    }
+  },
+  "superadminCalendars": {
+    "calendar": "Kalender",
+    "owner": "Eigentümer",
+    "empty": "Keine Kalender.",
+    "deleteTitle": "Kalender löschen",
+    "deleteMsg": "\"{{title}}\" löschen? Diese Aktion ist unwiderruflich.",
+    "toast": {
+      "deleted": "Kalender gelöscht",
+      "deleteError": "Fehler beim Löschen"
+    }
+  }
+}

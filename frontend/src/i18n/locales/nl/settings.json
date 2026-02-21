@@ -1,0 +1,135 @@
+{
+  "title": "Instellingen",
+  "notFound": "Kalender niet gevonden",
+  "notFoundDetail": "De identificatie \"{{slug}}\" bestaat niet.",
+  "accessDenied": "Toegang geweigerd",
+  "accessDeniedDetail": "U heeft geen rechten om de instellingen te bekijken.",
+  "backToCalendar": "Terug naar kalender",
+  "tabs": {
+    "general": "Algemeen",
+    "links": "Links",
+    "users": "Gebruikers",
+    "groups": "Groepen",
+    "tags": "Labels",
+    "superadminUsers": "App-gebruikers",
+    "superadminCalendars": "App-kalenders"
+  },
+  "general": {
+    "calendarTitle": "Kalendertitel",
+    "timezone": "Tijdzone",
+    "language": "Taal",
+    "weekStart": "Eerste dag van de week",
+    "defaultView": "Standaardweergave",
+    "visibleTimeStart": "Zichtbare starttijd",
+    "visibleTimeEnd": "Zichtbare eindtijd",
+    "defaultDuration": "Standaardduur (minuten)",
+    "showWeekends": "Weekenden tonen",
+    "monday": "Maandag",
+    "sunday": "Zondag",
+    "saved": "Instellingen opgeslagen",
+    "saveError": "Fout bij opslaan"
+  },
+  "links": {
+    "createTitle": "Nieuwe link aanmaken",
+    "labelPlaceholder": "Label (optioneel)",
+    "noLabel": "Zonder label",
+    "permission": "Toestemming",
+    "subCalendar": "Subkalender",
+    "createBtn": "Link aanmaken",
+    "copied": "Link gekopieerd!",
+    "empty": "Geen toegangslinks aangemaakt.",
+    "deleteTitle": "Link verwijderen",
+    "deleteMsg": "Personen die deze link gebruiken verliezen hun toegang.",
+    "toast": {
+      "created": "Link aangemaakt",
+      "createError": "Fout bij aanmaken van link",
+      "updateError": "Fout bij bijwerken",
+      "deleted": "Link verwijderd",
+      "deleteError": "Fout bij verwijderen"
+    },
+    "disable": "Uitschakelen",
+    "enable": "Inschakelen",
+    "copyLink": "Link kopiëren"
+  },
+  "users": {
+    "inviteTitle": "Gebruiker uitnodigen",
+    "emailPlaceholder": "adres@email.com",
+    "permission": "Toestemming",
+    "subCalendar": "Subkalender",
+    "empty": "Geen gebruikers uitgenodigd.",
+    "revokeTooltip": "Intrekken",
+    "toast": {
+      "invited": "Gebruiker uitgenodigd",
+      "notFound": "Gebruiker niet gevonden of al uitgenodigd",
+      "updateError": "Fout bij bijwerken",
+      "revoked": "Toegang ingetrokken",
+      "revokeError": "Fout bij intrekken"
+    }
+  },
+  "groups": {
+    "createTitle": "Groep aanmaken",
+    "namePlaceholder": "Groepsnaam",
+    "memberEmailPlaceholder": "E-mail van lid",
+    "members": "Leden",
+    "groupPermission": "Groepstoestemming",
+    "level": "Niveau",
+    "subCal": "Subkal.",
+    "empty": "Geen groepen aangemaakt.",
+    "noMembers": "Geen leden.",
+    "deleteTitle": "Groep verwijderen",
+    "deleteMsg": "Groep \"{{name}}\" verwijderen? Bijbehorende toegang gaat verloren.",
+    "toast": {
+      "memberAdded": "Lid toegevoegd",
+      "userNotFound": "Gebruiker niet gevonden",
+      "deleteError": "Fout bij verwijderen",
+      "permissionUpdated": "Toestemming bijgewerkt",
+      "updateError": "Fout bij bijwerken",
+      "deleted": "Groep verwijderd",
+      "groupDeleteError": "Fout bij verwijderen",
+      "created": "Groep aangemaakt",
+      "createError": "Fout bij aanmaken"
+    }
+  },
+  "tags": {
+    "newTag": "Nieuw label",
+    "namePlaceholder": "Labelnaam",
+    "empty": "Geen labels",
+    "deleteTitle": "Label verwijderen",
+    "deleteMsg": "\"{{name}}\" verwijderen? Het wordt van alle evenementen verwijderd.",
+    "toast": {
+      "created": "Label aangemaakt",
+      "createError": "Fout bij aanmaken",
+      "updated": "Label bijgewerkt",
+      "updateError": "Fout bij bijwerken",
+      "deleted": "Label verwijderd",
+      "deleteError": "Fout bij verwijderen"
+    }
+  },
+  "superadminUsers": {
+    "user": "Gebruiker",
+    "role": "Rol",
+    "superadmin": "Superadmin",
+    "admin": "Admin",
+    "regularUser": "Gebruiker",
+    "promote": "Promoveren tot admin",
+    "revoke": "Intrekken",
+    "empty": "Geen gebruikers.",
+    "toast": {
+      "promoted": "Gebruiker gepromoveerd tot admin",
+      "promoteError": "Fout bij promoveren",
+      "demoted": "Adminrechten ingetrokken",
+      "demoteError": "Fout bij intrekken"
+    }
+  },
+  "superadminCalendars": {
+    "calendar": "Kalender",
+    "owner": "Eigenaar",
+    "empty": "Geen kalenders.",
+    "deleteTitle": "Kalender verwijderen",
+    "deleteMsg": "\"{{title}}\" verwijderen? Deze actie is onomkeerbaar.",
+    "toast": {
+      "deleted": "Kalender verwijderd",
+      "deleteError": "Fout bij verwijderen"
+    }
+  }
+}

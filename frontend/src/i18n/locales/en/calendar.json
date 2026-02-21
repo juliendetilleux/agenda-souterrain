@@ -1,0 +1,36 @@
+{
+  "today": "Today",
+  "previous": "Previous",
+  "next": "Next",
+  "search": "Search",
+  "searchPlaceholder": "Search...",
+  "searching": "Searching...",
+  "exportIcal": "Export iCal",
+  "settings": "Settings",
+  "logout": "Log out",
+  "event": "Event",
+  "menu": "Menu",
+  "views": {
+    "month": "Month",
+    "week": "Week",
+    "day": "Day",
+    "agenda": "Agenda",
+    "year": "Year"
+  },
+  "sidebar": {
+    "calendars": "Calendars",
+    "tags": "Tags",
+    "collapse": "Collapse",
+    "expand": "Open sidebar",
+    "closeSidebar": "Close",
+    "addSubCalendar": "Add a sub-calendar",
+    "namePlaceholder": "Name...",
+    "subCalendarCreated": "Sub-calendar created",
+    "deleteError": "Unable to delete",
+    "error": "Error",
+    "deleteSubCalendarTitle": "Delete sub-calendar",
+    "deleteSubCalendarMsg": "Delete \"{{name}}\" and all its events?"
+  },
+  "dayLettersMon": ["M", "T", "W", "T", "F", "S", "S"],
+  "dayLettersSun": ["S", "M", "T", "W", "T", "F", "S"]
+}

@@ -1,0 +1,37 @@
+{
+  "newEvent": "Nieuw evenement",
+  "editEvent": "Evenement bewerken",
+  "eventDetails": "Evenementdetails",
+  "titlePlaceholder": "Titel van het evenement",
+  "start": "Begin",
+  "end": "Einde",
+  "allDay": "Hele dag",
+  "locationPlaceholder": "Locatie (grot, massief…)",
+  "whoPlaceholder": "Verantwoordelijke (optioneel)",
+  "notesPlaceholder": "Notities, benodigde uitrusting…",
+  "tags": "Labels",
+  "recurrence": {
+    "none": "Geen herhaling",
+    "daily": "Dagelijks",
+    "weekly": "Wekelijks",
+    "monthly": "Maandelijks",
+    "yearly": "Jaarlijks"
+  },
+  "toast": {
+    "created": "Evenement aangemaakt",
+    "updated": "Evenement bijgewerkt",
+    "deleted": "Evenement verwijderd",
+    "createError": "Fout bij aanmaken",
+    "updateError": "Fout bij bijwerken",
+    "deleteError": "Fout bij verwijderen"
+  },
+  "deleteTitle": "Evenement verwijderen",
+  "deleteMsg": "Deze actie is onomkeerbaar.",
+  "location": {
+    "searchPlaceholder": "Zoek een adres...",
+    "myPosition": "Mijn positie",
+    "openGoogleMaps": "Google Maps",
+    "openWaze": "Waze",
+    "geolocationError": "Kan uw positie niet bepalen"
+  }
+}

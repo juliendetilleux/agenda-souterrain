@@ -1,0 +1,135 @@
+{
+  "title": "Settings",
+  "notFound": "Calendar not found",
+  "notFoundDetail": "The identifier \"{{slug}}\" does not exist.",
+  "accessDenied": "Access denied",
+  "accessDeniedDetail": "You do not have permission to access settings.",
+  "backToCalendar": "Back to calendar",
+  "tabs": {
+    "general": "General",
+    "links": "Links",
+    "users": "Users",
+    "groups": "Groups",
+    "tags": "Tags",
+    "superadminUsers": "App users",
+    "superadminCalendars": "App calendars"
+  },
+  "general": {
+    "calendarTitle": "Calendar title",
+    "timezone": "Timezone",
+    "language": "Language",
+    "weekStart": "First day of the week",
+    "defaultView": "Default view",
+    "visibleTimeStart": "Visible start time",
+    "visibleTimeEnd": "Visible end time",
+    "defaultDuration": "Default duration (minutes)",
+    "showWeekends": "Show weekends",
+    "monday": "Monday",
+    "sunday": "Sunday",
+    "saved": "Settings saved",
+    "saveError": "Error saving settings"
+  },
+  "links": {
+    "createTitle": "Create a new link",
+    "labelPlaceholder": "Label (optional)",
+    "noLabel": "No label",
+    "permission": "Permission",
+    "subCalendar": "Sub-calendar",
+    "createBtn": "Create link",
+    "copied": "Link copied!",
+    "empty": "No access links created.",
+    "deleteTitle": "Delete link",
+    "deleteMsg": "People using this link will lose access.",
+    "toast": {
+      "created": "Link created",
+      "createError": "Error creating link",
+      "updateError": "Error updating",
+      "deleted": "Link deleted",
+      "deleteError": "Error deleting"
+    },
+    "disable": "Disable",
+    "enable": "Enable",
+    "copyLink": "Copy link"
+  },
+  "users": {
+    "inviteTitle": "Invite a user",
+    "emailPlaceholder": "address@email.com",
+    "permission": "Permission",
+    "subCalendar": "Sub-calendar",
+    "empty": "No users invited.",
+    "revokeTooltip": "Revoke",
+    "toast": {
+      "invited": "User invited",
+      "notFound": "User not found or already invited",
+      "updateError": "Error updating",
+      "revoked": "Access revoked",
+      "revokeError": "Error revoking"
+    }
+  },
+  "groups": {
+    "createTitle": "Create a group",
+    "namePlaceholder": "Group name",
+    "memberEmailPlaceholder": "Member email",
+    "members": "Members",
+    "groupPermission": "Group permission",
+    "level": "Level",
+    "subCal": "Sub-cal.",
+    "empty": "No groups created.",
+    "noMembers": "No members.",
+    "deleteTitle": "Delete group",
+    "deleteMsg": "Delete group \"{{name}}\"? Associated access will be lost.",
+    "toast": {
+      "memberAdded": "Member added",
+      "userNotFound": "User not found",
+      "deleteError": "Error deleting",
+      "permissionUpdated": "Permission updated",
+      "updateError": "Error updating",
+      "deleted": "Group deleted",
+      "groupDeleteError": "Error deleting",
+      "created": "Group created",
+      "createError": "Error creating"
+    }
+  },
+  "tags": {
+    "newTag": "New tag",
+    "namePlaceholder": "Tag name",
+    "empty": "No tags",
+    "deleteTitle": "Delete tag",
+    "deleteMsg": "Delete \"{{name}}\"? It will be removed from all events.",
+    "toast": {
+      "created": "Tag created",
+      "createError": "Error creating",
+      "updated": "Tag updated",
+      "updateError": "Error updating",
+      "deleted": "Tag deleted",
+      "deleteError": "Error deleting"
+    }
+  },
+  "superadminUsers": {
+    "user": "User",
+    "role": "Role",
+    "superadmin": "Superadmin",
+    "admin": "Admin",
+    "regularUser": "User",
+    "promote": "Promote to admin",
+    "revoke": "Revoke",
+    "empty": "No users.",
+    "toast": {
+      "promoted": "User promoted to admin",
+      "promoteError": "Error promoting",
+      "demoted": "Admin rights revoked",
+      "demoteError": "Error revoking"
+    }
+  },
+  "superadminCalendars": {
+    "calendar": "Calendar",
+    "owner": "Owner",
+    "empty": "No calendars.",
+    "deleteTitle": "Delete calendar",
+    "deleteMsg": "Delete \"{{title}}\"? This action is irreversible.",
+    "toast": {
+      "deleted": "Calendar deleted",
+      "deleteError": "Error deleting"
+    }
+  }
+}

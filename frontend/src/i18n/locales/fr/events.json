@@ -1,0 +1,37 @@
+{
+  "newEvent": "Nouvel événement",
+  "editEvent": "Modifier l'événement",
+  "eventDetails": "Détails de l'événement",
+  "titlePlaceholder": "Titre de l'événement",
+  "start": "Début",
+  "end": "Fin",
+  "allDay": "Toute la journée",
+  "locationPlaceholder": "Lieu (caverne, massif…)",
+  "whoPlaceholder": "Responsable (optionnel)",
+  "notesPlaceholder": "Notes, matériel nécessaire…",
+  "tags": "Étiquettes",
+  "recurrence": {
+    "none": "Aucune récurrence",
+    "daily": "Quotidien",
+    "weekly": "Hebdomadaire",
+    "monthly": "Mensuel",
+    "yearly": "Annuel"
+  },
+  "toast": {
+    "created": "Événement créé",
+    "updated": "Événement modifié",
+    "deleted": "Événement supprimé",
+    "createError": "Erreur lors de la création",
+    "updateError": "Erreur lors de la modification",
+    "deleteError": "Erreur lors de la suppression"
+  },
+  "deleteTitle": "Supprimer l'événement",
+  "deleteMsg": "Cette action est irréversible.",
+  "location": {
+    "searchPlaceholder": "Rechercher une adresse...",
+    "myPosition": "Ma position",
+    "openGoogleMaps": "Google Maps",
+    "openWaze": "Waze",
+    "geolocationError": "Impossible d'obtenir votre position"
+  }
+}

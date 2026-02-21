@@ -1,0 +1,135 @@
+{
+  "title": "Paramètres",
+  "notFound": "Calendrier introuvable",
+  "notFoundDetail": "L'identifiant \"{{slug}}\" n'existe pas.",
+  "accessDenied": "Accès refusé",
+  "accessDeniedDetail": "Vous n'avez pas les droits pour accéder aux paramètres.",
+  "backToCalendar": "Retour au calendrier",
+  "tabs": {
+    "general": "Général",
+    "links": "Liens",
+    "users": "Utilisateurs",
+    "groups": "Groupes",
+    "tags": "Étiquettes",
+    "superadminUsers": "Utilisateurs app",
+    "superadminCalendars": "Calendriers app"
+  },
+  "general": {
+    "calendarTitle": "Titre du calendrier",
+    "timezone": "Fuseau horaire",
+    "language": "Langue",
+    "weekStart": "Premier jour de la semaine",
+    "defaultView": "Vue par défaut",
+    "visibleTimeStart": "Heure de début visible",
+    "visibleTimeEnd": "Heure de fin visible",
+    "defaultDuration": "Durée par défaut (minutes)",
+    "showWeekends": "Afficher les week-ends",
+    "monday": "Lundi",
+    "sunday": "Dimanche",
+    "saved": "Paramètres enregistrés",
+    "saveError": "Erreur lors de la sauvegarde"
+  },
+  "links": {
+    "createTitle": "Créer un nouveau lien",
+    "labelPlaceholder": "Label (optionnel)",
+    "noLabel": "Sans label",
+    "permission": "Permission",
+    "subCalendar": "Sous-calendrier",
+    "createBtn": "Créer le lien",
+    "copied": "Lien copié !",
+    "empty": "Aucun lien d'accès créé.",
+    "deleteTitle": "Supprimer le lien",
+    "deleteMsg": "Les personnes utilisant ce lien perdront leur accès.",
+    "toast": {
+      "created": "Lien créé",
+      "createError": "Erreur lors de la création du lien",
+      "updateError": "Erreur lors de la mise à jour",
+      "deleted": "Lien supprimé",
+      "deleteError": "Erreur lors de la suppression"
+    },
+    "disable": "Désactiver",
+    "enable": "Activer",
+    "copyLink": "Copier le lien"
+  },
+  "users": {
+    "inviteTitle": "Inviter un utilisateur",
+    "emailPlaceholder": "adresse@email.com",
+    "permission": "Permission",
+    "subCalendar": "Sous-calendrier",
+    "empty": "Aucun utilisateur invité.",
+    "revokeTooltip": "Révoquer",
+    "toast": {
+      "invited": "Utilisateur invité",
+      "notFound": "Utilisateur introuvable ou déjà invité",
+      "updateError": "Erreur lors de la mise à jour",
+      "revoked": "Accès révoqué",
+      "revokeError": "Erreur lors de la révocation"
+    }
+  },
+  "groups": {
+    "createTitle": "Créer un groupe",
+    "namePlaceholder": "Nom du groupe",
+    "memberEmailPlaceholder": "Email du membre",
+    "members": "Membres",
+    "groupPermission": "Permission du groupe",
+    "level": "Niveau",
+    "subCal": "Sous-cal.",
+    "empty": "Aucun groupe créé.",
+    "noMembers": "Aucun membre.",
+    "deleteTitle": "Supprimer le groupe",
+    "deleteMsg": "Supprimer le groupe \"{{name}}\" ? Les accès associés seront perdus.",
+    "toast": {
+      "memberAdded": "Membre ajouté",
+      "userNotFound": "Utilisateur introuvable",
+      "deleteError": "Erreur lors de la suppression",
+      "permissionUpdated": "Permission mise à jour",
+      "updateError": "Erreur lors de la mise à jour",
+      "deleted": "Groupe supprimé",
+      "groupDeleteError": "Erreur lors de la suppression",
+      "created": "Groupe créé",
+      "createError": "Erreur lors de la création"
+    }
+  },
+  "tags": {
+    "newTag": "Nouvelle étiquette",
+    "namePlaceholder": "Nom de l'étiquette",
+    "empty": "Aucune étiquette",
+    "deleteTitle": "Supprimer l'étiquette",
+    "deleteMsg": "Supprimer \"{{name}}\" ? Elle sera retirée de tous les événements.",
+    "toast": {
+      "created": "Étiquette créée",
+      "createError": "Erreur lors de la création",
+      "updated": "Étiquette modifiée",
+      "updateError": "Erreur lors de la modification",
+      "deleted": "Étiquette supprimée",
+      "deleteError": "Erreur lors de la suppression"
+    }
+  },
+  "superadminUsers": {
+    "user": "Utilisateur",
+    "role": "Rôle",
+    "superadmin": "Superadmin",
+    "admin": "Admin",
+    "regularUser": "Utilisateur",
+    "promote": "Promouvoir admin",
+    "revoke": "Révoquer",
+    "empty": "Aucun utilisateur.",
+    "toast": {
+      "promoted": "Utilisateur promu admin",
+      "promoteError": "Erreur lors de la promotion",
+      "demoted": "Droits admin révoqués",
+      "demoteError": "Erreur lors de la révocation"
+    }
+  },
+  "superadminCalendars": {
+    "calendar": "Calendrier",
+    "owner": "Propriétaire",
+    "empty": "Aucun calendrier.",
+    "deleteTitle": "Supprimer le calendrier",
+    "deleteMsg": "Supprimer \"{{title}}\" ? Cette action est irréversible.",
+    "toast": {
+      "deleted": "Calendrier supprimé",
+      "deleteError": "Erreur lors de la suppression"
+    }
+  }
+}

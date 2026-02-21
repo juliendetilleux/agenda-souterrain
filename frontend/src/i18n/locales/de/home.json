@@ -1,0 +1,19 @@
+{
+  "myCalendars": "Meine Kalender",
+  "createCalendar": "Kalender erstellen",
+  "noCalendars": "Keine Kalender verfügbar",
+  "noCalendarsDetail": "Fragen Sie den Administrator nach einem Freigabelink, um auf einen Kalender zuzugreifen.",
+  "calendarCount": "{{count}} zugänglicher Kalender",
+  "calendarCount_other": "{{count}} zugängliche Kalender",
+  "newCalendar": {
+    "title": "Neuer Kalender",
+    "subtitle": "Geben Sie Ihrem Kalender einen Namen",
+    "titleLabel": "Titel",
+    "titlePlaceholder": "Höhlenforschungsverein Berg",
+    "submit": "Kalender erstellen",
+    "success": "Kalender erstellt!",
+    "error": "Fehler beim Erstellen",
+    "heroTitle": "Ein neues\nGelände zum\nErkunden.",
+    "heroDescription": "Erstellen Sie Ihren Kalender, laden Sie Ihr Team ein und organisieren Sie Ihre Höhlenforschungsausflüge mit Leichtigkeit."
+  }
+}

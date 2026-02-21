@@ -1,0 +1,37 @@
+{
+  "newEvent": "New event",
+  "editEvent": "Edit event",
+  "eventDetails": "Event details",
+  "titlePlaceholder": "Event title",
+  "start": "Start",
+  "end": "End",
+  "allDay": "All day",
+  "locationPlaceholder": "Location (cave, massif…)",
+  "whoPlaceholder": "Organiser (optional)",
+  "notesPlaceholder": "Notes, required equipment…",
+  "tags": "Tags",
+  "recurrence": {
+    "none": "No recurrence",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "yearly": "Yearly"
+  },
+  "toast": {
+    "created": "Event created",
+    "updated": "Event updated",
+    "deleted": "Event deleted",
+    "createError": "Error creating event",
+    "updateError": "Error updating event",
+    "deleteError": "Error deleting event"
+  },
+  "deleteTitle": "Delete event",
+  "deleteMsg": "This action is irreversible.",
+  "location": {
+    "searchPlaceholder": "Search for an address...",
+    "myPosition": "My position",
+    "openGoogleMaps": "Google Maps",
+    "openWaze": "Waze",
+    "geolocationError": "Unable to get your position"
+  }
+}

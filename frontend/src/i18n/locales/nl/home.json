@@ -1,0 +1,19 @@
+{
+  "myCalendars": "Mijn kalenders",
+  "createCalendar": "Kalender aanmaken",
+  "noCalendars": "Geen kalenders beschikbaar",
+  "noCalendarsDetail": "Vraag de beheerder om een deellink om toegang te krijgen tot een kalender.",
+  "calendarCount": "{{count}} toegankelijke kalender",
+  "calendarCount_other": "{{count}} toegankelijke kalenders",
+  "newCalendar": {
+    "title": "Nieuwe kalender",
+    "subtitle": "Geef uw kalender een naam",
+    "titleLabel": "Titel",
+    "titlePlaceholder": "Berg Speleo Club",
+    "submit": "Kalender aanmaken",
+    "success": "Kalender aangemaakt!",
+    "error": "Fout bij aanmaken",
+    "heroTitle": "Een nieuw\nterrein om\nte verkennen.",
+    "heroDescription": "Maak uw kalender aan, nodig uw team uit en organiseer uw speleologische uitstappen met gemak."
+  }
+}

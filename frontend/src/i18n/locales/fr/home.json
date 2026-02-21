@@ -1,0 +1,19 @@
+{
+  "myCalendars": "Mes calendriers",
+  "createCalendar": "Créer un calendrier",
+  "noCalendars": "Aucun calendrier disponible",
+  "noCalendarsDetail": "Demandez un lien de partage à l'administrateur pour accéder à un calendrier.",
+  "calendarCount": "{{count}} calendrier accessible",
+  "calendarCount_other": "{{count}} calendriers accessibles",
+  "newCalendar": {
+    "title": "Nouveau calendrier",
+    "subtitle": "Donnez un nom à votre calendrier",
+    "titleLabel": "Titre",
+    "titlePlaceholder": "Club Spéléo Montagne",
+    "submit": "Créer le calendrier",
+    "success": "Calendrier créé !",
+    "error": "Erreur lors de la création",
+    "heroTitle": "Un nouveau\nterrain à\nexplorer.",
+    "heroDescription": "Créez votre calendrier, invitez votre équipe et organisez vos sorties spéléologiques en toute simplicité."
+  }
+}

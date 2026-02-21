@@ -1,0 +1,19 @@
+{
+  "myCalendars": "My calendars",
+  "createCalendar": "Create a calendar",
+  "noCalendars": "No calendars available",
+  "noCalendarsDetail": "Ask the administrator for a share link to access a calendar.",
+  "calendarCount": "{{count}} accessible calendar",
+  "calendarCount_other": "{{count}} accessible calendars",
+  "newCalendar": {
+    "title": "New calendar",
+    "subtitle": "Give your calendar a name",
+    "titleLabel": "Title",
+    "titlePlaceholder": "Mountain Caving Club",
+    "submit": "Create calendar",
+    "success": "Calendar created!",
+    "error": "Error creating calendar",
+    "heroTitle": "A new\nterrain to\nexplore.",
+    "heroDescription": "Create your calendar, invite your team and organise your caving outings with ease."
+  }
+}

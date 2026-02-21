@@ -1,0 +1,36 @@
+{
+  "today": "Vandaag",
+  "previous": "Vorige",
+  "next": "Volgende",
+  "search": "Zoeken",
+  "searchPlaceholder": "Zoeken...",
+  "searching": "Zoeken...",
+  "exportIcal": "iCal exporteren",
+  "settings": "Instellingen",
+  "logout": "Uitloggen",
+  "event": "Evenement",
+  "menu": "Menu",
+  "views": {
+    "month": "Maand",
+    "week": "Week",
+    "day": "Dag",
+    "agenda": "Agenda",
+    "year": "Jaar"
+  },
+  "sidebar": {
+    "calendars": "Kalenders",
+    "tags": "Labels",
+    "collapse": "Inklappen",
+    "expand": "Zijbalk openen",
+    "closeSidebar": "Sluiten",
+    "addSubCalendar": "Subkalender toevoegen",
+    "namePlaceholder": "Naam...",
+    "subCalendarCreated": "Subkalender aangemaakt",
+    "deleteError": "Kan niet verwijderen",
+    "error": "Fout",
+    "deleteSubCalendarTitle": "Subkalender verwijderen",
+    "deleteSubCalendarMsg": "\"{{name}}\" en alle evenementen verwijderen?"
+  },
+  "dayLettersMon": ["M", "D", "W", "D", "V", "Z", "Z"],
+  "dayLettersSun": ["Z", "M", "D", "W", "D", "V", "Z"]
+}

@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import 'leaflet/dist/leaflet.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Base ─────────────────────────────────────────────────────────────────── */
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #f8f7f4; /* calcaire clair */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── FullCalendar — thème Agenda Souterrain ───────────────────────────────── */
+
+:root {
+  --fc-border-color: #e5e2d9;           /* grès clair */
+  --fc-today-bg-color: #fef3c7;         /* ambre très clair */
+  --fc-event-border-color: transparent;
+  --fc-page-bg-color: #f8f7f4;          /* calcaire */
+  --fc-neutral-bg-color: #f8f7f4;
+  --fc-list-event-hover-bg-color: #fef3c7;
+}
+
+/* En-têtes des colonnes (L M M J V S D) */
+.fc .fc-col-header-cell-cushion {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #78716c; /* stone-500 */
+  padding: 8px 4px;
+}
+
+/* Numéros de jours */
+.fc .fc-daygrid-day-number {
+  font-size: 0.8rem;
+  color: #44403c; /* stone-700 */
+  font-weight: 500;
+  padding: 4px 6px;
+}
+
+/* Jour actuel — cercle ambre */
+.fc .fc-day-today .fc-daygrid-day-number {
+  background: #f59e0b;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  margin: 2px;
+}
+
+/* Events */
+.fc-event {
+  cursor: pointer;
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  border: none !important;
+}
+
+.fc-event:hover {
+  filter: brightness(0.92);
+}
+
+/* Vue semaine/jour — labels d'heure */
+.fc .fc-timegrid-slot-label-cushion {
+  font-size: 0.72rem;
+  color: #a8a29e; /* stone-400 */
+  font-weight: 500;
+}
+
+/* Vue liste */
+.fc .fc-list-event-title a {
+  font-weight: 500;
+  color: #292524; /* stone-800 */
+}
+
+.fc .fc-list-day-cushion {
+  background-color: #f5f3ee;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #57534e; /* stone-600 */
+  letter-spacing: 0.04em;
+}
+
+/* Grille */
+.fc .fc-scrollgrid {
+  border-color: #e5e2d9 !important;
+}
+
+.fc td, .fc th {
+  border-color: #e5e2d9 !important;
+}
+
+/* Toolbar interne FC (cachée — on utilise notre propre Toolbar) */
+.fc .fc-toolbar {
+  display: none;
+}
+
+/* ─── Utilities ────────────────────────────────────────────────────────────── */
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "newEvent": "Neuer Termin",
+  "editEvent": "Termin bearbeiten",
+  "eventDetails": "Termindetails",
+  "titlePlaceholder": "Terminbezeichnung",
+  "start": "Beginn",
+  "end": "Ende",
+  "allDay": "Ganztägig",
+  "locationPlaceholder": "Ort (Höhle, Massiv…)",
+  "whoPlaceholder": "Verantwortlicher (optional)",
+  "notesPlaceholder": "Notizen, benötigte Ausrüstung…",
+  "tags": "Tags",
+  "recurrence": {
+    "none": "Keine Wiederholung",
+    "daily": "Täglich",
+    "weekly": "Wöchentlich",
+    "monthly": "Monatlich",
+    "yearly": "Jährlich"
+  },
+  "toast": {
+    "created": "Termin erstellt",
+    "updated": "Termin aktualisiert",
+    "deleted": "Termin gelöscht",
+    "createError": "Fehler beim Erstellen",
+    "updateError": "Fehler beim Aktualisieren",
+    "deleteError": "Fehler beim Löschen"
+  },
+  "deleteTitle": "Termin löschen",
+  "deleteMsg": "Diese Aktion ist unwiderruflich.",
+  "location": {
+    "searchPlaceholder": "Adresse suchen...",
+    "myPosition": "Mein Standort",
+    "openGoogleMaps": "Google Maps",
+    "openWaze": "Waze",
+    "geolocationError": "Standort konnte nicht ermittelt werden"
+  }
+}

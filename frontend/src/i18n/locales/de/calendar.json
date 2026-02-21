@@ -1,0 +1,36 @@
+{
+  "today": "Heute",
+  "previous": "Zurück",
+  "next": "Weiter",
+  "search": "Suchen",
+  "searchPlaceholder": "Suchen...",
+  "searching": "Suchen...",
+  "exportIcal": "iCal exportieren",
+  "settings": "Einstellungen",
+  "logout": "Abmelden",
+  "event": "Termin",
+  "menu": "Menü",
+  "views": {
+    "month": "Monat",
+    "week": "Woche",
+    "day": "Tag",
+    "agenda": "Agenda",
+    "year": "Jahr"
+  },
+  "sidebar": {
+    "calendars": "Kalender",
+    "tags": "Tags",
+    "collapse": "Einklappen",
+    "expand": "Seitenleiste öffnen",
+    "closeSidebar": "Schließen",
+    "addSubCalendar": "Unterkalender hinzufügen",
+    "namePlaceholder": "Name...",
+    "subCalendarCreated": "Unterkalender erstellt",
+    "deleteError": "Löschen nicht möglich",
+    "error": "Fehler",
+    "deleteSubCalendarTitle": "Unterkalender löschen",
+    "deleteSubCalendarMsg": "\"{{name}}\" und alle Termine löschen?"
+  },
+  "dayLettersMon": ["M", "D", "M", "D", "F", "S", "S"],
+  "dayLettersSun": ["S", "M", "D", "M", "D", "F", "S"]
+}
