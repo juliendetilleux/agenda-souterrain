@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = "http://localhost:5173"
     ADMIN_EMAIL: str = ""
     LIBRETRANSLATE_URL: str = "http://libretranslate:5000"
+    TRANSLATION_BACKEND: str = "libretranslate"  # "libretranslate", "mymemory", or "lingva"
     UPLOAD_DIR: str = "/app/uploads"
     MAX_FILE_SIZE_MB: int = 10
 
