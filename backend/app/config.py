@@ -27,6 +27,14 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = "/app/uploads"
     MAX_FILE_SIZE_MB: int = 10
 
+    # Storage backend: "local" (filesystem) or "r2" (Cloudflare R2)
+    STORAGE_BACKEND: str = "local"
+    R2_ENDPOINT: str = ""
+    R2_ACCESS_KEY: str = ""
+    R2_SECRET_KEY: str = ""
+    R2_BUCKET: str = ""
+    R2_PUBLIC_URL: str = ""
+
     class Config:
         env_file = ".env"
 

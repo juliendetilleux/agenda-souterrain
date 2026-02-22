@@ -2,7 +2,6 @@ import uuid
 import os
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Query
-from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -17,6 +16,7 @@ from app.utils.permissions import (
 )
 from app.services.translation import translate_text, SUPPORTED_LANGS
 from app.config import settings
+from app.services.storage import storage
 
 router = APIRouter(
     prefix="/calendars/{cal_id}/events/{event_id}",
@@ -240,13 +240,8 @@ async def upload_attachment(
     ext = os.path.splitext(file.filename or "file")[1]
     stored_filename = f"{uuid.uuid4().hex}{ext}"
 
-    # Ensure upload directory exists
-    os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
-
-    # Write file
-    file_path = os.path.join(settings.UPLOAD_DIR, stored_filename)
-    with open(file_path, "wb") as f:
-        f.write(content)
+    # Write file via storage backend
+    await storage.save(stored_filename, content)
 
     attachment = EventAttachment(
         event_id=event_id,
@@ -287,9 +282,7 @@ async def delete_attachment(
     if not can_modify(perm) and not is_own:
         raise HTTPException(status_code=403, detail="Acces refuse")
 
-    # Delete physical file
-    file_path = os.path.join(settings.UPLOAD_DIR, attachment.stored_filename)
-    if os.path.exists(file_path):
-        os.remove(file_path)
+    # Delete file via storage backend
+    await storage.delete(attachment.stored_filename)
 
     await db.delete(attachment)

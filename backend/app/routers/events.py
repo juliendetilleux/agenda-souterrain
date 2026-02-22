@@ -24,6 +24,7 @@ from app.utils.permissions import (
 )
 from app.services.translation import translate_text, SUPPORTED_LANGS
 from app.config import settings
+from app.services.storage import storage
 
 router = APIRouter(prefix="/calendars/{cal_id}/events", tags=["events"])
 
@@ -318,14 +319,12 @@ async def delete_event(
     if not can_modify(perm) and not (can_modify_own(perm) and is_own):
         raise HTTPException(status_code=403, detail="Accès refusé")
 
-    # Delete physical attachment files before cascade-deleting DB rows
+    # Delete attachment files before cascade-deleting DB rows
     att_result = await db.execute(
         select(EventAttachment).where(EventAttachment.event_id == event_id)
     )
     for att in att_result.scalars().all():
-        file_path = os.path.join(settings.UPLOAD_DIR, att.stored_filename)
-        if os.path.exists(file_path):
-            os.remove(file_path)
+        await storage.delete(att.stored_filename)
 
     await db.delete(event)
 
