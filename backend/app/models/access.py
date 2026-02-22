@@ -1,7 +1,7 @@
 import uuid
 import enum
 from datetime import datetime, timezone
-from sqlalchemy import String, Boolean, DateTime, ForeignKey, Enum as SAEnum, Table, Column
+from sqlalchemy import String, Boolean, DateTime, ForeignKey, Enum as SAEnum, Table, Column, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID
 from app.database import Base
@@ -69,3 +69,18 @@ class CalendarAccess(Base):
     user: Mapped["User"] = relationship("User", back_populates="access_entries")
     group: Mapped["Group"] = relationship("Group", back_populates="access_entries")
     link: Mapped["AccessLink"] = relationship("AccessLink", back_populates="access_entries")
+
+
+class PendingInvitation(Base):
+    __tablename__ = "pending_invitations"
+    __table_args__ = (
+        UniqueConstraint("calendar_id", "email", name="uq_pending_calendar_email"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    calendar_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("calendars.id", ondelete="CASCADE"), nullable=False)
+    email: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    permission: Mapped[Permission] = mapped_column(SAEnum(Permission), nullable=False, default=Permission.READ_ONLY)
+    sub_calendar_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("sub_calendars.id", ondelete="SET NULL"), nullable=True)
+    invited_by: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))

@@ -22,6 +22,7 @@ export interface CalendarConfig {
   visible_time_end: string
   default_event_duration: number
   show_weekends: boolean
+  enable_email_notifications: boolean
   created_at: string
 }
 
@@ -142,6 +143,22 @@ export interface MyPermission {
 export interface CalendarAdminItem extends CalendarConfig {
   owner_email: string
   owner_name: string
+}
+
+export interface InviteResult {
+  status: 'added' | 'pending'
+  email: string
+  permission: Permission
+  email_sent: boolean
+}
+
+export interface PendingInvitation {
+  id: string
+  calendar_id: string
+  email: string
+  permission: Permission
+  sub_calendar_id: string | null
+  created_at: string
 }
 
 export type CalendarView =

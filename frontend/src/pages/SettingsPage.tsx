@@ -179,7 +179,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Tab content */}
-        {activeTab === 'general' && <GeneralTab calendar={calendar} />}
+        {activeTab === 'general' && <GeneralTab calendar={calendar} isSuperadmin={isSuperadmin} />}
         {activeTab === 'links' && <LinksTab calendar={calendar} subCalendars={subCalendars} />}
         {activeTab === 'users' && <UsersTab calendar={calendar} subCalendars={subCalendars} />}
         {activeTab === 'groups' && <GroupsTab calendar={calendar} subCalendars={subCalendars} />}

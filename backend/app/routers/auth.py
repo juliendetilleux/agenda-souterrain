@@ -1,12 +1,16 @@
+import logging
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from app.database import get_db
 from app.models.user import User
+from app.models.access import PendingInvitation, CalendarAccess
 from app.schemas.user import UserCreate, UserLogin, UserOut, Token, TokenRefresh, make_user_out
 from app.utils.security import verify_password, get_password_hash, create_access_token, create_refresh_token, decode_token
 from app.routers.deps import get_current_user
 from app.rate_limit import limiter
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -26,6 +30,24 @@ async def register(request: Request, data: UserCreate, db: AsyncSession = Depend
     db.add(user)
     await db.flush()
     await db.refresh(user)
+
+    # Apply any pending invitations for this email
+    pending_result = await db.execute(
+        select(PendingInvitation).where(PendingInvitation.email == data.email)
+    )
+    pending_invitations = pending_result.scalars().all()
+    for inv in pending_invitations:
+        access = CalendarAccess(
+            calendar_id=inv.calendar_id,
+            user_id=user.id,
+            permission=inv.permission,
+            sub_calendar_id=inv.sub_calendar_id,
+        )
+        db.add(access)
+        await db.delete(inv)
+    if pending_invitations:
+        logger.info("Applied %d pending invitation(s) for %s", len(pending_invitations), data.email)
+
     return make_user_out(user)
 
 

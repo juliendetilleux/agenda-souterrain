@@ -7,6 +7,7 @@ import toast from 'react-hot-toast'
 
 interface Props {
   calendar: CalendarConfig
+  isSuperadmin?: boolean
 }
 
 const TIMEZONES = [
@@ -43,7 +44,7 @@ const VIEW_VALUES: { value: string; key: string }[] = [
   { value: 'year', key: 'views.year' },
 ]
 
-export default function GeneralTab({ calendar }: Props) {
+export default function GeneralTab({ calendar, isSuperadmin }: Props) {
   const { t } = useTranslation('settings')
   const { t: tc } = useTranslation('common')
   const { t: tCal } = useTranslation('calendar')
@@ -57,6 +58,7 @@ export default function GeneralTab({ calendar }: Props) {
   const [visibleTimeEnd, setVisibleTimeEnd] = useState(calendar.visible_time_end)
   const [defaultEventDuration, setDefaultEventDuration] = useState(calendar.default_event_duration)
   const [showWeekends, setShowWeekends] = useState(calendar.show_weekends)
+  const [emailNotifications, setEmailNotifications] = useState(calendar.enable_email_notifications)
 
   const updateMutation = useMutation({
     mutationFn: (data: Partial<CalendarConfig>) => calendarApi.update(calendar.id, data),
@@ -79,6 +81,7 @@ export default function GeneralTab({ calendar }: Props) {
       visible_time_end: visibleTimeEnd,
       default_event_duration: defaultEventDuration,
       show_weekends: showWeekends,
+      enable_email_notifications: emailNotifications,
     })
   }
 
@@ -195,6 +198,25 @@ export default function GeneralTab({ calendar }: Props) {
               </label>
             </div>
           </div>
+
+          {/* Email notifications — superadmin only */}
+          {isSuperadmin && (
+            <div className="border-t border-stone-100 pt-5">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={emailNotifications}
+                  onChange={(e) => setEmailNotifications(e.target.checked)}
+                  className="rounded"
+                  style={{ accentColor: '#f59e0b' }}
+                />
+                <div>
+                  <span className="text-sm text-stone-600 font-medium">{t('general.emailNotifications')}</span>
+                  <p className="text-xs text-stone-400">{t('general.emailNotificationsDesc')}</p>
+                </div>
+              </label>
+            </div>
+          )}
         </div>
 
         {/* Save button */}

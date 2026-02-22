@@ -2,7 +2,7 @@ import api from './client'
 import type {
   CalendarConfig, SubCalendar, CalendarEvent, EventSignup,
   AccessLink, CalendarAccess, Group, GroupMember, MyPermission, Permission, Tag,
-  EventComment, EventAttachment
+  EventComment, EventAttachment, InviteResult, PendingInvitation
 } from '../types'
 
 export const calendarApi = {
@@ -95,7 +95,13 @@ export const calendarApi = {
     api.get<CalendarAccess[]>(`/calendars/${calId}/access`).then((r) => r.data),
 
   inviteUser: (calId: string, data: { email: string; permission: Permission; sub_calendar_id?: string }) =>
-    api.post<CalendarAccess>(`/calendars/${calId}/invite`, data).then((r) => r.data),
+    api.post<InviteResult>(`/calendars/${calId}/invite`, data).then((r) => r.data),
+
+  getPendingInvitations: (calId: string) =>
+    api.get<PendingInvitation[]>(`/calendars/${calId}/pending-invitations`).then((r) => r.data),
+
+  deletePendingInvitation: (calId: string, invitationId: string) =>
+    api.delete(`/calendars/${calId}/pending-invitations/${invitationId}`),
 
   updateAccess: (calId: string, accessId: string, permission: Permission) =>
     api.put<CalendarAccess>(`/calendars/${calId}/access/${accessId}`, { permission }).then((r) => r.data),

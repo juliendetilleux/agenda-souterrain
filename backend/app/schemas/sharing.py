@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Literal
 from pydantic import BaseModel, EmailStr
 from app.models.access import Permission
 
@@ -95,3 +95,21 @@ class SetGroupAccess(BaseModel):
 class MyPermissionOut(BaseModel):
     permission: Permission
     is_owner: bool
+
+
+class InviteResult(BaseModel):
+    status: Literal["added", "pending"]
+    email: str
+    permission: Permission
+    email_sent: bool = False
+
+
+class PendingInvitationOut(BaseModel):
+    id: uuid.UUID
+    calendar_id: uuid.UUID
+    email: str
+    permission: Permission
+    sub_calendar_id: Optional[uuid.UUID] = None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}

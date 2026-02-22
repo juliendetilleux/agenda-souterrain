@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Trash2, Plus } from 'lucide-react'
+import { Trash2, Plus, Clock } from 'lucide-react'
 import { calendarApi } from '../../api/calendars'
 import { PERMISSION_LABELS, PERMISSION_COLORS } from '../../utils/permissions'
-import type { CalendarConfig, SubCalendar, Permission, CalendarAccess } from '../../types'
+import type { CalendarConfig, SubCalendar, Permission, CalendarAccess, PendingInvitation } from '../../types'
 import toast from 'react-hot-toast'
 
 const INVITE_PERMISSIONS: Permission[] = [
@@ -63,6 +63,11 @@ export default function UsersTab({ calendar, subCalendars }: Props) {
     queryFn: () => calendarApi.getAccessList(calendar.id),
   })
 
+  const { data: pendingInvitations = [] } = useQuery({
+    queryKey: ['pending-invitations', calendar.id],
+    queryFn: () => calendarApi.getPendingInvitations(calendar.id),
+  })
+
   const userAccesses: CalendarAccess[] = accesses.filter(
     (a) => a.user_id !== null && a.group_id === null && a.link_id === null
   )
@@ -74,14 +79,19 @@ export default function UsersTab({ calendar, subCalendars }: Props) {
         permission: perm,
         sub_calendar_id: subCal || undefined,
       }),
-    onSuccess: () => {
+    onSuccess: (result) => {
       qc.invalidateQueries({ queryKey: ['access', calendar.id] })
+      qc.invalidateQueries({ queryKey: ['pending-invitations', calendar.id] })
       setEmail('')
       setPerm('read_only')
       setSubCal('')
-      toast.success(t('users.toast.invited'))
+      if (result.status === 'pending') {
+        toast.success(t('users.toast.invitationSent'))
+      } else {
+        toast.success(t('users.toast.invited'))
+      }
     },
-    onError: () => toast.error(t('users.toast.notFound')),
+    onError: () => toast.error(t('users.toast.inviteError')),
   })
 
   const updateMutation = useMutation({
@@ -100,6 +110,15 @@ export default function UsersTab({ calendar, subCalendars }: Props) {
     onError: () => toast.error(t('users.toast.revokeError')),
   })
 
+  const deletePendingMutation = useMutation({
+    mutationFn: (invitationId: string) => calendarApi.deletePendingInvitation(calendar.id, invitationId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['pending-invitations', calendar.id] })
+      toast.success(t('users.toast.revoked'))
+    },
+    onError: () => toast.error(t('users.toast.revokeError')),
+  })
+
   const handleInvite = (e: React.FormEvent) => {
     e.preventDefault()
     if (!email.trim()) return
@@ -111,7 +130,7 @@ export default function UsersTab({ calendar, subCalendars }: Props) {
   return (
     <div className="space-y-4 pt-2">
       {/* User list */}
-      {userAccesses.length === 0 ? (
+      {userAccesses.length === 0 && pendingInvitations.length === 0 ? (
         <p className="text-sm text-stone-400 text-center py-6">{t('users.empty')}</p>
       ) : (
         <div className="space-y-2">
@@ -170,6 +189,36 @@ export default function UsersTab({ calendar, subCalendars }: Props) {
               </div>
             )
           })}
+
+          {/* Pending invitations */}
+          {pendingInvitations.map((inv: PendingInvitation) => (
+            <div
+              key={inv.id}
+              className="flex items-center gap-3 px-4 py-3 bg-amber-50/50 rounded-xl border border-amber-100
+                         transition-all duration-150"
+            >
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-amber-100 text-amber-600`}>
+                <Clock size={14} />
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-stone-800 truncate">{inv.email}</p>
+                <p className="text-xs text-amber-600 font-medium">{t('users.pending')}</p>
+              </div>
+
+              <span className={`text-xs px-2 py-1 rounded-lg font-semibold ${PERMISSION_COLORS[inv.permission]}`}>
+                {PERMISSION_LABELS[inv.permission]}
+              </span>
+
+              <button
+                onClick={() => deletePendingMutation.mutate(inv.id)}
+                title={t('users.revokeTooltip')}
+                className="p-1.5 rounded-lg hover:bg-red-50 text-stone-300 hover:text-red-500 transition-colors"
+              >
+                <Trash2 size={15} />
+              </button>
+            </div>
+          ))}
         </div>
       )}
 

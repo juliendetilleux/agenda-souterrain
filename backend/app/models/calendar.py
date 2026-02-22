@@ -22,6 +22,7 @@ class Calendar(Base):
     visible_time_end: Mapped[str] = mapped_column(String(5), default="24:00")
     default_event_duration: Mapped[int] = mapped_column(Integer, default=60)
     show_weekends: Mapped[bool] = mapped_column(Boolean, default=True)
+    enable_email_notifications: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
     owner: Mapped["User"] = relationship("User", back_populates="calendars", foreign_keys=[owner_id])

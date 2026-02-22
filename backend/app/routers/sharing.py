@@ -1,20 +1,25 @@
 import uuid
+import logging
 import secrets
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from app.database import get_db
 from app.models.user import User
 from app.models.calendar import Calendar
-from app.models.access import AccessLink, CalendarAccess, Group, group_members, Permission
+from app.models.access import AccessLink, CalendarAccess, Group, group_members, Permission, PendingInvitation
 from app.schemas.sharing import (
     AccessLinkCreate, AccessLinkUpdate, AccessLinkOut,
     CalendarAccessCreate, CalendarAccessOut, AccessUpdate,
     GroupCreate, GroupOut, GroupMemberOut,
     InviteUser, AddGroupMember, SetGroupAccess, MyPermissionOut,
+    InviteResult, PendingInvitationOut,
 )
 from app.routers.deps import get_current_user, get_optional_user, get_link_token, require_calendar_admin
 from app.utils.permissions import get_effective_permission, is_admin
+from app.services.email import send_invitation_email
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/calendars/{cal_id}", tags=["sharing"])
 
@@ -188,36 +193,117 @@ async def list_access(
     return out
 
 
-@router.post("/invite", response_model=CalendarAccessOut, status_code=201)
+@router.post("/invite", response_model=InviteResult, status_code=201)
 async def invite_user(
     cal_id: uuid.UUID,
     data: InviteUser,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    await _require_admin(cal_id, current_user, db)
-    target = await _find_user_by_email(data.email, db)
-    existing = await db.execute(
-        select(CalendarAccess).where(
-            CalendarAccess.calendar_id == cal_id,
-            CalendarAccess.user_id == target.id,
-            CalendarAccess.sub_calendar_id == data.sub_calendar_id,
+    cal = await _require_admin(cal_id, current_user, db)
+
+    # Check if the target user already has an account
+    result = await db.execute(select(User).where(User.email == data.email))
+    target = result.scalar_one_or_none()
+
+    email_sent = False
+
+    if target:
+        # User exists — create CalendarAccess directly
+        existing = await db.execute(
+            select(CalendarAccess).where(
+                CalendarAccess.calendar_id == cal_id,
+                CalendarAccess.user_id == target.id,
+                CalendarAccess.sub_calendar_id == data.sub_calendar_id,
+            )
         )
+        if existing.scalar_one_or_none():
+            raise HTTPException(status_code=409, detail="Cet utilisateur a déjà un accès")
+        access = CalendarAccess(
+            calendar_id=cal_id, user_id=target.id,
+            permission=data.permission, sub_calendar_id=data.sub_calendar_id,
+        )
+        db.add(access)
+        await db.flush()
+
+        if cal.enable_email_notifications:
+            email_sent = await send_invitation_email(
+                recipient_email=target.email,
+                recipient_name=target.name,
+                inviter_name=current_user.name or current_user.email,
+                calendar_title=cal.title,
+                permission=data.permission.value,
+                language=cal.language,
+                user_exists=True,
+            )
+
+        return InviteResult(
+            status="added", email=target.email,
+            permission=data.permission, email_sent=email_sent,
+        )
+    else:
+        # User does NOT exist — create PendingInvitation
+        existing = await db.execute(
+            select(PendingInvitation).where(
+                PendingInvitation.calendar_id == cal_id,
+                PendingInvitation.email == data.email,
+            )
+        )
+        if existing.scalar_one_or_none():
+            raise HTTPException(status_code=409, detail="Une invitation est déjà en attente pour cet email")
+        pending = PendingInvitation(
+            calendar_id=cal_id, email=data.email,
+            permission=data.permission, sub_calendar_id=data.sub_calendar_id,
+            invited_by=current_user.id,
+        )
+        db.add(pending)
+        await db.flush()
+
+        if cal.enable_email_notifications:
+            email_sent = await send_invitation_email(
+                recipient_email=data.email,
+                recipient_name=None,
+                inviter_name=current_user.name or current_user.email,
+                calendar_title=cal.title,
+                permission=data.permission.value,
+                language=cal.language,
+                user_exists=False,
+            )
+
+        return InviteResult(
+            status="pending", email=data.email,
+            permission=data.permission, email_sent=email_sent,
+        )
+
+
+@router.get("/pending-invitations", response_model=list[PendingInvitationOut])
+async def list_pending_invitations(
+    cal_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    await _require_admin(cal_id, current_user, db)
+    result = await db.execute(
+        select(PendingInvitation).where(PendingInvitation.calendar_id == cal_id)
     )
-    if existing.scalar_one_or_none():
-        raise HTTPException(status_code=409, detail="Cet utilisateur a déjà un accès")
-    access = CalendarAccess(
-        calendar_id=cal_id, user_id=target.id,
-        permission=data.permission, sub_calendar_id=data.sub_calendar_id,
+    return result.scalars().all()
+
+
+@router.delete("/pending-invitations/{invitation_id}", status_code=204)
+async def delete_pending_invitation(
+    cal_id: uuid.UUID,
+    invitation_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    await _require_admin(cal_id, current_user, db)
+    result = await db.execute(
+        select(PendingInvitation).where(PendingInvitation.id == invitation_id)
     )
-    db.add(access)
-    await db.flush()
-    await db.refresh(access)
-    return CalendarAccessOut(
-        id=access.id, sub_calendar_id=access.sub_calendar_id,
-        user_id=access.user_id, group_id=None, link_id=None,
-        permission=access.permission, user_email=target.email, user_name=target.name,
-    )
+    inv = result.scalar_one_or_none()
+    if not inv:
+        raise HTTPException(status_code=404, detail="Invitation introuvable")
+    await db.delete(inv)
 
 
 @router.put("/access/{access_id}", response_model=CalendarAccessOut)

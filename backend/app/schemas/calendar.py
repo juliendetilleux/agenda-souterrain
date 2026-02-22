@@ -38,6 +38,7 @@ class CalendarCreate(BaseModel):
     visible_time_end: str = "24:00"
     default_event_duration: int = 60
     show_weekends: bool = True
+    enable_email_notifications: bool = True
 
 
 class CalendarUpdate(BaseModel):
@@ -68,6 +69,7 @@ class CalendarUpdate(BaseModel):
     visible_time_end: Optional[str] = None
     default_event_duration: Optional[int] = None
     show_weekends: Optional[bool] = None
+    enable_email_notifications: Optional[bool] = None
 
 
 class CalendarOut(BaseModel):
@@ -84,6 +86,7 @@ class CalendarOut(BaseModel):
     visible_time_end: str
     default_event_duration: int
     show_weekends: bool
+    enable_email_notifications: bool
     created_at: datetime
 
     model_config = {"from_attributes": True}
