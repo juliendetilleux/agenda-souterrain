@@ -99,3 +99,91 @@ describe('auto timezone', () => {
     expect(tz.length).toBeGreaterThan(0)
   })
 })
+
+// ─── File size formatting ────────────────────────────────────────────────
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} o`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} Ko`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`
+}
+
+function isImage(mimeType: string): boolean {
+  return mimeType.startsWith('image/')
+}
+
+function isPdf(mimeType: string): boolean {
+  return mimeType === 'application/pdf'
+}
+
+describe('formatFileSize', () => {
+  it('formats bytes', () => {
+    expect(formatFileSize(500)).toBe('500 o')
+  })
+
+  it('formats kilobytes', () => {
+    expect(formatFileSize(2048)).toBe('2.0 Ko')
+  })
+
+  it('formats megabytes', () => {
+    expect(formatFileSize(5242880)).toBe('5.0 Mo')
+  })
+
+  it('formats zero', () => {
+    expect(formatFileSize(0)).toBe('0 o')
+  })
+})
+
+describe('file type detection', () => {
+  it('isImage detects jpeg', () => {
+    expect(isImage('image/jpeg')).toBe(true)
+  })
+
+  it('isImage rejects pdf', () => {
+    expect(isImage('application/pdf')).toBe(false)
+  })
+
+  it('isPdf detects pdf', () => {
+    expect(isPdf('application/pdf')).toBe(true)
+  })
+
+  it('isPdf rejects image', () => {
+    expect(isPdf('image/png')).toBe(false)
+  })
+})
+
+// ─── Chat translation helper ─────────────────────────────────────────────
+
+interface MockComment {
+  content: string
+  translations: Record<string, { content: string }> | null
+}
+
+function getTranslatedContent(
+  comment: MockComment,
+  targetLang: string,
+  sourceLang: string,
+): string {
+  if (targetLang === sourceLang) return comment.content
+  return comment.translations?.[targetLang]?.content ?? comment.content
+}
+
+describe('getTranslatedContent', () => {
+  it('returns original when same language', () => {
+    const comment: MockComment = { content: 'Bonjour', translations: null }
+    expect(getTranslatedContent(comment, 'fr', 'fr')).toBe('Bonjour')
+  })
+
+  it('returns translated when available', () => {
+    const comment: MockComment = {
+      content: 'Bonjour',
+      translations: { en: { content: 'Hello' } },
+    }
+    expect(getTranslatedContent(comment, 'en', 'fr')).toBe('Hello')
+  })
+
+  it('returns original when translation not available', () => {
+    const comment: MockComment = { content: 'Bonjour', translations: null }
+    expect(getTranslatedContent(comment, 'en', 'fr')).toBe('Bonjour')
+  })
+})

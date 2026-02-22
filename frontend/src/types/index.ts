@@ -76,6 +76,28 @@ export interface EventSignup {
   created_at: string
 }
 
+export interface EventComment {
+  id: string
+  event_id: string
+  user_id: string
+  user_name: string
+  content: string
+  translations: Record<string, { content: string }> | null
+  created_at: string
+}
+
+export interface EventAttachment {
+  id: string
+  event_id: string
+  user_id: string
+  user_name: string
+  original_filename: string
+  stored_filename: string
+  mime_type: string
+  file_size: number
+  created_at: string
+}
+
 export interface AccessLink {
   id: string
   calendar_id: string

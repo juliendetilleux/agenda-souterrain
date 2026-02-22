@@ -197,6 +197,7 @@ export default function CalendarGrid({ calendar, subCalendars, openNewEvent, onN
   return (
     <div className="flex-1 overflow-auto p-3">
       <FullCalendar
+        key={effectivePermission}
         ref={calRef}
         plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin, multiMonthPlugin, rrulePlugin]}
         initialView={currentView}

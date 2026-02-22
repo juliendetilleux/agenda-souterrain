@@ -8,9 +8,11 @@ import { useTranslation } from 'react-i18next'
 import { calendarApi } from '../../api/calendars'
 import { useCalendarStore } from '../../store/calendarStore'
 import { useAuthStore } from '../../store/authStore'
-import { canAdd, canModify, canModifyOwn } from '../../utils/permissions'
+import { canAdd, canModify, canModifyOwn, canRead } from '../../utils/permissions'
 import type { CalendarConfig, SubCalendar, CalendarEvent } from '../../types'
 import LocationPicker from './LocationPicker'
+import ChatSection from './ChatSection'
+import AttachmentSection from './AttachmentSection'
 import { getTranslatedTitle, getTranslatedNotes } from '../../hooks/useAutoTranslate'
 import toast from 'react-hot-toast'
 
@@ -53,6 +55,7 @@ export default function EventModal({
 
   const { confirmState, confirm, handleConfirm, handleCancel } = useConfirm()
   const [title, setTitle] = useState(event?.title ?? '')
+  const [titleEdited, setTitleEdited] = useState(false)
   const [subCalId, setSubCalId] = useState(
     event?.sub_calendar_id ?? subCalendars[0]?.id ?? ''
   )
@@ -79,6 +82,7 @@ export default function EventModal({
   const [latitude, setLatitude] = useState<number | null>(event?.latitude ?? null)
   const [longitude, setLongitude] = useState<number | null>(event?.longitude ?? null)
   const [notes, setNotes] = useState(event?.notes ?? '')
+  const [notesEdited, setNotesEdited] = useState(false)
   const [who, setWho] = useState(event?.who ?? '')
   const [rrule, setRrule] = useState(event?.rrule ?? '')
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
@@ -194,12 +198,17 @@ export default function EventModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={(e) => e.preventDefault()}
+          className="px-6 pb-6 space-y-4"
+        >
           {/* Title */}
           <input
             type="text"
-            value={!canEdit && event ? getTranslatedTitle(event, targetLang, sourceLang) : title}
-            onChange={(e) => setTitle(e.target.value)}
+            value={!titleEdited && !isNew && event ? getTranslatedTitle(event, targetLang, sourceLang) : title}
+            onChange={(e) => { setTitle(e.target.value); setTitleEdited(true) }}
             required
             readOnly={!canEdit}
             placeholder={t('titlePlaceholder')}
@@ -303,8 +312,8 @@ export default function EventModal({
             <div className="flex items-start gap-3">
               <FileText size={15} className="text-stone-400 flex-shrink-0 mt-2.5" />
               <textarea
-                value={!canEdit && event ? (getTranslatedNotes(event, targetLang, sourceLang) ?? '') : notes}
-                onChange={(e) => setNotes(e.target.value)}
+                value={!notesEdited && !isNew && event ? (getTranslatedNotes(event, targetLang, sourceLang) ?? '') : notes}
+                onChange={(e) => { setNotes(e.target.value); setNotesEdited(true) }}
                 readOnly={!canEdit}
                 placeholder={t('notesPlaceholder')}
                 rows={3}
@@ -366,6 +375,27 @@ export default function EventModal({
                 })}
               </div>
             </div>
+          )}
+
+          {/* Section 4: Attachments — only for existing events */}
+          {!isNew && event && canRead(effectivePermission) && (
+            <AttachmentSection
+              calendarId={calendar.id}
+              eventId={event.id}
+              canUpload={canAdd(effectivePermission)}
+              canModerate={canModify(effectivePermission)}
+            />
+          )}
+
+          {/* Section 5: Chat — only for existing events */}
+          {!isNew && event && canRead(effectivePermission) && (
+            <ChatSection
+              calendarId={calendar.id}
+              eventId={event.id}
+              sourceLang={sourceLang}
+              canPost={canAdd(effectivePermission)}
+              canModerate={canModify(effectivePermission)}
+            />
           )}
 
           {/* Actions */}

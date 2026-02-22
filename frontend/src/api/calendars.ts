@@ -1,7 +1,8 @@
 import api from './client'
 import type {
   CalendarConfig, SubCalendar, CalendarEvent, EventSignup,
-  AccessLink, CalendarAccess, Group, GroupMember, MyPermission, Permission, Tag
+  AccessLink, CalendarAccess, Group, GroupMember, MyPermission, Permission, Tag,
+  EventComment, EventAttachment
 } from '../types'
 
 export const calendarApi = {
@@ -146,6 +147,53 @@ export const calendarApi = {
         { params: { target_lang: targetLang, source_lang: sourceLang } }
       )
       .then((r) => r.data),
+
+  // ─── Comments ──────────────────────────────────────────────────────────
+  getComments: (calId: string, eventId: string) =>
+    api
+      .get<EventComment[]>(`/calendars/${calId}/events/${eventId}/comments`)
+      .then((r) => r.data),
+
+  createComment: (calId: string, eventId: string, content: string) =>
+    api
+      .post<EventComment>(`/calendars/${calId}/events/${eventId}/comments`, { content })
+      .then((r) => r.data),
+
+  deleteComment: (calId: string, eventId: string, commentId: string) =>
+    api.delete(`/calendars/${calId}/events/${eventId}/comments/${commentId}`),
+
+  translateComment: (
+    calId: string, eventId: string, commentId: string,
+    targetLang: string, sourceLang = 'fr'
+  ) =>
+    api
+      .post<{ content: string }>(
+        `/calendars/${calId}/events/${eventId}/comments/${commentId}/translate`,
+        null,
+        { params: { target_lang: targetLang, source_lang: sourceLang } }
+      )
+      .then((r) => r.data),
+
+  // ─── Attachments ───────────────────────────────────────────────────────
+  getAttachments: (calId: string, eventId: string) =>
+    api
+      .get<EventAttachment[]>(`/calendars/${calId}/events/${eventId}/attachments`)
+      .then((r) => r.data),
+
+  uploadAttachment: (calId: string, eventId: string, file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return api
+      .post<EventAttachment>(
+        `/calendars/${calId}/events/${eventId}/attachments`,
+        formData,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+      )
+      .then((r) => r.data)
+  },
+
+  deleteAttachment: (calId: string, eventId: string, attachmentId: string) =>
+    api.delete(`/calendars/${calId}/events/${eventId}/attachments/${attachmentId}`),
 
   // ─── Export iCal ─────────────────────────────────────────────────────────
   exportIcal: async (calId: string) => {

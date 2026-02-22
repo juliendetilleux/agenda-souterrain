@@ -33,5 +33,20 @@
     "openGoogleMaps": "Google Maps",
     "openWaze": "Waze",
     "geolocationError": "Unable to get your position"
+  },
+  "chat": {
+    "title": "Discussion",
+    "empty": "No messages",
+    "placeholder": "Write a message...",
+    "sendError": "Error sending message",
+    "deleteError": "Error deleting message"
+  },
+  "attachments": {
+    "title": "Attachments",
+    "dropOrClick": "Drop a file or click to choose",
+    "uploaded": "File uploaded",
+    "deleted": "File deleted",
+    "uploadError": "Error uploading file",
+    "deleteError": "Error deleting file"
   }
 }

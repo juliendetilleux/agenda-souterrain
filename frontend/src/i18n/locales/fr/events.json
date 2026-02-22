@@ -33,5 +33,20 @@
     "openGoogleMaps": "Google Maps",
     "openWaze": "Waze",
     "geolocationError": "Impossible d'obtenir votre position"
+  },
+  "chat": {
+    "title": "Discussion",
+    "empty": "Aucun message",
+    "placeholder": "Ecrire un message...",
+    "sendError": "Erreur lors de l'envoi",
+    "deleteError": "Erreur lors de la suppression du message"
+  },
+  "attachments": {
+    "title": "Fichiers joints",
+    "dropOrClick": "Deposer un fichier ou cliquer pour choisir",
+    "uploaded": "Fichier ajoute",
+    "deleted": "Fichier supprime",
+    "uploadError": "Erreur lors de l'envoi du fichier",
+    "deleteError": "Erreur lors de la suppression du fichier"
   }
 }

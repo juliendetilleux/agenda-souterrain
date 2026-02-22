@@ -608,3 +608,283 @@ async def test_update_event_tags(auth_client):
     await client.delete(f"/v1/calendars/{cal_id}/events/{ev_id}", headers=headers)
     await client.delete(f"/v1/calendars/{cal_id}/tags/{tag_a_id}", headers=headers)
     await client.delete(f"/v1/calendars/{cal_id}/tags/{tag_b_id}", headers=headers)
+
+
+# ─── Comments ──────────────────────────────────────────────────────────────
+
+async def _create_test_event(client, headers, cal_id, sc_id):
+    """Helper to create a test event and return its id."""
+    resp = await client.post(
+        f"/v1/calendars/{cal_id}/events",
+        headers=headers,
+        json={
+            "sub_calendar_id": sc_id,
+            "title": "Comment Test Event",
+            "start_dt": "2025-08-01T10:00:00",
+            "end_dt": "2025-08-01T11:00:00",
+        },
+    )
+    assert resp.status_code == 201
+    return resp.json()["id"]
+
+
+@pytest.mark.asyncio
+async def test_create_comment(auth_client):
+    client, headers, cal_id, sc_id = auth_client
+    ev_id = await _create_test_event(client, headers, cal_id, sc_id)
+
+    resp = await client.post(
+        f"/v1/calendars/{cal_id}/events/{ev_id}/comments",
+        headers=headers,
+        json={"content": "Hello from test"},
+    )
+    assert resp.status_code == 201
+    data = resp.json()
+    assert data["content"] == "Hello from test"
+    assert "user_name" in data
+
+    await client.delete(f"/v1/calendars/{cal_id}/events/{ev_id}", headers=headers)
+
+
+@pytest.mark.asyncio
+async def test_list_comments(auth_client):
+    client, headers, cal_id, sc_id = auth_client
+    ev_id = await _create_test_event(client, headers, cal_id, sc_id)
+
+    await client.post(
+        f"/v1/calendars/{cal_id}/events/{ev_id}/comments",
+        headers=headers,
+        json={"content": "Comment 1"},
+    )
+    resp = await client.get(
+        f"/v1/calendars/{cal_id}/events/{ev_id}/comments",
+        headers=headers,
+    )
+    assert resp.status_code == 200
+    comments = resp.json()
+    assert len(comments) >= 1
+    assert any(c["content"] == "Comment 1" for c in comments)
+
+    await client.delete(f"/v1/calendars/{cal_id}/events/{ev_id}", headers=headers)
+
+
+@pytest.mark.asyncio
+async def test_list_comments_empty(auth_client):
+    client, headers, cal_id, sc_id = auth_client
+    ev_id = await _create_test_event(client, headers, cal_id, sc_id)
+
+    resp = await client.get(
+        f"/v1/calendars/{cal_id}/events/{ev_id}/comments",
+        headers=headers,
+    )
+    assert resp.status_code == 200
+    assert resp.json() == []
+
+    await client.delete(f"/v1/calendars/{cal_id}/events/{ev_id}", headers=headers)
+
+
+@pytest.mark.asyncio
+async def test_delete_own_comment(auth_client):
+    client, headers, cal_id, sc_id = auth_client
+    ev_id = await _create_test_event(client, headers, cal_id, sc_id)
+
+    create_resp = await client.post(
+        f"/v1/calendars/{cal_id}/events/{ev_id}/comments",
+        headers=headers,
+        json={"content": "To delete"},
+    )
+    comment_id = create_resp.json()["id"]
+
+    resp = await client.delete(
+        f"/v1/calendars/{cal_id}/events/{ev_id}/comments/{comment_id}",
+        headers=headers,
+    )
+    assert resp.status_code == 204
+
+    await client.delete(f"/v1/calendars/{cal_id}/events/{ev_id}", headers=headers)
+
+
+@pytest.mark.asyncio
+async def test_delete_comment_not_found(auth_client):
+    client, headers, cal_id, sc_id = auth_client
+    ev_id = await _create_test_event(client, headers, cal_id, sc_id)
+
+    fake_id = str(uuid.uuid4())
+    resp = await client.delete(
+        f"/v1/calendars/{cal_id}/events/{ev_id}/comments/{fake_id}",
+        headers=headers,
+    )
+    assert resp.status_code == 404
+
+    await client.delete(f"/v1/calendars/{cal_id}/events/{ev_id}", headers=headers)
+
+
+@pytest.mark.asyncio
+async def test_create_comment_unauthenticated(auth_client):
+    client, headers, cal_id, sc_id = auth_client
+    ev_id = await _create_test_event(client, headers, cal_id, sc_id)
+
+    resp = await client.post(
+        f"/v1/calendars/{cal_id}/events/{ev_id}/comments",
+        json={"content": "No auth"},
+    )
+    assert resp.status_code == 401
+
+    await client.delete(f"/v1/calendars/{cal_id}/events/{ev_id}", headers=headers)
+
+
+@pytest.mark.asyncio
+async def test_create_comment_empty(auth_client):
+    client, headers, cal_id, sc_id = auth_client
+    ev_id = await _create_test_event(client, headers, cal_id, sc_id)
+
+    resp = await client.post(
+        f"/v1/calendars/{cal_id}/events/{ev_id}/comments",
+        headers=headers,
+        json={"content": ""},
+    )
+    assert resp.status_code == 422
+
+    await client.delete(f"/v1/calendars/{cal_id}/events/{ev_id}", headers=headers)
+
+
+# ─── Attachments ───────────────────────────────────────────────────────────
+
+@pytest.mark.asyncio
+async def test_upload_attachment(auth_client):
+    client, headers, cal_id, sc_id = auth_client
+    ev_id = await _create_test_event(client, headers, cal_id, sc_id)
+
+    resp = await client.post(
+        f"/v1/calendars/{cal_id}/events/{ev_id}/attachments",
+        headers=headers,
+        files={"file": ("test.txt", b"Hello file content", "text/plain")},
+    )
+    assert resp.status_code == 201
+    data = resp.json()
+    assert data["original_filename"] == "test.txt"
+    assert data["mime_type"] == "text/plain"
+    assert data["file_size"] == len(b"Hello file content")
+
+    await client.delete(f"/v1/calendars/{cal_id}/events/{ev_id}", headers=headers)
+
+
+@pytest.mark.asyncio
+async def test_list_attachments(auth_client):
+    client, headers, cal_id, sc_id = auth_client
+    ev_id = await _create_test_event(client, headers, cal_id, sc_id)
+
+    await client.post(
+        f"/v1/calendars/{cal_id}/events/{ev_id}/attachments",
+        headers=headers,
+        files={"file": ("doc.txt", b"content", "text/plain")},
+    )
+    resp = await client.get(
+        f"/v1/calendars/{cal_id}/events/{ev_id}/attachments",
+        headers=headers,
+    )
+    assert resp.status_code == 200
+    attachments = resp.json()
+    assert len(attachments) >= 1
+    assert any(a["original_filename"] == "doc.txt" for a in attachments)
+
+    await client.delete(f"/v1/calendars/{cal_id}/events/{ev_id}", headers=headers)
+
+
+@pytest.mark.asyncio
+async def test_list_attachments_empty(auth_client):
+    client, headers, cal_id, sc_id = auth_client
+    ev_id = await _create_test_event(client, headers, cal_id, sc_id)
+
+    resp = await client.get(
+        f"/v1/calendars/{cal_id}/events/{ev_id}/attachments",
+        headers=headers,
+    )
+    assert resp.status_code == 200
+    assert resp.json() == []
+
+    await client.delete(f"/v1/calendars/{cal_id}/events/{ev_id}", headers=headers)
+
+
+@pytest.mark.asyncio
+async def test_download_attachment(auth_client):
+    client, headers, cal_id, sc_id = auth_client
+    ev_id = await _create_test_event(client, headers, cal_id, sc_id)
+
+    upload_resp = await client.post(
+        f"/v1/calendars/{cal_id}/events/{ev_id}/attachments",
+        headers=headers,
+        files={"file": ("download.txt", b"download me", "text/plain")},
+    )
+    stored = upload_resp.json()["stored_filename"]
+
+    resp = await client.get(f"/v1/uploads/{stored}")
+    assert resp.status_code == 200
+    assert resp.content == b"download me"
+
+    await client.delete(f"/v1/calendars/{cal_id}/events/{ev_id}", headers=headers)
+
+
+@pytest.mark.asyncio
+async def test_delete_own_attachment(auth_client):
+    client, headers, cal_id, sc_id = auth_client
+    ev_id = await _create_test_event(client, headers, cal_id, sc_id)
+
+    upload_resp = await client.post(
+        f"/v1/calendars/{cal_id}/events/{ev_id}/attachments",
+        headers=headers,
+        files={"file": ("del.txt", b"delete me", "text/plain")},
+    )
+    att_id = upload_resp.json()["id"]
+
+    resp = await client.delete(
+        f"/v1/calendars/{cal_id}/events/{ev_id}/attachments/{att_id}",
+        headers=headers,
+    )
+    assert resp.status_code == 204
+
+    await client.delete(f"/v1/calendars/{cal_id}/events/{ev_id}", headers=headers)
+
+
+@pytest.mark.asyncio
+async def test_delete_attachment_not_found(auth_client):
+    client, headers, cal_id, sc_id = auth_client
+    ev_id = await _create_test_event(client, headers, cal_id, sc_id)
+
+    fake_id = str(uuid.uuid4())
+    resp = await client.delete(
+        f"/v1/calendars/{cal_id}/events/{ev_id}/attachments/{fake_id}",
+        headers=headers,
+    )
+    assert resp.status_code == 404
+
+    await client.delete(f"/v1/calendars/{cal_id}/events/{ev_id}", headers=headers)
+
+
+@pytest.mark.asyncio
+async def test_upload_unauthenticated(auth_client):
+    client, headers, cal_id, sc_id = auth_client
+    ev_id = await _create_test_event(client, headers, cal_id, sc_id)
+
+    resp = await client.post(
+        f"/v1/calendars/{cal_id}/events/{ev_id}/attachments",
+        files={"file": ("noauth.txt", b"no auth", "text/plain")},
+    )
+    assert resp.status_code == 401
+
+    await client.delete(f"/v1/calendars/{cal_id}/events/{ev_id}", headers=headers)
+
+
+@pytest.mark.asyncio
+async def test_upload_invalid_mime_type(auth_client):
+    client, headers, cal_id, sc_id = auth_client
+    ev_id = await _create_test_event(client, headers, cal_id, sc_id)
+
+    resp = await client.post(
+        f"/v1/calendars/{cal_id}/events/{ev_id}/attachments",
+        headers=headers,
+        files={"file": ("malware.exe", b"evil content", "application/x-msdownload")},
+    )
+    assert resp.status_code == 400
+
+    await client.delete(f"/v1/calendars/{cal_id}/events/{ev_id}", headers=headers)

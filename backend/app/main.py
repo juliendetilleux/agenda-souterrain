@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.database import get_db
 from app.rate_limit import limiter
-from app.routers import auth, calendars, sub_calendars, events, sharing, admin, tags
+from app.routers import auth, calendars, sub_calendars, events, sharing, admin, tags, comments, uploads
 
 app = FastAPI(title="Agenda Souterrain API", version="1.0.0", docs_url="/docs")
 
@@ -31,6 +31,8 @@ app.include_router(events.router, prefix="/v1")
 app.include_router(sharing.router, prefix="/v1")
 app.include_router(tags.router, prefix="/v1")
 app.include_router(admin.router, prefix="/v1")
+app.include_router(comments.router, prefix="/v1")
+app.include_router(uploads.router, prefix="/v1")
 
 
 @app.get("/")

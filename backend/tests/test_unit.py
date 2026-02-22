@@ -9,6 +9,7 @@ from app.schemas.event import EventCreate, EventUpdate, SignupCreate
 from app.schemas.calendar import CalendarCreate
 from app.schemas.sub_calendar import SubCalendarCreate, SubCalendarUpdate
 from app.schemas.tag import TagCreate, TagUpdate
+from app.schemas.comment import CommentCreate, CommentOut, AttachmentOut
 
 
 # ─── Password policy (Phase 1.3) ──────────────────────────────────────────
@@ -237,3 +238,50 @@ def test_event_update_tag_ids():
     tag_id = uuid.uuid4()
     eu = EventUpdate(tag_ids=[tag_id])
     assert eu.tag_ids == [tag_id]
+
+
+# ─── Comment & Attachment schemas ─────────────────────────────────────────
+
+def test_comment_create_valid():
+    c = CommentCreate(content="Hello world")
+    assert c.content == "Hello world"
+
+
+def test_comment_create_empty():
+    with pytest.raises(ValidationError, match="vide"):
+        CommentCreate(content="")
+
+
+def test_comment_create_whitespace():
+    with pytest.raises(ValidationError, match="vide"):
+        CommentCreate(content="   ")
+
+
+def test_comment_out_model():
+    c = CommentOut(
+        id=uuid.uuid4(),
+        event_id=uuid.uuid4(),
+        user_id=uuid.uuid4(),
+        user_name="Test User",
+        content="Hello",
+        translations={"en": {"content": "Hello"}},
+        created_at=datetime(2026, 1, 1, 12, 0),
+    )
+    assert c.user_name == "Test User"
+    assert c.translations["en"]["content"] == "Hello"
+
+
+def test_attachment_out_model():
+    a = AttachmentOut(
+        id=uuid.uuid4(),
+        event_id=uuid.uuid4(),
+        user_id=uuid.uuid4(),
+        user_name="Test User",
+        original_filename="photo.jpg",
+        stored_filename="abc123.jpg",
+        mime_type="image/jpeg",
+        file_size=1024,
+        created_at=datetime(2026, 1, 1, 12, 0),
+    )
+    assert a.original_filename == "photo.jpg"
+    assert a.file_size == 1024

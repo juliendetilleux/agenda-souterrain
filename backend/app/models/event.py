@@ -42,6 +42,13 @@ class Event(Base):
     tags: Mapped[list["Tag"]] = relationship(
         "Tag", secondary="event_tags", back_populates="events"
     )
+    comments: Mapped[list["EventComment"]] = relationship(
+        "EventComment", back_populates="event", cascade="all, delete-orphan",
+        order_by="EventComment.created_at"
+    )
+    attachments: Mapped[list["EventAttachment"]] = relationship(
+        "EventAttachment", back_populates="event", cascade="all, delete-orphan"
+    )
 
 
 class EventSignup(Base):

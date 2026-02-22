@@ -33,5 +33,20 @@
     "openGoogleMaps": "Google Maps",
     "openWaze": "Waze",
     "geolocationError": "Standort konnte nicht ermittelt werden"
+  },
+  "chat": {
+    "title": "Diskussion",
+    "empty": "Keine Nachrichten",
+    "placeholder": "Nachricht schreiben...",
+    "sendError": "Fehler beim Senden",
+    "deleteError": "Fehler beim Löschen der Nachricht"
+  },
+  "attachments": {
+    "title": "Anhänge",
+    "dropOrClick": "Datei ablegen oder klicken zum Auswählen",
+    "uploaded": "Datei hochgeladen",
+    "deleted": "Datei gelöscht",
+    "uploadError": "Fehler beim Hochladen",
+    "deleteError": "Fehler beim Löschen der Datei"
   }
 }

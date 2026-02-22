@@ -489,3 +489,213 @@ test('17. Assigner une étiquette à un événement', async ({ page }) => {
   }
   console.log('✅ Tags nettoyés via API')
 })
+
+
+// ─── 18. COMMENTAIRES ───────────────────────────────────────────────────────
+
+test('18. Ajouter un commentaire sur un événement', async ({ page }) => {
+  await goToCalendar(page)
+
+  // Create event via API
+  const BASE = 'http://localhost:8000/v1'
+  const loginRes = await fetch(BASE + '/auth/login', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: TEST_EMAIL, password: TEST_PASSWORD }),
+  })
+  const { access_token: jwt } = await loginRes.json()
+  const calRes = await fetch(BASE + '/calendars/slug/' + TEST_SLUG, { headers: { Authorization: 'Bearer ' + jwt } })
+  const cal = await calRes.json()
+  const scRes = await fetch(BASE + '/calendars/' + cal.id + '/subcalendars', { headers: { Authorization: 'Bearer ' + jwt } })
+  const scs = await scRes.json()
+
+  const evRes = await fetch(BASE + '/calendars/' + cal.id + '/events', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + jwt },
+    body: JSON.stringify({
+      sub_calendar_id: scs[0].id,
+      title: 'Chat Test Event',
+      start_dt: new Date().toISOString().slice(0, 10) + 'T10:00:00',
+      end_dt: new Date().toISOString().slice(0, 10) + 'T11:00:00',
+    }),
+  })
+  const ev = await evRes.json()
+
+  // Reload calendar and click event
+  await page.reload()
+  await page.waitForSelector('.fc', { timeout: 10000 })
+  await page.getByText('Chat Test Event').first().click()
+  await expect(page.getByText('Discussion')).toBeVisible({ timeout: 5000 })
+
+  // Type and send a comment
+  await page.getByPlaceholder('Ecrire un message...').fill('Bonjour depuis E2E')
+  await page.locator('button:has(svg.lucide-send)').click()
+
+  // Verify the comment appears
+  await expect(page.getByText('Bonjour depuis E2E')).toBeVisible({ timeout: 5000 })
+  console.log('✅ Commentaire ajouté')
+
+  // Cleanup
+  await fetch(BASE + '/calendars/' + cal.id + '/events/' + ev.id, { method: 'DELETE', headers: { Authorization: 'Bearer ' + jwt } })
+})
+
+
+// ─── 19. FICHIERS JOINTS ────────────────────────────────────────────────────
+
+test('19. Uploader un fichier sur un événement', async ({ page }) => {
+  await goToCalendar(page)
+
+  // Create event via API
+  const BASE = 'http://localhost:8000/v1'
+  const loginRes = await fetch(BASE + '/auth/login', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: TEST_EMAIL, password: TEST_PASSWORD }),
+  })
+  const { access_token: jwt } = await loginRes.json()
+  const calRes = await fetch(BASE + '/calendars/slug/' + TEST_SLUG, { headers: { Authorization: 'Bearer ' + jwt } })
+  const cal = await calRes.json()
+  const scRes = await fetch(BASE + '/calendars/' + cal.id + '/subcalendars', { headers: { Authorization: 'Bearer ' + jwt } })
+  const scs = await scRes.json()
+
+  const evRes = await fetch(BASE + '/calendars/' + cal.id + '/events', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + jwt },
+    body: JSON.stringify({
+      sub_calendar_id: scs[0].id,
+      title: 'Upload Test Event',
+      start_dt: new Date().toISOString().slice(0, 10) + 'T10:00:00',
+      end_dt: new Date().toISOString().slice(0, 10) + 'T11:00:00',
+    }),
+  })
+  const ev = await evRes.json()
+
+  // Reload and click event
+  await page.reload()
+  await page.waitForSelector('.fc', { timeout: 10000 })
+  await page.getByText('Upload Test Event').first().click()
+  await expect(page.getByText('Fichiers joints')).toBeVisible({ timeout: 5000 })
+
+  // Upload a file
+  const fileInput = page.locator('input[type="file"]')
+  await fileInput.setInputFiles({
+    name: 'test-file.txt',
+    mimeType: 'text/plain',
+    buffer: Buffer.from('Hello from E2E test'),
+  })
+
+  // Verify upload toast and file in list
+  await expect(page.getByText('Fichier ajoute')).toBeVisible({ timeout: 5000 })
+  await expect(page.getByText('test-file.txt')).toBeVisible({ timeout: 5000 })
+  console.log('✅ Fichier uploadé')
+
+  // Cleanup
+  await fetch(BASE + '/calendars/' + cal.id + '/events/' + ev.id, { method: 'DELETE', headers: { Authorization: 'Bearer ' + jwt } })
+})
+
+
+// ─── 20. SUPPRIMER UN COMMENTAIRE ───────────────────────────────────────────
+
+test('20. Supprimer un commentaire', async ({ page }) => {
+  await goToCalendar(page)
+
+  // Create event + comment via API
+  const BASE = 'http://localhost:8000/v1'
+  const loginRes = await fetch(BASE + '/auth/login', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: TEST_EMAIL, password: TEST_PASSWORD }),
+  })
+  const { access_token: jwt } = await loginRes.json()
+  const calRes = await fetch(BASE + '/calendars/slug/' + TEST_SLUG, { headers: { Authorization: 'Bearer ' + jwt } })
+  const cal = await calRes.json()
+  const scRes = await fetch(BASE + '/calendars/' + cal.id + '/subcalendars', { headers: { Authorization: 'Bearer ' + jwt } })
+  const scs = await scRes.json()
+
+  const evRes = await fetch(BASE + '/calendars/' + cal.id + '/events', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + jwt },
+    body: JSON.stringify({
+      sub_calendar_id: scs[0].id,
+      title: 'Delete Comment Test',
+      start_dt: new Date().toISOString().slice(0, 10) + 'T10:00:00',
+      end_dt: new Date().toISOString().slice(0, 10) + 'T11:00:00',
+    }),
+  })
+  const ev = await evRes.json()
+
+  // Create comment via API
+  await fetch(BASE + '/calendars/' + cal.id + '/events/' + ev.id + '/comments', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + jwt },
+    body: JSON.stringify({ content: 'To be deleted' }),
+  })
+
+  // Open event
+  await page.reload()
+  await page.waitForSelector('.fc', { timeout: 10000 })
+  await page.getByText('Delete Comment Test').first().click()
+  await expect(page.getByText('To be deleted')).toBeVisible({ timeout: 5000 })
+
+  // Hover and click delete
+  const commentEl = page.locator('.group:has-text("To be deleted")')
+  await commentEl.hover()
+  await commentEl.locator('button:has(svg.lucide-trash-2)').click()
+
+  // Verify comment is gone
+  await expect(page.getByText('To be deleted')).not.toBeVisible({ timeout: 5000 })
+  console.log('✅ Commentaire supprimé')
+
+  // Cleanup
+  await fetch(BASE + '/calendars/' + cal.id + '/events/' + ev.id, { method: 'DELETE', headers: { Authorization: 'Bearer ' + jwt } })
+})
+
+
+// ─── 21. SUPPRIMER UN FICHIER JOINT ─────────────────────────────────────────
+
+test('21. Supprimer un fichier joint', async ({ page }) => {
+  await goToCalendar(page)
+
+  // Create event + attachment via API
+  const BASE = 'http://localhost:8000/v1'
+  const loginRes = await fetch(BASE + '/auth/login', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: TEST_EMAIL, password: TEST_PASSWORD }),
+  })
+  const { access_token: jwt } = await loginRes.json()
+  const calRes = await fetch(BASE + '/calendars/slug/' + TEST_SLUG, { headers: { Authorization: 'Bearer ' + jwt } })
+  const cal = await calRes.json()
+  const scRes = await fetch(BASE + '/calendars/' + cal.id + '/subcalendars', { headers: { Authorization: 'Bearer ' + jwt } })
+  const scs = await scRes.json()
+
+  const evRes = await fetch(BASE + '/calendars/' + cal.id + '/events', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + jwt },
+    body: JSON.stringify({
+      sub_calendar_id: scs[0].id,
+      title: 'Delete File Test',
+      start_dt: new Date().toISOString().slice(0, 10) + 'T10:00:00',
+      end_dt: new Date().toISOString().slice(0, 10) + 'T11:00:00',
+    }),
+  })
+  const ev = await evRes.json()
+
+  // Upload file via API (multipart)
+  const form = new FormData()
+  form.append('file', new Blob(['file content'], { type: 'text/plain' }), 'to-delete.txt')
+  await fetch(BASE + '/calendars/' + cal.id + '/events/' + ev.id + '/attachments', {
+    method: 'POST', headers: { Authorization: 'Bearer ' + jwt },
+    body: form,
+  })
+
+  // Open event
+  await page.reload()
+  await page.waitForSelector('.fc', { timeout: 10000 })
+  await page.getByText('Delete File Test').first().click()
+  await expect(page.getByText('to-delete.txt')).toBeVisible({ timeout: 5000 })
+
+  // Hover and click delete
+  const fileEl = page.locator('.group:has-text("to-delete.txt")')
+  await fileEl.hover()
+  await fileEl.locator('button:has(svg.lucide-trash-2)').click()
+
+  // Verify file is gone
+  await expect(page.getByText('Fichier supprime')).toBeVisible({ timeout: 5000 })
+  await expect(page.getByText('to-delete.txt')).not.toBeVisible({ timeout: 5000 })
+  console.log('✅ Fichier supprimé')
+
+  // Cleanup
+  await fetch(BASE + '/calendars/' + cal.id + '/events/' + ev.id, { method: 'DELETE', headers: { Authorization: 'Bearer ' + jwt } })
+})

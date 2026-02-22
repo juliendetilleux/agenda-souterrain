@@ -33,5 +33,20 @@
     "openGoogleMaps": "Google Maps",
     "openWaze": "Waze",
     "geolocationError": "Kan uw positie niet bepalen"
+  },
+  "chat": {
+    "title": "Discussie",
+    "empty": "Geen berichten",
+    "placeholder": "Schrijf een bericht...",
+    "sendError": "Fout bij het verzenden",
+    "deleteError": "Fout bij het verwijderen van bericht"
+  },
+  "attachments": {
+    "title": "Bijlagen",
+    "dropOrClick": "Sleep een bestand of klik om te kiezen",
+    "uploaded": "Bestand geupload",
+    "deleted": "Bestand verwijderd",
+    "uploadError": "Fout bij uploaden",
+    "deleteError": "Fout bij verwijderen van bestand"
   }
 }

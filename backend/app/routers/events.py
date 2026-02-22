@@ -1,4 +1,5 @@
 import uuid
+import os
 import secrets
 from datetime import datetime, timezone
 from typing import Optional, List
@@ -9,6 +10,7 @@ from sqlalchemy import select, and_, or_, delete as sa_delete
 from sqlalchemy.orm import selectinload
 from app.database import get_db
 from app.models.event import Event, EventSignup
+from app.models.comment import EventAttachment
 from app.models.sub_calendar import SubCalendar
 from app.models.calendar import Calendar
 from app.models.user import User
@@ -21,6 +23,7 @@ from app.utils.permissions import (
     can_modify, can_modify_own, Permission
 )
 from app.services.translation import translate_text, SUPPORTED_LANGS
+from app.config import settings
 
 router = APIRouter(prefix="/calendars/{cal_id}/events", tags=["events"])
 
@@ -314,6 +317,15 @@ async def delete_event(
     is_own = user and event.creator_user_id == user.id
     if not can_modify(perm) and not (can_modify_own(perm) and is_own):
         raise HTTPException(status_code=403, detail="Accès refusé")
+
+    # Delete physical attachment files before cascade-deleting DB rows
+    att_result = await db.execute(
+        select(EventAttachment).where(EventAttachment.event_id == event_id)
+    )
+    for att in att_result.scalars().all():
+        file_path = os.path.join(settings.UPLOAD_DIR, att.stored_filename)
+        if os.path.exists(file_path):
+            os.remove(file_path)
 
     await db.delete(event)
 
