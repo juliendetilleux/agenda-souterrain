@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
@@ -5,6 +6,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
+import httpx
 from app.config import settings
 from app.database import get_db
 from app.rate_limit import limiter
@@ -33,6 +35,25 @@ app.include_router(tags.router, prefix="/v1")
 app.include_router(admin.router, prefix="/v1")
 app.include_router(comments.router, prefix="/v1")
 app.include_router(uploads.router, prefix="/v1")
+
+
+@app.on_event("startup")
+async def start_self_ping():
+    """Prevent Render free-tier sleep by self-pinging every 5 minutes."""
+    if not settings.SELF_PING_URL:
+        return
+
+    async def _ping_loop():
+        await asyncio.sleep(60)  # Wait 1 min after startup
+        while True:
+            try:
+                async with httpx.AsyncClient(timeout=10) as client:
+                    await client.get(settings.SELF_PING_URL)
+            except Exception:
+                pass
+            await asyncio.sleep(300)  # Every 5 minutes
+
+    asyncio.create_task(_ping_loop())
 
 
 @app.get("/")

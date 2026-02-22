@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = "/app/uploads"
     MAX_FILE_SIZE_MB: int = 10
 
+    # Self-ping to prevent Render free-tier sleep (set to own /health URL in production)
+    SELF_PING_URL: str = ""
+
     # Storage backend: "local" (filesystem) or "r2" (Cloudflare R2)
     STORAGE_BACKEND: str = "local"
     R2_ENDPOINT: str = ""
