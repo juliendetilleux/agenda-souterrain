@@ -9,6 +9,7 @@ import CreateCalendarPage from './pages/CreateCalendarPage'
 import SettingsPage from './pages/SettingsPage'
 import HomePage from './pages/HomePage'
 import InstallPrompt from './components/ui/InstallPrompt'
+import ErrorBoundary from './components/ui/ErrorBoundary'
 
 function App() {
   const { token, user, setUser } = useAuthStore()
@@ -23,7 +24,7 @@ function App() {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <>
+    <ErrorBoundary>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -39,7 +40,7 @@ function App() {
         />
       </Routes>
       <InstallPrompt />
-    </>
+    </ErrorBoundary>
   )
 }
 

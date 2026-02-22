@@ -1,7 +1,7 @@
 import uuid
 import logging
 import secrets
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 from app.database import get_db
@@ -64,16 +64,24 @@ async def list_links(
     await _require_admin(cal_id, current_user, db)
     result = await db.execute(select(AccessLink).where(AccessLink.calendar_id == cal_id))
     links = result.scalars().all()
+    # Batch-load permissions for all links in one query
+    link_ids = [link.id for link in links]
+    perm_map: dict[uuid.UUID, str] = {}
+    if link_ids:
+        perm_result = await db.execute(
+            select(CalendarAccess.link_id, CalendarAccess.permission).where(
+                CalendarAccess.link_id.in_(link_ids)
+            )
+        )
+        for row in perm_result.all():
+            if row.link_id not in perm_map:
+                perm_map[row.link_id] = row.permission
     out = []
     for link in links:
-        perm_result = await db.execute(
-            select(CalendarAccess.permission).where(CalendarAccess.link_id == link.id).limit(1)
-        )
-        perm = perm_result.scalar_one_or_none()
         out.append(AccessLinkOut(
             id=link.id, calendar_id=link.calendar_id, token=link.token,
             label=link.label, active=link.active, created_at=link.created_at,
-            permission=perm,
+            permission=perm_map.get(link.id),
         ))
     return out
 
@@ -173,17 +181,27 @@ async def list_access(
         )
     )
     entries = result.scalars().all()
+
+    # Batch-load users and groups to avoid N+1 queries
+    user_ids = {e.user_id for e in entries if e.user_id}
+    group_ids = {e.group_id for e in entries if e.group_id}
+    users_map: dict[uuid.UUID, User] = {}
+    groups_map: dict[uuid.UUID, Group] = {}
+    if user_ids:
+        u_result = await db.execute(select(User).where(User.id.in_(user_ids)))
+        users_map = {u.id: u for u in u_result.scalars().all()}
+    if group_ids:
+        g_result = await db.execute(select(Group).where(Group.id.in_(group_ids)))
+        groups_map = {g.id: g for g in g_result.scalars().all()}
+
     out = []
     for entry in entries:
         user_email = user_name = group_name = None
-        if entry.user_id:
-            u = await db.get(User, entry.user_id)
-            if u:
-                user_email, user_name = u.email, u.name
-        if entry.group_id:
-            g = await db.get(Group, entry.group_id)
-            if g:
-                group_name = g.name
+        if entry.user_id and entry.user_id in users_map:
+            u = users_map[entry.user_id]
+            user_email, user_name = u.email, u.name
+        if entry.group_id and entry.group_id in groups_map:
+            group_name = groups_map[entry.group_id].name
         out.append(CalendarAccessOut(
             id=entry.id, sub_calendar_id=entry.sub_calendar_id,
             user_id=entry.user_id, group_id=entry.group_id, link_id=entry.link_id,
@@ -197,6 +215,7 @@ async def list_access(
 async def invite_user(
     cal_id: uuid.UUID,
     data: InviteUser,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -205,8 +224,6 @@ async def invite_user(
     # Check if the target user already has an account
     result = await db.execute(select(User).where(User.email == data.email))
     target = result.scalar_one_or_none()
-
-    email_sent = False
 
     if target:
         # User exists — create CalendarAccess directly
@@ -226,8 +243,10 @@ async def invite_user(
         db.add(access)
         await db.flush()
 
+        email_sent = False
         if cal.enable_email_notifications:
-            email_sent = await send_invitation_email(
+            background_tasks.add_task(
+                send_invitation_email,
                 recipient_email=target.email,
                 recipient_name=target.name,
                 inviter_name=current_user.name or current_user.email,
@@ -236,6 +255,7 @@ async def invite_user(
                 language=cal.language,
                 user_exists=True,
             )
+            email_sent = True
 
         return InviteResult(
             status="added", email=target.email,
@@ -259,8 +279,10 @@ async def invite_user(
         db.add(pending)
         await db.flush()
 
+        email_sent = False
         if cal.enable_email_notifications:
-            email_sent = await send_invitation_email(
+            background_tasks.add_task(
+                send_invitation_email,
                 recipient_email=data.email,
                 recipient_name=None,
                 inviter_name=current_user.name or current_user.email,
@@ -269,6 +291,7 @@ async def invite_user(
                 language=cal.language,
                 user_exists=False,
             )
+            email_sent = True
 
         return InviteResult(
             status="pending", email=data.email,
@@ -323,11 +346,13 @@ async def update_access(
     await db.flush()
     user_email = user_name = group_name = None
     if access.user_id:
-        u = await db.get(User, access.user_id)
+        u_result = await db.execute(select(User).where(User.id == access.user_id))
+        u = u_result.scalar_one_or_none()
         if u:
             user_email, user_name = u.email, u.name
     if access.group_id:
-        g = await db.get(Group, access.group_id)
+        g_result = await db.execute(select(Group).where(Group.id == access.group_id))
+        g = g_result.scalar_one_or_none()
         if g:
             group_name = g.name
     return CalendarAccessOut(
