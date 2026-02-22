@@ -1,60 +1,102 @@
 # Agenda Souterrain
 
-Application de calendrier collaboratif inspirée de Teamup — Backend Python (FastAPI) + Frontend React (TypeScript).
+Collaborative calendar application inspired by [Teamup](https://teamup.com) — Backend Python (FastAPI) + Frontend React (TypeScript).
 
-## Démarrage rapide
+## Quick Start
 
-### Avec Docker Compose (recommandé)
+### Prerequisites
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (must be running)
+- [Node.js](https://nodejs.org/) v22+
+
+### Setup
 
 ```bash
-docker-compose up --build
-```
+# Clone the repo
+git clone https://github.com/juliendetilleux/agenda-souterrain.git
+cd agenda-souterrain
 
-- Frontend : http://localhost:5173
-- Backend API : http://localhost:8000
-- Docs API (Swagger) : http://localhost:8000/docs
+# Switch to the development branch
+git checkout develop
 
-### Développement local
-
-**Backend**
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
+# Create your local environment file
 cp .env.example .env
-# Editer .env avec vos paramètres PostgreSQL
-alembic upgrade head
-uvicorn app.main:app --reload
-```
+# Edit .env if needed (defaults work for local dev)
 
-**Frontend**
-```bash
+# Start backend + database + LibreTranslate
+docker-compose up --build
+
+# In a separate terminal — start frontend
 cd frontend
 npm install
 npm run dev
 ```
 
-## Stack
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:5173 |
+| Backend API | http://localhost:8000 |
+| API Docs (Swagger) | http://localhost:8000/docs |
 
-| Couche | Technologie |
-|---|---|
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
 | Backend | Python 3.12, FastAPI, SQLAlchemy (async), Alembic |
-| Base de données | PostgreSQL 15 |
+| Database | PostgreSQL 15 |
 | Auth | JWT (python-jose), bcrypt |
 | Frontend | React 18, TypeScript, Vite |
-| Calendrier UI | FullCalendar.io v6 |
+| Calendar UI | FullCalendar.io v6 |
 | State | Zustand + TanStack Query |
 | Styling | Tailwind CSS |
+| i18n | i18next (FR, EN, NL, DE) |
 
-## Fonctionnalités
+## Features
 
-- 5 vues calendrier (Mois, Semaine, Jour, Agenda, Année)
-- Sous-calendriers colorés avec filtrage
-- CRUD événements avec drag & drop
-- Récurrence (quotidien, hebdo, mensuel, annuel)
-- Système de partage avec niveaux de droits (7 niveaux)
-- Liens partageables sans compte
-- Export iCal (.ics)
-- Inscriptions aux événements
-- Recherche plein texte
+- 5 calendar views (Month, Week, Day, Agenda, Year)
+- Colored sub-calendars with filtering
+- Event CRUD with drag-and-drop
+- Recurrence (daily, weekly, monthly, yearly)
+- 7-level permission system with sharing
+- Shareable links (no account required)
+- Email invitations
+- iCal export (.ics) per event
+- Event sign-ups
+- Full-text search
+- File attachments & comments
+- Auto-translation (FR/EN/NL/DE)
+- PWA support (mobile install)
+
+## Git Workflow
+
+We use **Git Flow** with two main branches:
+
+| Branch | Purpose |
+|--------|---------|
+| `master` | Production — auto-deploys backend (Render) + frontend (Cloudflare Pages) |
+| `develop` | Integration branch for the next release |
+| `feature/*` | New features, branched from `develop` |
+| `hotfix/*` | Urgent production fixes, branched from `master` |
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow.
+
+## Running Tests
+
+```bash
+# Frontend unit tests
+cd frontend && npx vitest run
+
+# Backend unit tests (requires Docker running)
+docker-compose exec backend python -m pytest tests/ -v
+```
+
+## Deployment
+
+- **Backend**: Auto-deploys on push to `master` via Render
+- **Frontend**: Auto-deploys on push to `master` via GitHub Actions + Cloudflare Pages
+
+See [docs/deployment.md](docs/deployment.md) for full production setup and environment variables.
+
+## License
+
+Private project.
