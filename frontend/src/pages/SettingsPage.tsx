@@ -53,12 +53,12 @@ export default function SettingsPage() {
 
   const effectivePermission: Permission = myPerm?.permission ?? 'no_access'
   const isOwner = myPerm?.is_owner ?? false
-  const isCalendarAdmin = isOwner || isAdmin(effectivePermission)
+  const isCalendarAdmin = isOwner || isAdmin(effectivePermission) || isSuperadmin
 
   // Build visible tabs based on permissions
   const visibleTabs = useMemo(() => {
     const tabs: TabDef[] = []
-    if (isOwner) {
+    if (isOwner || isSuperadmin) {
       tabs.push({ key: 'general', label: t('tabs.general'), Icon: Settings })
     }
     if (isCalendarAdmin) {
