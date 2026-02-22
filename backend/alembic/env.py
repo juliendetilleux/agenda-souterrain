@@ -1,5 +1,6 @@
 import asyncio
 import os
+import ssl as _ssl
 from logging.config import fileConfig
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
@@ -38,11 +39,16 @@ def do_run_migrations(connection):
 
 
 async def run_migrations_online() -> None:
+    _connect_args: dict = {"statement_cache_size": 0}  # Required for Neon pooler
+    _db_url = config.get_main_option("sqlalchemy.url") or ""
+    if "neon.tech" in _db_url:
+        _connect_args["ssl"] = _ssl.create_default_context()
+
     connectable = async_engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
-        connect_args={"statement_cache_size": 0},  # Required for Neon pooler
+        connect_args=_connect_args,
     )
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)
