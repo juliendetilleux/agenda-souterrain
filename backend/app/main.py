@@ -65,6 +65,11 @@ async def root():
 async def health(db: AsyncSession = Depends(get_db)):
     try:
         await db.execute(text("SELECT 1"))
-        return {"status": "ok", "db": "ok"}
+        db_status = "ok"
     except Exception:
-        return {"status": "error", "db": "unreachable"}
+        db_status = "unreachable"
+    return {
+        "status": "ok" if db_status == "ok" else "error",
+        "db": db_status,
+        "admin_email_set": bool(settings.ADMIN_EMAIL),
+    }
