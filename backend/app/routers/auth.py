@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
@@ -58,6 +59,24 @@ async def login(request: Request, data: UserLogin, db: AsyncSession = Depends(ge
     user = result.scalar_one_or_none()
     if not user or not verify_password(data.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Identifiants invalides")
+
+    # Ban check
+    if user.is_banned:
+        if user.ban_until is not None:
+            now = datetime.now(timezone.utc).replace(tzinfo=None)
+            if now >= user.ban_until:
+                user.is_banned = False
+                user.ban_until = None
+                user.ban_reason = None
+                await db.flush()
+            else:
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"Compte suspendu jusqu'au {user.ban_until.strftime('%d/%m/%Y %H:%M')}"
+                )
+        else:
+            raise HTTPException(status_code=403, detail="Compte définitivement suspendu")
+
     access_token = create_access_token({"sub": str(user.id)})
     refresh_token = create_refresh_token({"sub": str(user.id)})
     return Token(access_token=access_token, refresh_token=refresh_token)
@@ -73,6 +92,21 @@ async def refresh(data: TokenRefresh, db: AsyncSession = Depends(get_db)):
     user = result.scalar_one_or_none()
     if not user:
         raise HTTPException(status_code=401, detail="Utilisateur introuvable")
+
+    # Ban check on refresh
+    if user.is_banned:
+        if user.ban_until is not None:
+            now = datetime.now(timezone.utc).replace(tzinfo=None)
+            if now >= user.ban_until:
+                user.is_banned = False
+                user.ban_until = None
+                user.ban_reason = None
+                await db.flush()
+            else:
+                raise HTTPException(status_code=403, detail="Compte suspendu")
+        else:
+            raise HTTPException(status_code=403, detail="Compte suspendu")
+
     access_token = create_access_token({"sub": str(user.id)})
     refresh_token = create_refresh_token({"sub": str(user.id)})
     return Token(access_token=access_token, refresh_token=refresh_token)

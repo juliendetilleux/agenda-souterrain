@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import Optional
 from fastapi import Depends, HTTPException, Header, Query
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -22,6 +23,20 @@ async def get_current_user(
     user = result.scalar_one_or_none()
     if not user:
         raise HTTPException(status_code=401, detail="Utilisateur introuvable")
+
+    # Ban check
+    if user.is_banned:
+        if user.ban_until is not None:
+            now = datetime.now(timezone.utc).replace(tzinfo=None)
+            if now >= user.ban_until:
+                user.is_banned = False
+                user.ban_until = None
+                user.ban_reason = None
+            else:
+                raise HTTPException(status_code=403, detail="Compte suspendu")
+        else:
+            raise HTTPException(status_code=403, detail="Compte suspendu")
+
     return user
 
 

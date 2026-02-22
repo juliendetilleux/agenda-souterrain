@@ -119,11 +119,31 @@
     "promote": "Promouvoir admin",
     "revoke": "Révoquer",
     "empty": "Aucun utilisateur.",
+    "ban": "Bannir",
+    "unban": "Débannir",
+    "bannedPermanent": "Banni (permanent)",
+    "bannedUntil": "Banni jusqu'au {{date}}",
+    "banTitle": "Bannir l'utilisateur",
+    "banMsg": "Bannir \"{{name}}\" ? L'utilisateur ne pourra plus se connecter.",
+    "permanent": "Permanent",
+    "temporary": "Temporaire",
+    "banUntilLabel": "Banni jusqu'au",
+    "banReasonLabel": "Raison (optionnel)",
+    "banReasonPlaceholder": "Raison du bannissement...",
+    "confirmBan": "Confirmer le bannissement",
+    "deleteTitle": "Supprimer l'utilisateur",
+    "deleteMsg": "Supprimer \"{{name}}\" ? Tous ses calendriers et données seront supprimés. Cette action est irréversible.",
     "toast": {
       "promoted": "Utilisateur promu admin",
       "promoteError": "Erreur lors de la promotion",
       "demoted": "Droits admin révoqués",
-      "demoteError": "Erreur lors de la révocation"
+      "demoteError": "Erreur lors de la révocation",
+      "deleted": "Utilisateur supprimé",
+      "deleteError": "Erreur lors de la suppression",
+      "banned": "Utilisateur banni",
+      "banError": "Erreur lors du bannissement",
+      "unbanned": "Utilisateur débanni",
+      "unbanError": "Erreur lors du débannissement"
     }
   },
   "superadminCalendars": {

@@ -119,11 +119,31 @@
     "promote": "Promoveren tot admin",
     "revoke": "Intrekken",
     "empty": "Geen gebruikers.",
+    "ban": "Blokkeren",
+    "unban": "Deblokkeren",
+    "bannedPermanent": "Geblokkeerd (permanent)",
+    "bannedUntil": "Geblokkeerd tot {{date}}",
+    "banTitle": "Gebruiker blokkeren",
+    "banMsg": "\"{{name}}\" blokkeren? De gebruiker kan niet meer inloggen.",
+    "permanent": "Permanent",
+    "temporary": "Tijdelijk",
+    "banUntilLabel": "Geblokkeerd tot",
+    "banReasonLabel": "Reden (optioneel)",
+    "banReasonPlaceholder": "Reden voor blokkering...",
+    "confirmBan": "Blokkering bevestigen",
+    "deleteTitle": "Gebruiker verwijderen",
+    "deleteMsg": "\"{{name}}\" verwijderen? Alle kalenders en gegevens worden verwijderd. Deze actie is onomkeerbaar.",
     "toast": {
       "promoted": "Gebruiker gepromoveerd tot admin",
       "promoteError": "Fout bij promoveren",
       "demoted": "Adminrechten ingetrokken",
-      "demoteError": "Fout bij intrekken"
+      "demoteError": "Fout bij intrekken",
+      "deleted": "Gebruiker verwijderd",
+      "deleteError": "Fout bij verwijderen van gebruiker",
+      "banned": "Gebruiker geblokkeerd",
+      "banError": "Fout bij blokkeren",
+      "unbanned": "Gebruiker gedeblokkeerd",
+      "unbanError": "Fout bij deblokkeren"
     }
   },
   "superadminCalendars": {

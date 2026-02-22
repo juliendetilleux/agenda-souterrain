@@ -6,6 +6,9 @@ export interface User {
   is_admin: boolean
   is_superadmin: boolean
   created_at: string
+  is_banned: boolean
+  ban_until: string | null
+  ban_reason: string | null
 }
 
 export interface CalendarConfig {
