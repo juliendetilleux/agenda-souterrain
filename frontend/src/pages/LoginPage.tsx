@@ -23,6 +23,7 @@ export default function LoginPage() {
       setAuth(tokens.access_token, tokens.refresh_token, {
         id: '', email, name: email, is_verified: true,
         is_admin: false, is_superadmin: false, created_at: '',
+        is_banned: false, ban_until: null, ban_reason: null,
       })
       const me = await authApi.getMe()
       setAuth(tokens.access_token, tokens.refresh_token, me)

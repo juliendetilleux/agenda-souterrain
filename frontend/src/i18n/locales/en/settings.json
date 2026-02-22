@@ -119,11 +119,31 @@
     "promote": "Promote to admin",
     "revoke": "Revoke",
     "empty": "No users.",
+    "ban": "Ban",
+    "unban": "Unban",
+    "bannedPermanent": "Banned (permanent)",
+    "bannedUntil": "Banned until {{date}}",
+    "banTitle": "Ban user",
+    "banMsg": "Ban \"{{name}}\"? The user will no longer be able to log in.",
+    "permanent": "Permanent",
+    "temporary": "Temporary",
+    "banUntilLabel": "Banned until",
+    "banReasonLabel": "Reason (optional)",
+    "banReasonPlaceholder": "Reason for the ban...",
+    "confirmBan": "Confirm ban",
+    "deleteTitle": "Delete user",
+    "deleteMsg": "Delete \"{{name}}\"? All their calendars and data will be deleted. This action is irreversible.",
     "toast": {
       "promoted": "User promoted to admin",
       "promoteError": "Error promoting",
       "demoted": "Admin rights revoked",
-      "demoteError": "Error revoking"
+      "demoteError": "Error revoking",
+      "deleted": "User deleted",
+      "deleteError": "Error deleting user",
+      "banned": "User banned",
+      "banError": "Error banning user",
+      "unbanned": "User unbanned",
+      "unbanError": "Error unbanning user"
     }
   },
   "superadminCalendars": {

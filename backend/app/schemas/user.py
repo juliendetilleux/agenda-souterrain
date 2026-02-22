@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from typing import Optional
 from pydantic import BaseModel, EmailStr, field_validator
 from app.models.user import User
 from app.config import settings
@@ -33,6 +34,9 @@ class UserOut(BaseModel):
     is_admin: bool
     is_superadmin: bool = False  # computed from ADMIN_EMAIL, not stored in DB
     created_at: datetime
+    is_banned: bool = False
+    ban_until: Optional[datetime] = None
+    ban_reason: Optional[str] = None
 
     model_config = {"from_attributes": True}
 
@@ -41,6 +45,19 @@ def make_user_out(user: User) -> UserOut:
     """Build UserOut from a User model, computing is_superadmin from settings."""
     out = UserOut.model_validate(user)
     return out.model_copy(update={"is_superadmin": bool(settings.ADMIN_EMAIL and user.email == settings.ADMIN_EMAIL)})
+
+
+class BanUserRequest(BaseModel):
+    permanent: bool = True
+    until: Optional[datetime] = None
+    reason: Optional[str] = None
+
+    @field_validator("until", mode="before")
+    @classmethod
+    def strip_timezone(cls, v):
+        if v is not None and hasattr(v, "tzinfo") and v.tzinfo is not None:
+            return v.replace(tzinfo=None)
+        return v
 
 
 class Token(BaseModel):

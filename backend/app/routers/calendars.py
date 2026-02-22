@@ -55,7 +55,16 @@ async def list_accessible_calendars(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Return all calendars the user can access: owned + shared (directly or via group)."""
+    """Return all calendars the user can access: owned + shared (directly or via group).
+    Superadmin sees ALL calendars."""
+    from app.config import settings
+
+    is_superadmin = bool(settings.ADMIN_EMAIL and current_user.email == settings.ADMIN_EMAIL)
+
+    if is_superadmin:
+        result = await db.execute(select(Calendar).order_by(Calendar.created_at))
+        return result.scalars().all()
+
     # Subquery: group IDs the user belongs to
     user_group_ids = select(group_members.c.group_id).where(
         group_members.c.user_id == current_user.id

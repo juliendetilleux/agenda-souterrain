@@ -119,11 +119,31 @@
     "promote": "Zum Admin befördern",
     "revoke": "Widerrufen",
     "empty": "Keine Benutzer.",
+    "ban": "Sperren",
+    "unban": "Entsperren",
+    "bannedPermanent": "Gesperrt (dauerhaft)",
+    "bannedUntil": "Gesperrt bis {{date}}",
+    "banTitle": "Benutzer sperren",
+    "banMsg": "\"{{name}}\" sperren? Der Benutzer kann sich nicht mehr anmelden.",
+    "permanent": "Dauerhaft",
+    "temporary": "Vorübergehend",
+    "banUntilLabel": "Gesperrt bis",
+    "banReasonLabel": "Grund (optional)",
+    "banReasonPlaceholder": "Grund der Sperrung...",
+    "confirmBan": "Sperrung bestätigen",
+    "deleteTitle": "Benutzer löschen",
+    "deleteMsg": "\"{{name}}\" löschen? Alle Kalender und Daten werden gelöscht. Diese Aktion ist unwiderruflich.",
     "toast": {
       "promoted": "Benutzer zum Admin befördert",
       "promoteError": "Fehler beim Befördern",
       "demoted": "Admin-Rechte widerrufen",
-      "demoteError": "Fehler beim Widerrufen"
+      "demoteError": "Fehler beim Widerrufen",
+      "deleted": "Benutzer gelöscht",
+      "deleteError": "Fehler beim Löschen des Benutzers",
+      "banned": "Benutzer gesperrt",
+      "banError": "Fehler beim Sperren",
+      "unbanned": "Benutzer entsperrt",
+      "unbanError": "Fehler beim Entsperren"
     }
   },
   "superadminCalendars": {
