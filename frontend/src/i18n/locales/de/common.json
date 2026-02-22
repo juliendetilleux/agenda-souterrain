@@ -20,5 +20,8 @@
   "none": "Keine",
   "logout": "Abmelden",
   "brand": "Agenda Souterrain",
-  "copyright": "© 2025 Agenda Souterrain"
+  "copyright": "© 2025 Agenda Souterrain",
+  "installApp": "App installieren",
+  "installAppDesc": "Schneller Zugriff auf Ihren Kalender vom Startbildschirm",
+  "install": "Installieren"
 }

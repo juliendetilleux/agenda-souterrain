@@ -25,6 +25,7 @@ from app.utils.permissions import (
 )
 from app.utils.ical import event_to_ical, events_to_ical
 from app.schemas.calendar import slugify
+from app.services.email import TEMPLATES, PERMISSION_LABELS, _smtp_configured, _get_permission_label
 
 
 # ─── Security: password hashing ──────────────────────────────────────────
@@ -142,6 +143,8 @@ def _make_event(**kwargs):
         "location": None,
         "notes": None,
         "rrule": None,
+        "latitude": None,
+        "longitude": None,
     }
     defaults.update(kwargs)
     return SimpleNamespace(**defaults)
@@ -204,3 +207,34 @@ def test_slugify_special_chars():
     result = slugify("Test!@#$%^&*()")
     assert result.isascii()
     assert " " not in result
+
+
+# ─── Email service helpers ──────────────────────────────────────────────────
+
+def test_smtp_configured_false(monkeypatch):
+    """When SMTP_USER or SMTP_PASSWORD is empty, _smtp_configured returns False."""
+    from app import config
+    monkeypatch.setattr(config.settings, "SMTP_USER", "")
+    monkeypatch.setattr(config.settings, "SMTP_PASSWORD", "")
+    assert _smtp_configured() is False
+
+
+def test_get_permission_label_fr():
+    assert _get_permission_label("read_only", "fr") == "Lecture seule"
+
+
+def test_get_permission_label_en():
+    assert _get_permission_label("administrator", "en") == "Administrator"
+
+
+def test_get_permission_label_fallback():
+    """Unknown language should fall back to English labels."""
+    assert _get_permission_label("modify", "xx") == "Modify"
+
+
+def test_templates_all_languages():
+    """All 4 language templates should have the 4 required keys."""
+    required_keys = {"subject_existing", "subject_new", "body_existing", "body_new"}
+    for lang in ("fr", "en", "nl", "de"):
+        assert lang in TEMPLATES, f"Missing language: {lang}"
+        assert set(TEMPLATES[lang].keys()) == required_keys, f"Missing keys for {lang}"

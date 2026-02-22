@@ -25,6 +25,7 @@
     "updateError": "Erreur lors de la modification",
     "deleteError": "Erreur lors de la suppression"
   },
+  "exportIcs": "Exporter .ics",
   "deleteTitle": "Supprimer l'événement",
   "deleteMsg": "Cette action est irréversible.",
   "location": {

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, Search, Plus, LogOut, Settings, Download, X, Menu } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Search, Plus, LogOut, Settings, X, Menu } from 'lucide-react'
 import { format } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 import { getDateLocale } from '../../utils/locales'
@@ -108,12 +108,6 @@ export default function Toolbar({ calendar, onNewEvent, onMenuClick }: Props) {
     setSearchResults([])
   }
 
-  const handleExport = async () => {
-    try {
-      await calendarApi.exportIcal(calendar.id)
-    } catch { /* ignore */ }
-  }
-
   return (
     <div className="flex flex-col border-b border-stone-200 bg-white flex-shrink-0">
       {/* Row 1: navigation + actions */}
@@ -207,14 +201,6 @@ export default function Toolbar({ calendar, onNewEvent, onMenuClick }: Props) {
               </div>
             )}
           </div>
-          <button
-            onClick={handleExport}
-            title={t('exportIcal')}
-            aria-label={t('exportIcal')}
-            className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-400 hover:text-stone-600 transition-colors hidden sm:block"
-          >
-            <Download size={18} />
-          </button>
           {canAdd(effectivePermission) && (
             <button
               onClick={onNewEvent}

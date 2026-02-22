@@ -202,12 +202,12 @@ export const calendarApi = {
     api.delete(`/calendars/${calId}/events/${eventId}/attachments/${attachmentId}`),
 
   // ─── Export iCal ─────────────────────────────────────────────────────────
-  exportIcal: async (calId: string) => {
-    const res = await api.get(`/calendars/${calId}/events/export.ics`, { responseType: 'blob' })
+  exportEventIcal: async (calId: string, eventId: string, filename: string) => {
+    const res = await api.get(`/calendars/${calId}/events/${eventId}/ics`, { responseType: 'blob' })
     const url = window.URL.createObjectURL(new Blob([res.data], { type: 'text/calendar' }))
     const a = document.createElement('a')
     a.href = url
-    a.download = 'calendar.ics'
+    a.download = `${filename}.ics`
     a.click()
     window.URL.revokeObjectURL(url)
   },

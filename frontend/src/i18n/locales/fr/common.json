@@ -20,5 +20,8 @@
   "none": "Aucun",
   "logout": "Déconnexion",
   "brand": "Agenda Souterrain",
-  "copyright": "© 2025 Agenda Souterrain"
+  "copyright": "© 2025 Agenda Souterrain",
+  "installApp": "Installer l'application",
+  "installAppDesc": "Accédez rapidement à votre agenda depuis l'écran d'accueil",
+  "install": "Installer"
 }

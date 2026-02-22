@@ -9,7 +9,7 @@ import rrulePlugin from '@fullcalendar/rrule'
 import { useTranslation } from 'react-i18next'
 import { getFcLocale } from '../../utils/locales'
 import type { EventClickArg, DateSelectArg, EventDropArg, EventContentArg } from '@fullcalendar/core'
-import type { EventResizeDoneArg } from '@fullcalendar/interaction'
+import type { EventResizeDoneArg, DateClickArg } from '@fullcalendar/interaction'
 import { format } from 'date-fns'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { calendarApi } from '../../api/calendars'
@@ -125,6 +125,18 @@ export default function CalendarGrid({ calendar, subCalendars, openNewEvent, onN
     setNewEventDates({ start: arg.start, end: arg.end, allDay: arg.allDay })
   }
 
+  const handleDateClick = (arg: DateClickArg) => {
+    if (!canModifyOwn(effectivePermission)) return
+    const start = arg.date
+    const end = new Date(start)
+    if (arg.allDay) {
+      end.setDate(end.getDate() + 1)
+    } else {
+      end.setHours(end.getHours() + 1)
+    }
+    setNewEventDates({ start, end, allDay: arg.allDay })
+  }
+
   const toNaive = (date: Date | null): string | undefined => {
     if (!date) return undefined
     return format(date, "yyyy-MM-dd'T'HH:mm:ss")
@@ -207,6 +219,7 @@ export default function CalendarGrid({ calendar, subCalendars, openNewEvent, onN
         selectable={canModifyOwn(effectivePermission)}
         editable={canModifyOwn(effectivePermission)}
         select={handleDateSelect}
+        dateClick={handleDateClick}
         eventContent={renderEventContent}
         eventClick={handleEventClick}
         eventDrop={handleEventDrop}

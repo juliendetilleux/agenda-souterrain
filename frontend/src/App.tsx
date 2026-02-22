@@ -8,6 +8,7 @@ import CalendarPage from './pages/CalendarPage'
 import CreateCalendarPage from './pages/CreateCalendarPage'
 import SettingsPage from './pages/SettingsPage'
 import HomePage from './pages/HomePage'
+import InstallPrompt from './components/ui/InstallPrompt'
 
 function App() {
   const { token, user, setUser } = useAuthStore()
@@ -22,20 +23,23 @@ function App() {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/c/:slug" element={<CalendarPage />} />
-      <Route path="/c/:slug/settings" element={<SettingsPage />} />
-      <Route
-        path="/new"
-        element={isSuperadmin ? <CreateCalendarPage /> : <Navigate to={token ? '/' : '/login'} replace />}
-      />
-      <Route
-        path="/"
-        element={token ? <HomePage /> : <Navigate to="/login" replace />}
-      />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/c/:slug" element={<CalendarPage />} />
+        <Route path="/c/:slug/settings" element={<SettingsPage />} />
+        <Route
+          path="/new"
+          element={isSuperadmin ? <CreateCalendarPage /> : <Navigate to={token ? '/' : '/login'} replace />}
+        />
+        <Route
+          path="/"
+          element={token ? <HomePage /> : <Navigate to="/login" replace />}
+        />
+      </Routes>
+      <InstallPrompt />
+    </>
   )
 }
 

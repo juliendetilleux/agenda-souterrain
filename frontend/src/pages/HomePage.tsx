@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { CalendarDays, Plus, LogOut } from 'lucide-react'
@@ -17,6 +18,13 @@ export default function HomePage() {
     queryKey: ['accessible-calendars'],
     queryFn: calendarApi.getAccessible,
   })
+
+  // Auto-redirect if user has access to exactly 1 calendar and can't create new ones
+  useEffect(() => {
+    if (!isLoading && calendars.length === 1 && !isSuperadmin) {
+      navigate(`/c/${calendars[0].slug}`, { replace: true })
+    }
+  }, [isLoading, calendars, isSuperadmin, navigate])
 
   const handleLogout = () => {
     logout()

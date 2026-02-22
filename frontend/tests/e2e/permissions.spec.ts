@@ -144,3 +144,24 @@ test('P5. Clic evenement read-only - no Enregistrer, Fermer present', async ({ p
   await fetch(BASE + '/calendars/' + calId + '/events/' + ev.id, { method: 'DELETE', headers: { Authorization: 'Bearer ' + jwt } })
   console.log('Event supprime')
 })
+
+
+test('P6. Toggle email notifications dans General (superadmin)', async ({ page }) => {
+  await goToCalendar(page)
+
+  // Navigate to settings > general tab
+  await page.goto('/c/' + TEST_SLUG + '/settings?tab=general')
+  await expect(page.getByRole('heading', { name: 'Paramètres' })).toBeVisible({ timeout: 5000 })
+  console.log('OK Page paramètres > Général')
+
+  // The email notifications checkbox should be visible (test user is admin/owner)
+  const emailToggle = page.locator('input[type="checkbox"]').filter({ has: page.locator('..') }).last()
+  const emailLabel = page.getByText('Notifications par email')
+  await expect(emailLabel).toBeVisible({ timeout: 5000 })
+  console.log('OK Toggle email notifications visible')
+
+  // Click save to verify the form works with the toggle
+  await page.getByRole('button', { name: 'Enregistrer' }).click()
+  await expect(page.getByText('Paramètres enregistrés')).toBeVisible({ timeout: 5000 })
+  console.log('OK Paramètres enregistrés avec toggle email')
+})

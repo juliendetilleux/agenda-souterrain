@@ -10,6 +10,8 @@ from app.schemas.calendar import CalendarCreate
 from app.schemas.sub_calendar import SubCalendarCreate, SubCalendarUpdate
 from app.schemas.tag import TagCreate, TagUpdate
 from app.schemas.comment import CommentCreate, CommentOut, AttachmentOut
+from app.schemas.sharing import InviteResult, PendingInvitationOut, InviteUser
+from app.models.access import Permission
 
 
 # ─── Password policy (Phase 1.3) ──────────────────────────────────────────
@@ -285,3 +287,58 @@ def test_attachment_out_model():
     )
     assert a.original_filename == "photo.jpg"
     assert a.file_size == 1024
+
+
+# ─── InviteResult & PendingInvitationOut schemas ────────────────────────────
+
+def test_invite_result_added():
+    r = InviteResult(status="added", email="user@test.com", permission=Permission.READ_ONLY, email_sent=True)
+    assert r.status == "added"
+    assert r.email == "user@test.com"
+    assert r.permission == Permission.READ_ONLY
+    assert r.email_sent is True
+
+
+def test_invite_result_pending():
+    r = InviteResult(status="pending", email="new@test.com", permission=Permission.MODIFY)
+    assert r.status == "pending"
+    assert r.email_sent is False  # default
+
+
+def test_pending_invitation_out():
+    cal_id = uuid.uuid4()
+    inv_id = uuid.uuid4()
+    p = PendingInvitationOut(
+        id=inv_id, calendar_id=cal_id, email="pending@test.com",
+        permission=Permission.ADD_ONLY, created_at=datetime(2026, 2, 1, 10, 0),
+    )
+    assert p.id == inv_id
+    assert p.calendar_id == cal_id
+    assert p.email == "pending@test.com"
+    assert p.permission == Permission.ADD_ONLY
+    assert p.sub_calendar_id is None
+
+
+# ─── CalendarCreate enable_email_notifications ──────────────────────────────
+
+def test_calendar_create_email_notifications_default():
+    c = CalendarCreate(title="Test")
+    assert c.enable_email_notifications is True
+
+
+def test_calendar_create_email_notifications_false():
+    c = CalendarCreate(title="Test", enable_email_notifications=False)
+    assert c.enable_email_notifications is False
+
+
+# ─── InviteUser schema ──────────────────────────────────────────────────────
+
+def test_invite_user_valid():
+    u = InviteUser(email="valid@test.com")
+    assert u.email == "valid@test.com"
+    assert u.permission == Permission.READ_ONLY  # default
+
+
+def test_invite_user_invalid_email():
+    with pytest.raises(ValidationError):
+        InviteUser(email="not-an-email")

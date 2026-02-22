@@ -25,6 +25,7 @@
     "updateError": "Fout bij bijwerken",
     "deleteError": "Fout bij verwijderen"
   },
+  "exportIcs": "Exporteer .ics",
   "deleteTitle": "Evenement verwijderen",
   "deleteMsg": "Deze actie is onomkeerbaar.",
   "location": {

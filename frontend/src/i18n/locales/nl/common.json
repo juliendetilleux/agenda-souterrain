@@ -20,5 +20,8 @@
   "none": "Geen",
   "logout": "Uitloggen",
   "brand": "Agenda Souterrain",
-  "copyright": "© 2025 Agenda Souterrain"
+  "copyright": "© 2025 Agenda Souterrain",
+  "installApp": "App installeren",
+  "installAppDesc": "Snelle toegang tot uw agenda vanaf het startscherm",
+  "install": "Installeren"
 }

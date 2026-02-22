@@ -25,6 +25,7 @@
     "updateError": "Error updating event",
     "deleteError": "Error deleting event"
   },
+  "exportIcs": "Export .ics",
   "deleteTitle": "Delete event",
   "deleteMsg": "This action is irreversible.",
   "location": {

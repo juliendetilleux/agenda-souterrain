@@ -699,3 +699,52 @@ test('21. Supprimer un fichier joint', async ({ page }) => {
   // Cleanup
   await fetch(BASE + '/calendars/' + cal.id + '/events/' + ev.id, { method: 'DELETE', headers: { Authorization: 'Bearer ' + jwt } })
 })
+
+
+// ─── 22. INVITER UN UTILISATEUR ───────────────────────────────────────────────
+
+test('22. Inviter un utilisateur depuis Settings', async ({ page }) => {
+  await goToCalendar(page)
+
+  // Navigate to settings > users tab
+  await page.goto('/c/' + TEST_SLUG + '/settings?tab=users')
+  await expect(page.getByRole('heading', { name: 'Paramètres' })).toBeVisible({ timeout: 5000 })
+
+  // Generate a unique email (non-existent user)
+  const pendingEmail = `e2e_invite_${Date.now()}@example.com`
+
+  // Fill invitation form
+  await page.locator('input[placeholder="adresse@email.com"]').fill(pendingEmail)
+
+  // Click invite button
+  await page.getByRole('button', { name: 'Inviter' }).click()
+
+  // Verify toast
+  await expect(page.getByText('Utilisateur invité')).toBeVisible({ timeout: 5000 })
+  console.log('✅ Utilisateur invité')
+
+  // The pending invitation should show with amber styling ("En attente" badge)
+  await expect(page.getByText(pendingEmail)).toBeVisible({ timeout: 5000 })
+  await expect(page.getByText("En attente d'inscription")).toBeVisible({ timeout: 5000 })
+  console.log('✅ Invitation en attente affichée')
+
+  // Cleanup via API
+  const BASE = 'http://localhost:8000/v1'
+  const loginRes = await fetch(BASE + '/auth/login', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: TEST_EMAIL, password: TEST_PASSWORD }),
+  })
+  const { access_token: jwt } = await loginRes.json()
+  const calRes = await fetch(BASE + '/calendars/slug/' + TEST_SLUG, { headers: { Authorization: 'Bearer ' + jwt } })
+  const cal = await calRes.json()
+
+  // Delete all pending invitations for this email
+  const pendingRes = await fetch(BASE + '/calendars/' + cal.id + '/pending-invitations', { headers: { Authorization: 'Bearer ' + jwt } })
+  const pending = await pendingRes.json()
+  for (const inv of pending) {
+    if (inv.email === pendingEmail) {
+      await fetch(BASE + '/calendars/' + cal.id + '/pending-invitations/' + inv.id, { method: 'DELETE', headers: { Authorization: 'Bearer ' + jwt } })
+    }
+  }
+  console.log('✅ Invitation en attente nettoyée via API')
+})

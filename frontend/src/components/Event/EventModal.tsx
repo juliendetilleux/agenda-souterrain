@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { X, Trash2, FileText, User, Repeat, Tag } from 'lucide-react'
+import { X, Trash2, FileText, User, Repeat, Tag, Download } from 'lucide-react'
 import { useConfirm } from '../../hooks/useConfirm'
 import ConfirmModal from '../ui/ConfirmModal'
 import { format } from 'date-fns'
@@ -153,6 +153,13 @@ export default function EventModal({
 
   const handleDelete = () => {
     confirm(t('deleteTitle'), t('deleteMsg'), () => deleteMutation.mutate())
+  }
+
+  const handleExportIcs = async () => {
+    if (!event) return
+    try {
+      await calendarApi.exportEventIcal(calendar.id, event.id, title || 'event')
+    } catch { /* ignore */ }
   }
 
   const selectedSc = subCalendars.find((s) => s.id === subCalId)
@@ -400,19 +407,29 @@ export default function EventModal({
 
           {/* Actions */}
           <div className="flex items-center justify-between pt-2 border-t border-stone-100">
-            {!isNew && canDeleteEvent ? (
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={deleteMutation.isPending}
-                className="flex items-center gap-1.5 text-sm text-red-400 hover:text-red-600 disabled:opacity-50 transition-colors"
-              >
-                <Trash2 size={15} />
-                {tc('delete')}
-              </button>
-            ) : (
-              <div />
-            )}
+            <div className="flex items-center gap-3">
+              {!isNew && canDeleteEvent && (
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={deleteMutation.isPending}
+                  className="flex items-center gap-1.5 text-sm text-red-400 hover:text-red-600 disabled:opacity-50 transition-colors"
+                >
+                  <Trash2 size={15} />
+                  {tc('delete')}
+                </button>
+              )}
+              {!isNew && (
+                <button
+                  type="button"
+                  onClick={handleExportIcs}
+                  title={t('exportIcs')}
+                  className="flex items-center gap-1.5 text-sm text-stone-400 hover:text-stone-600 transition-colors"
+                >
+                  <Download size={15} />
+                </button>
+              )}
+            </div>
             <div className="flex gap-2">
               <button
                 type="button"

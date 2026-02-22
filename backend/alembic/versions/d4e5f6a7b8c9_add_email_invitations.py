@@ -21,10 +21,10 @@ def upgrade() -> None:
         sa.Column("calendar_id", UUID(as_uuid=True), sa.ForeignKey("calendars.id", ondelete="CASCADE"), nullable=False),
         sa.Column("email", sa.String(255), nullable=False, index=True),
         sa.Column("permission", sa.Enum(
-            "no_access", "read_only_no_details", "read_only",
-            "add_only", "modify_own", "modify", "administrator",
+            "NO_ACCESS", "READ_ONLY_NO_DETAILS", "READ_ONLY",
+            "ADD_ONLY", "MODIFY_OWN", "MODIFY", "ADMINISTRATOR",
             name="permission", create_type=False,
-        ), nullable=False, server_default="read_only"),
+        ), nullable=False, server_default="READ_ONLY"),
         sa.Column("sub_calendar_id", UUID(as_uuid=True), sa.ForeignKey("sub_calendars.id", ondelete="SET NULL"), nullable=True),
         sa.Column("invited_by", UUID(as_uuid=True), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
         sa.Column("created_at", sa.DateTime(), nullable=False, server_default=sa.func.now()),

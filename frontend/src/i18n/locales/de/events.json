@@ -25,6 +25,7 @@
     "updateError": "Fehler beim Aktualisieren",
     "deleteError": "Fehler beim Löschen"
   },
+  "exportIcs": "Als .ics exportieren",
   "deleteTitle": "Termin löschen",
   "deleteMsg": "Diese Aktion ist unwiderruflich.",
   "location": {

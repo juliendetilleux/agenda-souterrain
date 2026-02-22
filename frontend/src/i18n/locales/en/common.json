@@ -20,5 +20,8 @@
   "none": "None",
   "logout": "Log out",
   "brand": "Agenda Souterrain",
-  "copyright": "© 2025 Agenda Souterrain"
+  "copyright": "© 2025 Agenda Souterrain",
+  "installApp": "Install app",
+  "installAppDesc": "Quick access to your calendar from the home screen",
+  "install": "Install"
 }
