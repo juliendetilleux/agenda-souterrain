@@ -1,6 +1,8 @@
 import asyncio
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.gzip import GZipMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
@@ -12,11 +14,37 @@ from app.database import get_db
 from app.rate_limit import limiter
 from app.routers import auth, calendars, sub_calendars, events, sharing, admin, tags, comments, uploads
 
-app = FastAPI(title="Agenda Souterrain API", version="1.0.0", docs_url="/docs")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan: startup & shutdown logic."""
+    # ── Startup ──
+    ping_task = None
+    if settings.SELF_PING_URL:
+        async def _ping_loop():
+            await asyncio.sleep(60)
+            while True:
+                try:
+                    async with httpx.AsyncClient(timeout=10) as client:
+                        await client.get(settings.SELF_PING_URL)
+                except Exception:
+                    pass
+                await asyncio.sleep(300)
+        ping_task = asyncio.create_task(_ping_loop())
+
+    yield
+
+    # ── Shutdown ──
+    if ping_task:
+        ping_task.cancel()
+
+
+app = FastAPI(title="Agenda Souterrain API", version="1.0.0", docs_url="/docs", lifespan=lifespan)
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(SlowAPIMiddleware)
+app.add_middleware(GZipMiddleware, minimum_size=500)
 
 app.add_middleware(
     CORSMiddleware,
@@ -35,25 +63,6 @@ app.include_router(tags.router, prefix="/v1")
 app.include_router(admin.router, prefix="/v1")
 app.include_router(comments.router, prefix="/v1")
 app.include_router(uploads.router, prefix="/v1")
-
-
-@app.on_event("startup")
-async def start_self_ping():
-    """Prevent Render free-tier sleep by self-pinging every 5 minutes."""
-    if not settings.SELF_PING_URL:
-        return
-
-    async def _ping_loop():
-        await asyncio.sleep(60)  # Wait 1 min after startup
-        while True:
-            try:
-                async with httpx.AsyncClient(timeout=10) as client:
-                    await client.get(settings.SELF_PING_URL)
-            except Exception:
-                pass
-            await asyncio.sleep(300)  # Every 5 minutes
-
-    asyncio.create_task(_ping_loop())
 
 
 @app.get("/")

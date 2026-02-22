@@ -6,7 +6,7 @@ from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_, or_, delete as sa_delete
+from sqlalchemy import select, func, and_, or_, delete as sa_delete
 from sqlalchemy.orm import selectinload
 from app.database import get_db
 from app.models.event import Event, EventSignup
@@ -406,8 +406,10 @@ async def create_signup(
     if dup_result.scalar_one_or_none():
         raise HTTPException(status_code=409, detail="Cette adresse email est déjà inscrite")
     if event.signup_max:
-        count_result = await db.execute(select(EventSignup).where(EventSignup.event_id == event_id))
-        if len(count_result.scalars().all()) >= event.signup_max:
+        count_result = await db.execute(
+            select(func.count()).select_from(EventSignup).where(EventSignup.event_id == event_id)
+        )
+        if count_result.scalar() >= event.signup_max:
             raise HTTPException(status_code=400, detail="Événement complet")
     signup = EventSignup(event_id=event_id, **data.model_dump())
     db.add(signup)

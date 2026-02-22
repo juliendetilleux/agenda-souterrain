@@ -300,6 +300,7 @@ async def send_invitation_email(
             username=settings.SMTP_USER,
             password=settings.SMTP_PASSWORD,
             start_tls=True,
+            timeout=15,
         )
         logger.info("Invitation email sent to %s", recipient_email)
         return True

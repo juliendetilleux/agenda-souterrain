@@ -12,6 +12,26 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          fullcalendar: [
+            '@fullcalendar/core',
+            '@fullcalendar/react',
+            '@fullcalendar/daygrid',
+            '@fullcalendar/timegrid',
+            '@fullcalendar/interaction',
+            '@fullcalendar/list',
+            '@fullcalendar/multimonth',
+            '@fullcalendar/rrule',
+          ],
+          maps: ['leaflet', 'react-leaflet'],
+        },
+      },
+    },
+  },
   test: {
     exclude: ['tests/e2e/**', 'node_modules/**'],
   },
