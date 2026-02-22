@@ -12,6 +12,18 @@ services:
         generateValue: true
       - key: FRONTEND_URL
         sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SELF_PING_URL
+        sync: false
       - key: LIBRETRANSLATE_URL
         value: https://libretranslate.com
       - key: STORAGE_BACKEND
