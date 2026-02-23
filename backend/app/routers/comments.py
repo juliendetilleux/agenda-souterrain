@@ -202,7 +202,8 @@ async def list_attachments(
             id=a.id, event_id=a.event_id, user_id=a.user_id,
             user_name=a.user.name, original_filename=a.original_filename,
             stored_filename=a.stored_filename, mime_type=a.mime_type,
-            file_size=a.file_size, created_at=a.created_at,
+            file_size=a.file_size, url=storage.url(a.stored_filename),
+            created_at=a.created_at,
         )
         for a in attachments
     ]
@@ -241,7 +242,10 @@ async def upload_attachment(
     stored_filename = f"{uuid.uuid4().hex}{ext}"
 
     # Write file via storage backend
-    await storage.save(stored_filename, content)
+    try:
+        await storage.save(stored_filename, content, content_type=file.content_type or "application/octet-stream")
+    except Exception:
+        raise HTTPException(status_code=500, detail="Erreur lors de la sauvegarde du fichier")
 
     attachment = EventAttachment(
         event_id=event_id,
@@ -259,7 +263,8 @@ async def upload_attachment(
         id=attachment.id, event_id=attachment.event_id, user_id=attachment.user_id,
         user_name=user.name, original_filename=attachment.original_filename,
         stored_filename=attachment.stored_filename, mime_type=attachment.mime_type,
-        file_size=attachment.file_size, created_at=attachment.created_at,
+        file_size=attachment.file_size, url=storage.url(attachment.stored_filename),
+        created_at=attachment.created_at,
     )
 
 

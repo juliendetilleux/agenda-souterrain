@@ -98,8 +98,6 @@ export default function AttachmentSection({
     }
   }
 
-  const fileUrl = (storedFilename: string) => `/v1/uploads/${storedFilename}`
-
   return (
     <div
       className={`bg-stone-50 rounded-xl p-4 space-y-3 transition-all ${
@@ -137,9 +135,9 @@ export default function AttachmentSection({
               <div key={att.id} className="group flex items-center gap-3 bg-white rounded-lg px-3 py-2 border border-stone-100">
                 {/* Thumbnail or icon */}
                 {isImage(att.mime_type) ? (
-                  <a href={fileUrl(att.stored_filename)} target="_blank" rel="noopener noreferrer">
+                  <a href={att.url} target="_blank" rel="noopener noreferrer">
                     <img
-                      src={fileUrl(att.stored_filename)}
+                      src={att.url}
                       alt={att.original_filename}
                       className="w-10 h-10 rounded object-cover flex-shrink-0 cursor-pointer
                                  hover:opacity-80 transition-opacity"
@@ -147,7 +145,7 @@ export default function AttachmentSection({
                   </a>
                 ) : (
                   <a
-                    href={fileUrl(att.stored_filename)}
+                    href={att.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex-shrink-0"
@@ -159,7 +157,7 @@ export default function AttachmentSection({
                 {/* File info */}
                 <div className="flex-1 min-w-0">
                   <a
-                    href={fileUrl(att.stored_filename)}
+                    href={att.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm font-medium text-stone-700 truncate block
