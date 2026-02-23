@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { ArrowLeft, Settings, Link2, UserPlus, UsersRound, Tag, ShieldCheck, CalendarDays } from 'lucide-react'
+import { ArrowLeft, Settings, Link2, UserPlus, UsersRound, Layers, Tag, ShieldCheck, CalendarDays } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { calendarApi } from '../api/calendars'
 import { useAuthStore } from '../store/authStore'
@@ -12,11 +12,12 @@ import GeneralTab from '../components/Settings/GeneralTab'
 import LinksTab from '../components/Settings/LinksTab'
 import UsersTab from '../components/Settings/UsersTab'
 import GroupsTab from '../components/Settings/GroupsTab'
+import SubCalendarsTab from '../components/Settings/SubCalendarsTab'
 import TagsTab from '../components/Settings/TagsTab'
 import SuperadminUsersTab from '../components/Settings/SuperadminUsersTab'
 import SuperadminCalendarsTab from '../components/Settings/SuperadminCalendarsTab'
 
-type TabKey = 'general' | 'links' | 'users' | 'groups' | 'tags' | 'superadmin-users' | 'superadmin-calendars'
+type TabKey = 'general' | 'links' | 'users' | 'groups' | 'subcalendars' | 'tags' | 'superadmin-users' | 'superadmin-calendars'
 
 interface TabDef {
   key: TabKey
@@ -66,6 +67,7 @@ export default function SettingsPage() {
         { key: 'links', label: t('tabs.links'), Icon: Link2 },
         { key: 'users', label: t('tabs.users'), Icon: UserPlus },
         { key: 'groups', label: t('tabs.groups'), Icon: UsersRound },
+        { key: 'subcalendars', label: t('tabs.subcalendars'), Icon: Layers },
         { key: 'tags', label: t('tabs.tags'), Icon: Tag },
       )
     }
@@ -183,6 +185,7 @@ export default function SettingsPage() {
         {activeTab === 'links' && <LinksTab calendar={calendar} subCalendars={subCalendars} />}
         {activeTab === 'users' && <UsersTab calendar={calendar} subCalendars={subCalendars} />}
         {activeTab === 'groups' && <GroupsTab calendar={calendar} subCalendars={subCalendars} />}
+        {activeTab === 'subcalendars' && <SubCalendarsTab calendar={calendar} />}
         {activeTab === 'tags' && <TagsTab calendar={calendar} />}
         {activeTab === 'superadmin-users' && <SuperadminUsersTab />}
         {activeTab === 'superadmin-calendars' && <SuperadminCalendarsTab />}

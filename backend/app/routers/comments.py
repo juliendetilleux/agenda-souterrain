@@ -86,7 +86,7 @@ async def create_comment(
     link_token: Optional[str] = Depends(get_link_token),
 ):
     perm = await get_effective_permission(db, cal_id, user=user, link_token=link_token)
-    if not can_add(perm):
+    if not can_read(perm):
         raise HTTPException(status_code=403, detail="Acces refuse")
 
     await _get_event(event_id, db)
