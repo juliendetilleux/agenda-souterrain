@@ -3,27 +3,22 @@
 ## Production Architecture
 
 ```
-                    ┌──────────────────┐
-                    │  Cloudflare      │
-                    │  Pages           │
-                    │  (Frontend)      │
-                    │  React SPA       │
-                    └────────┬─────────┘
-                             │ HTTPS /v1/*
-                             ▼
-                    ┌──────────────────┐
-                    │  Render          │
-                    │  (Backend)       │
-                    │  FastAPI Docker  │
-                    └────────┬─────────┘
-                             │
-                     ┌───────┴───────┐
-                     ▼               ▼
-              ┌────────────┐  ┌────────────┐
-              │ Neon       │  │ Cloudflare │
-              │ PostgreSQL │  │ R2         │
-              │ (Database) │  │ (Files)    │
-              └────────────┘  └────────────┘
+         agenda-souterrain.com        api.agenda-souterrain.com
+                    │                             │
+                    ▼                             ▼
+          ┌──────────────────┐          ┌──────────────────┐
+          │  Cloudflare      │          │  Render          │
+          │  Pages           │          │  (Backend)       │
+          │  (Frontend)      │          │  FastAPI Docker  │
+          │  React SPA       │          └────────┬─────────┘
+          └──────────────────┘                   │
+                                         ┌───────┴───────┐
+                                         ▼               ▼
+                                  ┌────────────┐  ┌────────────┐
+                                  │ Neon       │  │ Cloudflare │
+                                  │ PostgreSQL │  │ R2         │
+                                  │ (Database) │  │ (Files)    │
+                                  └────────────┘  └────────────┘
 ```
 
 ## Deployment Flow
@@ -48,17 +43,17 @@ Set in the Render dashboard: https://dashboard.render.com
 |----------|---------|----------|-------------|
 | `DATABASE_URL` | `postgresql+asyncpg://...@ep-xxx.neon.tech/agenda_db?sslmode=require` | Yes | Neon PostgreSQL connection string |
 | `SECRET_KEY` | *(auto-generated)* | Yes | JWT signing key |
-| `FRONTEND_URL` | `https://agenda-souterrain.pages.dev` | Yes | CORS allowed origin |
+| `FRONTEND_URL` | `https://agenda-souterrain.com` | Yes | CORS allowed origin |
 | `ADMIN_EMAIL` | `admin@example.com` | Yes | Superadmin email address |
 | `RESEND_API_KEY` | `re_xxxxxxxxx` | Yes | Resend API key for email sending |
-| `EMAIL_FROM` | `Agenda Souterrain <noreply@yourdomain.com>` | No | Sender address (default: onboarding@resend.dev) |
+| `EMAIL_FROM` | `Agenda Souterrain <noreply@agenda-souterrain.com>` | No | Sender address (default: onboarding@resend.dev) |
 | `STORAGE_BACKEND` | `r2` | Yes | File storage backend |
 | `R2_ENDPOINT` | `https://xxx.r2.cloudflarestorage.com` | Yes | Cloudflare R2 endpoint |
 | `R2_ACCESS_KEY` | *(secret)* | Yes | R2 access key |
 | `R2_SECRET_KEY` | *(secret)* | Yes | R2 secret key |
 | `R2_BUCKET` | `agenda-souterrain` | Yes | R2 bucket name |
-| `R2_PUBLIC_URL` | `https://files.yourdomain.com` | Yes | Public URL for uploads |
-| `SELF_PING_URL` | `https://as-api-9f3k2.onrender.com/health` | No | Prevents free-tier sleep |
+| `R2_PUBLIC_URL` | `https://files.agenda-souterrain.com` | Yes | Public URL for uploads |
+| `SELF_PING_URL` | `https://api.agenda-souterrain.com/health` | No | Prevents free-tier sleep |
 | `LIBRETRANSLATE_URL` | `https://libretranslate.com` | No | Translation API URL |
 | `TRANSLATION_BACKEND` | `mymemory` | No | Translation service |
 
@@ -68,7 +63,7 @@ Set in: Cloudflare Dashboard > Pages > agenda-souterrain > Settings > Environmen
 
 | Variable | Value | Description |
 |----------|-------|-------------|
-| `VITE_API_URL` | `https://as-api-9f3k2.onrender.com/v1` | Backend API base URL |
+| `VITE_API_URL` | `https://api.agenda-souterrain.com/v1` | Backend API base URL |
 
 > **Note**: Vite inlines env vars at build time. Variables must be prefixed with `VITE_`.
 
@@ -156,3 +151,28 @@ To force a redeploy without code changes, use the Render dashboard "Manual Deplo
 1. Create an R2 bucket in Cloudflare Dashboard
 2. Create an API token with R2 read/write permissions
 3. Set `R2_*` variables on Render
+
+### 6. Custom Domain (`agenda-souterrain.com`)
+
+**DNS Records** (Cloudflare DNS):
+
+| Type | Name | Target | Proxy |
+|------|------|--------|-------|
+| `CNAME` | `@` | `agenda-souterrain.pages.dev` | Proxied |
+| `CNAME` | `www` | `agenda-souterrain.pages.dev` | Proxied |
+| `CNAME` | `api` | `as-api-9f3k2.onrender.com` | DNS only |
+
+**Custom domains**:
+- Cloudflare Pages → add `agenda-souterrain.com` + `www.agenda-souterrain.com`
+- Render → add `api.agenda-souterrain.com`
+
+**Update env vars**:
+- Render: `FRONTEND_URL` = `https://agenda-souterrain.com`
+- GitHub Secret: `VITE_API_URL` = `https://api.agenda-souterrain.com/v1`
+
+### 7. Resend (Email)
+
+1. Add domain `agenda-souterrain.com` on [resend.com/domains](https://resend.com/domains)
+2. Add the DNS records Resend gives you (SPF, DKIM, DMARC) in Cloudflare DNS
+3. Verify the domain on Resend
+4. Set `EMAIL_FROM` on Render to `Agenda Souterrain <noreply@agenda-souterrain.com>`
