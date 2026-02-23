@@ -39,6 +39,11 @@ api.interceptors.response.use(
       return Promise.reject(error)
     }
 
+    // Don't try to refresh for auth endpoints (login, register, etc.)
+    if (originalRequest.url?.startsWith('/auth/')) {
+      return Promise.reject(error)
+    }
+
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         refreshQueue.push({
