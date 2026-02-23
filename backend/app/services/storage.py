@@ -13,7 +13,7 @@ from app.config import settings
 
 class StorageBackend(ABC):
     @abstractmethod
-    async def save(self, filename: str, data: bytes) -> None: ...
+    async def save(self, filename: str, data: bytes, content_type: str = "application/octet-stream") -> None: ...
 
     @abstractmethod
     async def delete(self, filename: str) -> None: ...
@@ -23,7 +23,7 @@ class StorageBackend(ABC):
 
 
 class LocalStorage(StorageBackend):
-    async def save(self, filename: str, data: bytes) -> None:
+    async def save(self, filename: str, data: bytes, content_type: str = "application/octet-stream") -> None:
         os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
         path = os.path.join(settings.UPLOAD_DIR, filename)
         with open(path, "wb") as f:
@@ -50,11 +50,12 @@ class R2Storage(StorageBackend):
         )
         self._bucket = settings.R2_BUCKET
 
-    async def save(self, filename: str, data: bytes) -> None:
+    async def save(self, filename: str, data: bytes, content_type: str = "application/octet-stream") -> None:
         self._client.put_object(
             Bucket=self._bucket,
             Key=filename,
             Body=data,
+            ContentType=content_type,
         )
 
     async def delete(self, filename: str) -> None:
