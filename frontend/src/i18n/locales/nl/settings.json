@@ -10,6 +10,7 @@
     "links": "Links",
     "users": "Gebruikers",
     "groups": "Groepen",
+    "subcalendars": "Subkalenders",
     "tags": "Labels",
     "superadminUsers": "App-gebruikers",
     "superadminCalendars": "App-kalenders"
@@ -107,6 +108,21 @@
       "created": "Groep aangemaakt",
       "createError": "Fout bij aanmaken",
       "permissionRemoved": "Toestemming verwijderd"
+    }
+  },
+  "subcalendars": {
+    "newSubCalendar": "Nieuwe subkalender",
+    "namePlaceholder": "Naam subkalender",
+    "empty": "Geen subkalenders",
+    "deleteTitle": "Subkalender verwijderen",
+    "deleteMsg": "\"{{name}}\" verwijderen? Alle bijbehorende evenementen worden verwijderd.",
+    "toast": {
+      "created": "Subkalender aangemaakt",
+      "createError": "Fout bij het aanmaken",
+      "updated": "Subkalender bijgewerkt",
+      "updateError": "Fout bij het bijwerken",
+      "deleted": "Subkalender verwijderd",
+      "deleteError": "Fout bij het verwijderen"
     }
   },
   "tags": {

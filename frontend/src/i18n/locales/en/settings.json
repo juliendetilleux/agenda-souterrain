@@ -10,6 +10,7 @@
     "links": "Links",
     "users": "Users",
     "groups": "Groups",
+    "subcalendars": "Sub-calendars",
     "tags": "Tags",
     "superadminUsers": "App users",
     "superadminCalendars": "App calendars"
@@ -107,6 +108,21 @@
       "created": "Group created",
       "createError": "Error creating",
       "permissionRemoved": "Permission removed"
+    }
+  },
+  "subcalendars": {
+    "newSubCalendar": "New sub-calendar",
+    "namePlaceholder": "Sub-calendar name",
+    "empty": "No sub-calendars",
+    "deleteTitle": "Delete sub-calendar",
+    "deleteMsg": "Delete \"{{name}}\"? All associated events will be deleted.",
+    "toast": {
+      "created": "Sub-calendar created",
+      "createError": "Error creating sub-calendar",
+      "updated": "Sub-calendar updated",
+      "updateError": "Error updating sub-calendar",
+      "deleted": "Sub-calendar deleted",
+      "deleteError": "Error deleting sub-calendar"
     }
   },
   "tags": {

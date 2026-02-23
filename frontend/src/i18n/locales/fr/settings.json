@@ -10,6 +10,7 @@
     "links": "Liens",
     "users": "Utilisateurs",
     "groups": "Groupes",
+    "subcalendars": "Sous-calendriers",
     "tags": "Étiquettes",
     "superadminUsers": "Utilisateurs app",
     "superadminCalendars": "Calendriers app"
@@ -107,6 +108,21 @@
       "created": "Groupe créé",
       "createError": "Erreur lors de la création",
       "permissionRemoved": "Permission supprimée"
+    }
+  },
+  "subcalendars": {
+    "newSubCalendar": "Nouveau sous-calendrier",
+    "namePlaceholder": "Nom du sous-calendrier",
+    "empty": "Aucun sous-calendrier",
+    "deleteTitle": "Supprimer le sous-calendrier",
+    "deleteMsg": "Supprimer \"{{name}}\" ? Tous les événements associés seront supprimés.",
+    "toast": {
+      "created": "Sous-calendrier créé",
+      "createError": "Erreur lors de la création",
+      "updated": "Sous-calendrier modifié",
+      "updateError": "Erreur lors de la modification",
+      "deleted": "Sous-calendrier supprimé",
+      "deleteError": "Erreur lors de la suppression"
     }
   },
   "tags": {
