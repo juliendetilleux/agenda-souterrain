@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Copy, Trash2, Plus, CheckCircle, XCircle, Users } from 'lucide-react'
 import { calendarApi } from '../../api/calendars'
-import { PERMISSION_LABELS, PERMISSION_COLORS } from '../../utils/permissions'
+import { getPermissionLabel, PERMISSION_COLORS } from '../../utils/permissions'
 import { useConfirm } from '../../hooks/useConfirm'
 import ConfirmModal from '../ui/ConfirmModal'
 import type { CalendarConfig, SubCalendar, Permission } from '../../types'
@@ -141,7 +141,7 @@ export default function LinksTab({ calendar, subCalendars }: Props) {
                 <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                   {link.permission && (
                     <span className={`text-xs px-2 py-0.5 rounded-lg font-medium ${PERMISSION_COLORS[link.permission]}`}>
-                      {PERMISSION_LABELS[link.permission]}
+                      {getPermissionLabel(link.permission, t)}
                     </span>
                   )}
                   {link.group_name && (
@@ -204,7 +204,7 @@ export default function LinksTab({ calendar, subCalendars }: Props) {
               className={selectClass}
             >
               {LINK_PERMISSIONS.map((p) => (
-                <option key={p} value={p}>{PERMISSION_LABELS[p]}</option>
+                <option key={p} value={p}>{getPermissionLabel(p, t)}</option>
               ))}
             </select>
           </div>

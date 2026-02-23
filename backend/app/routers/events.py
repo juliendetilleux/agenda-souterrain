@@ -166,8 +166,12 @@ async def get_event(
     if not can_read_limited(perm):
         raise HTTPException(status_code=403, detail="Accès refusé")
 
+    sc_result = await db.execute(select(SubCalendar.id).where(SubCalendar.calendar_id == cal_id))
+    sc_ids = [row[0] for row in sc_result.all()]
     result = await db.execute(
-        select(Event).options(selectinload(Event.tags)).where(Event.id == event_id)
+        select(Event).options(selectinload(Event.tags)).where(
+            Event.id == event_id, Event.sub_calendar_id.in_(sc_ids)
+        )
     )
     event = result.scalar_one_or_none()
     if not event:
@@ -180,8 +184,18 @@ async def export_event_ical(
     cal_id: uuid.UUID,
     event_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
+    user: Optional[User] = Depends(get_optional_user),
+    link_token: Optional[str] = Depends(get_link_token),
 ):
-    result = await db.execute(select(Event).where(Event.id == event_id))
+    perm = await get_effective_permission(db, cal_id, user=user, link_token=link_token)
+    if not can_read(perm):
+        raise HTTPException(status_code=403, detail="Accès refusé")
+
+    sc_result = await db.execute(select(SubCalendar.id).where(SubCalendar.calendar_id == cal_id))
+    sc_ids = [row[0] for row in sc_result.all()]
+    result = await db.execute(
+        select(Event).where(Event.id == event_id, Event.sub_calendar_id.in_(sc_ids))
+    )
     event = result.scalar_one_or_none()
     if not event:
         raise HTTPException(status_code=404, detail="Événement introuvable")
@@ -381,7 +395,12 @@ async def list_signups(
     cal_id: uuid.UUID,
     event_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
+    user: Optional[User] = Depends(get_optional_user),
+    link_token: Optional[str] = Depends(get_link_token),
 ):
+    perm = await get_effective_permission(db, cal_id, user=user, link_token=link_token)
+    if not can_read(perm):
+        raise HTTPException(status_code=403, detail="Accès refusé")
     result = await db.execute(select(EventSignup).where(EventSignup.event_id == event_id))
     return result.scalars().all()
 
@@ -392,7 +411,13 @@ async def create_signup(
     event_id: uuid.UUID,
     data: SignupCreate,
     db: AsyncSession = Depends(get_db),
+    user: Optional[User] = Depends(get_optional_user),
+    link_token: Optional[str] = Depends(get_link_token),
 ):
+    perm = await get_effective_permission(db, cal_id, user=user, link_token=link_token)
+    if not can_read_limited(perm):
+        raise HTTPException(status_code=403, detail="Accès refusé")
+
     ev_result = await db.execute(select(Event).where(Event.id == event_id))
     event = ev_result.scalar_one_or_none()
     if not event:
@@ -424,7 +449,12 @@ async def delete_signup(
     event_id: uuid.UUID,
     signup_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
+    user: Optional[User] = Depends(get_optional_user),
+    link_token: Optional[str] = Depends(get_link_token),
 ):
+    perm = await get_effective_permission(db, cal_id, user=user, link_token=link_token)
+    if not can_modify(perm):
+        raise HTTPException(status_code=403, detail="Accès refusé")
     result = await db.execute(select(EventSignup).where(EventSignup.id == signup_id))
     signup = result.scalar_one_or_none()
     if not signup:

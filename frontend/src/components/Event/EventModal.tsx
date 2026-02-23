@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { X, Trash2, FileText, User, Repeat, Tag, Download } from 'lucide-react'
 import { useConfirm } from '../../hooks/useConfirm'
@@ -48,10 +48,22 @@ export default function EventModal({
   const { effectivePermission } = useCalendarStore()
   const { user } = useAuthStore()
 
-  const canEdit = canAdd(effectivePermission)
+  const isOwner = !!user && event?.creator_user_id === user.id
+  const canEdit = isNew
+    ? canAdd(effectivePermission)
+    : canModify(effectivePermission) || (canModifyOwn(effectivePermission) && isOwner)
   const canDeleteEvent =
     canModify(effectivePermission) ||
-    (canModifyOwn(effectivePermission) && !!user && event?.creator_user_id === user.id)
+    (canModifyOwn(effectivePermission) && isOwner)
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [onClose])
 
   const { confirmState, confirm, handleConfirm, handleCancel } = useConfirm()
   const [title, setTitle] = useState(event?.title ?? '')

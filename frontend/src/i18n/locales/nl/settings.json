@@ -176,6 +176,15 @@
       "unbanError": "Fout bij deblokkeren"
     }
   },
+  "permissions": {
+    "no_access": "Geen toegang",
+    "read_only_no_details": "Lezen (zonder details)",
+    "read_only": "Alleen lezen",
+    "add_only": "Alleen toevoegen",
+    "modify_own": "Eigen evenementen wijzigen",
+    "modify": "Alles wijzigen",
+    "administrator": "Beheerder"
+  },
   "superadminCalendars": {
     "calendar": "Kalender",
     "owner": "Eigenaar",

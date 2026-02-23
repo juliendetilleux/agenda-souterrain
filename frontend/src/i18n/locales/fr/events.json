@@ -44,9 +44,9 @@
   },
   "attachments": {
     "title": "Fichiers joints",
-    "dropOrClick": "Deposer un fichier ou cliquer pour choisir",
-    "uploaded": "Fichier ajoute",
-    "deleted": "Fichier supprime",
+    "dropOrClick": "Déposer un fichier ou cliquer pour choisir",
+    "uploaded": "Fichier ajouté",
+    "deleted": "Fichier supprimé",
     "uploadError": "Erreur lors de l'envoi du fichier",
     "deleteError": "Erreur lors de la suppression du fichier"
   }

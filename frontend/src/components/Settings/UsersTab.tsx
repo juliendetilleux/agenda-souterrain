@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Trash2, Plus, Clock, X } from 'lucide-react'
 import { calendarApi } from '../../api/calendars'
-import { PERMISSION_LABELS, PERMISSION_COLORS } from '../../utils/permissions'
+import { getPermissionLabel, PERMISSION_COLORS } from '../../utils/permissions'
 import type { CalendarConfig, SubCalendar, Permission, CalendarAccess, PendingInvitation } from '../../types'
 import toast from 'react-hot-toast'
 
@@ -218,7 +218,7 @@ export default function UsersTab({ calendar, subCalendars }: Props) {
                   >
                     {INVITE_PERMISSIONS.map((p) => (
                       <option key={p} value={p} className="bg-white text-stone-800">
-                        {PERMISSION_LABELS[p]}
+                        {getPermissionLabel(p, t)}
                       </option>
                     ))}
                   </select>
@@ -317,7 +317,7 @@ export default function UsersTab({ calendar, subCalendars }: Props) {
               </div>
 
               <span className={`text-xs px-2 py-1 rounded-lg font-semibold ${PERMISSION_COLORS[inv.permission]}`}>
-                {PERMISSION_LABELS[inv.permission]}
+                {getPermissionLabel(inv.permission, t)}
               </span>
 
               <button
@@ -360,7 +360,7 @@ export default function UsersTab({ calendar, subCalendars }: Props) {
                 className={selectClass}
               >
                 {INVITE_PERMISSIONS.map((p) => (
-                  <option key={p} value={p}>{PERMISSION_LABELS[p]}</option>
+                  <option key={p} value={p}>{getPermissionLabel(p, t)}</option>
                 ))}
               </select>
             </div>

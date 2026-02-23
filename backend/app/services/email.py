@@ -471,7 +471,7 @@ async def _send_email(to: str, subject: str, html_body: str) -> bool:
                     "html": html_body,
                 },
             )
-        if resp.status_code == 200:
+        if resp.status_code in (200, 201):
             logger.info("Email sent successfully to %s (id: %s)", to, resp.json().get("id"))
             return True
         else:
