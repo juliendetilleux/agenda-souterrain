@@ -16,6 +16,11 @@ const queryClient = new QueryClient({
 // Clean up legacy token storage from localStorage (migrated to HTTP-only cookies)
 localStorage.removeItem('auth-storage')
 
+// Register service worker for PWA installability
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {})
+}
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
