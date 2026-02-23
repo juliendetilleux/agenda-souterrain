@@ -1,20 +1,25 @@
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { calendarApi } from '../api/calendars'
 import { useCalendarStore } from '../store/calendarStore'
+import { useAuthStore } from '../store/authStore'
 import Sidebar from '../components/Sidebar/Sidebar'
 import CalendarGrid from '../components/Calendar/CalendarGrid'
 import Toolbar from '../components/Calendar/Toolbar'
+import toast from 'react-hot-toast'
 
 export default function CalendarPage() {
   const { t } = useTranslation('settings')
   const { t: tc } = useTranslation('common')
   const { slug } = useParams<{ slug: string }>()
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
   const { initSubCalendars, setAccessToken, setPermission, isOwner, effectivePermission, sidebarOpen, setSidebarOpen, toggleSidebar } = useCalendarStore()
+  const { isAuthenticated } = useAuthStore()
   const [openNewEvent, setOpenNewEvent] = useState(false)
+  const claimAttempted = useRef(false)
 
   // Resolve ?token= from URL (access link authentication)
   useEffect(() => {
@@ -52,6 +57,22 @@ export default function CalendarPage() {
       initSubCalendars(subCalendars)
     }
   }, [subCalendars, initSubCalendars])
+
+  // Auto-claim: if logged-in user arrives with ?token=, try to join the linked group
+  useEffect(() => {
+    const token = searchParams.get('token')
+    if (!token || !calendar?.id || !isAuthenticated || claimAttempted.current) return
+    claimAttempted.current = true
+    calendarApi.claimLink(calendar.id, token).then((result) => {
+      toast.success(tc('claimedGroup', { group: result.group_name }))
+      // Remove token from URL to avoid re-claim on refresh
+      const newParams = new URLSearchParams(searchParams)
+      newParams.delete('token')
+      setSearchParams(newParams, { replace: true })
+    }).catch(() => {
+      // Not a group link or already a member — silently ignore
+    })
+  }, [calendar?.id, isAuthenticated, searchParams, setSearchParams, tc])
 
   if (calLoading) {
     return (

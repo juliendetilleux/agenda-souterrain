@@ -51,7 +51,10 @@
     },
     "disable": "Disable",
     "enable": "Enable",
-    "copyLink": "Copy link"
+    "copyLink": "Copy link",
+    "autoGroup": "Auto-join group",
+    "noGroup": "No group",
+    "autoGroupHelp": "Logged-in users who open this link will automatically join this group."
   },
   "users": {
     "inviteTitle": "Invite a user",
@@ -68,8 +71,13 @@
       "notFound": "User not found or already invited",
       "updateError": "Error updating",
       "revoked": "Access revoked",
-      "revokeError": "Error revoking"
-    }
+      "revokeError": "Error revoking",
+      "addedToGroup": "Added to group",
+      "addToGroupError": "Error adding to group",
+      "removeFromGroupError": "Error removing from group"
+    },
+    "selectGroup": "Select a group…",
+    "addToGroup": "Group"
   },
   "groups": {
     "createTitle": "Create a group",
@@ -77,6 +85,11 @@
     "memberEmailPlaceholder": "Member email",
     "members": "Members",
     "groupPermission": "Group permission",
+    "permissions": "Permissions",
+    "noPermissions": "No permissions set.",
+    "addPermission": "Add",
+    "allSubCals": "All",
+    "permCount": "perm.",
     "level": "Level",
     "subCal": "Sub-cal.",
     "empty": "No groups created.",
@@ -92,7 +105,8 @@
       "deleted": "Group deleted",
       "groupDeleteError": "Error deleting",
       "created": "Group created",
-      "createError": "Error creating"
+      "createError": "Error creating",
+      "permissionRemoved": "Permission removed"
     }
   },
   "tags": {

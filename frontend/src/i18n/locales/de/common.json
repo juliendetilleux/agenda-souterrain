@@ -24,5 +24,6 @@
   "installApp": "App installieren",
   "installAppDesc": "Schneller Zugriff auf Ihren Kalender vom Startbildschirm",
   "install": "Installieren",
-  "privacy": "Datenschutzerklärung"
+  "privacy": "Datenschutzerklärung",
+  "claimedGroup": "Sie wurden der Gruppe {{group}} hinzugefügt"
 }

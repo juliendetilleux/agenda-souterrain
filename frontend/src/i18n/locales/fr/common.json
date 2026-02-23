@@ -24,5 +24,6 @@
   "installApp": "Installer l'application",
   "installAppDesc": "Accédez rapidement à votre agenda depuis l'écran d'accueil",
   "install": "Installer",
-  "privacy": "Politique de confidentialité"
+  "privacy": "Politique de confidentialité",
+  "claimedGroup": "Vous avez été ajouté au groupe {{group}}"
 }

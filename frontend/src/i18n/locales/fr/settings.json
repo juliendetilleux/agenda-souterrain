@@ -51,7 +51,10 @@
     },
     "disable": "Désactiver",
     "enable": "Activer",
-    "copyLink": "Copier le lien"
+    "copyLink": "Copier le lien",
+    "autoGroup": "Groupe automatique",
+    "noGroup": "Aucun groupe",
+    "autoGroupHelp": "Les utilisateurs connectés qui ouvrent ce lien rejoindront automatiquement ce groupe."
   },
   "users": {
     "inviteTitle": "Inviter un utilisateur",
@@ -68,8 +71,13 @@
       "notFound": "Utilisateur introuvable ou déjà invité",
       "updateError": "Erreur lors de la mise à jour",
       "revoked": "Accès révoqué",
-      "revokeError": "Erreur lors de la révocation"
-    }
+      "revokeError": "Erreur lors de la révocation",
+      "addedToGroup": "Ajouté au groupe",
+      "addToGroupError": "Erreur lors de l'ajout au groupe",
+      "removeFromGroupError": "Erreur lors du retrait du groupe"
+    },
+    "selectGroup": "Choisir un groupe…",
+    "addToGroup": "Groupe"
   },
   "groups": {
     "createTitle": "Créer un groupe",
@@ -77,6 +85,11 @@
     "memberEmailPlaceholder": "Email du membre",
     "members": "Membres",
     "groupPermission": "Permission du groupe",
+    "permissions": "Permissions",
+    "noPermissions": "Aucune permission définie.",
+    "addPermission": "Ajouter",
+    "allSubCals": "Tous",
+    "permCount": "perm.",
     "level": "Niveau",
     "subCal": "Sous-cal.",
     "empty": "Aucun groupe créé.",
@@ -92,7 +105,8 @@
       "deleted": "Groupe supprimé",
       "groupDeleteError": "Erreur lors de la suppression",
       "created": "Groupe créé",
-      "createError": "Erreur lors de la création"
+      "createError": "Erreur lors de la création",
+      "permissionRemoved": "Permission supprimée"
     }
   },
   "tags": {

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Trash2, Plus, Clock } from 'lucide-react'
+import { Trash2, Plus, Clock, X } from 'lucide-react'
 import { calendarApi } from '../../api/calendars'
 import { PERMISSION_LABELS, PERMISSION_COLORS } from '../../utils/permissions'
 import type { CalendarConfig, SubCalendar, Permission, CalendarAccess, PendingInvitation } from '../../types'
@@ -57,6 +57,8 @@ export default function UsersTab({ calendar, subCalendars }: Props) {
   const [email, setEmail] = useState('')
   const [perm, setPerm] = useState<Permission>('read_only')
   const [subCal, setSubCal] = useState('')
+  const [addGroupUserId, setAddGroupUserId] = useState<string | null>(null)
+  const [selectedGroupId, setSelectedGroupId] = useState('')
 
   const { data: accesses = [], isLoading } = useQuery({
     queryKey: ['access', calendar.id],
@@ -68,9 +70,25 @@ export default function UsersTab({ calendar, subCalendars }: Props) {
     queryFn: () => calendarApi.getPendingInvitations(calendar.id),
   })
 
+  const { data: groups = [] } = useQuery({
+    queryKey: ['groups', calendar.id],
+    queryFn: () => calendarApi.getGroups(calendar.id),
+  })
+
+  const { data: memberships = [] } = useQuery({
+    queryKey: ['group-memberships', calendar.id],
+    queryFn: () => calendarApi.getGroupMemberships(calendar.id),
+  })
+
   const userAccesses: CalendarAccess[] = accesses.filter(
     (a) => a.user_id !== null && a.group_id === null && a.link_id === null
   )
+
+  // Build a map: user_id → list of {id, name}
+  const userGroupsMap = new Map<string, { id: string; name: string }[]>()
+  for (const m of memberships) {
+    userGroupsMap.set(m.user_id, m.groups)
+  }
 
   const inviteMutation = useMutation({
     mutationFn: () =>
@@ -119,6 +137,29 @@ export default function UsersTab({ calendar, subCalendars }: Props) {
     onError: () => toast.error(t('users.toast.revokeError')),
   })
 
+  const addToGroupMutation = useMutation({
+    mutationFn: ({ groupId, userEmail }: { groupId: string; userEmail: string }) =>
+      calendarApi.addGroupMember(calendar.id, groupId, userEmail),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['group-memberships', calendar.id] })
+      qc.invalidateQueries({ queryKey: ['group-members'] })
+      setAddGroupUserId(null)
+      setSelectedGroupId('')
+      toast.success(t('users.toast.addedToGroup'))
+    },
+    onError: () => toast.error(t('users.toast.addToGroupError')),
+  })
+
+  const removeFromGroupMutation = useMutation({
+    mutationFn: ({ groupId, userId }: { groupId: string; userId: string }) =>
+      calendarApi.removeGroupMember(calendar.id, groupId, userId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['group-memberships', calendar.id] })
+      qc.invalidateQueries({ queryKey: ['group-members'] })
+    },
+    onError: () => toast.error(t('users.toast.removeFromGroupError')),
+  })
+
   const handleInvite = (e: React.FormEvent) => {
     e.preventDefault()
     if (!email.trim()) return
@@ -136,56 +177,125 @@ export default function UsersTab({ calendar, subCalendars }: Props) {
         <div className="space-y-2">
           {userAccesses.map((a) => {
             const key = a.user_email || a.user_name || ''
+            const userGroups = a.user_id ? (userGroupsMap.get(a.user_id) || []) : []
+            const isAddingGroup = addGroupUserId === a.user_id
+
             return (
               <div
                 key={a.id}
-                className="flex items-center gap-3 px-4 py-3 bg-white rounded-xl border border-stone-100
+                className="px-4 py-3 bg-white rounded-xl border border-stone-100
                            hover:border-stone-200 hover:shadow-sm transition-all duration-150"
               >
-                {/* Avatar — color based on email hash */}
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${avatarColor(key)}`}>
-                  {initials(a.user_name, a.user_email)}
-                </div>
+                <div className="flex items-center gap-3">
+                  {/* Avatar — color based on email hash */}
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${avatarColor(key)}`}>
+                    {initials(a.user_name, a.user_email)}
+                  </div>
 
-                {/* Name + email */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-stone-800 truncate">
-                    {a.user_name || a.user_email}
-                  </p>
-                  {a.user_name && (
-                    <p className="text-xs text-stone-400 truncate">{a.user_email}</p>
-                  )}
-                  {a.sub_calendar_id && (
-                    <p className="text-xs text-stone-400">
-                      {subCalendars.find(s => s.id === a.sub_calendar_id)?.name ?? '?'}
+                  {/* Name + email */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-stone-800 truncate">
+                      {a.user_name || a.user_email}
                     </p>
-                  )}
+                    {a.user_name && (
+                      <p className="text-xs text-stone-400 truncate">{a.user_email}</p>
+                    )}
+                    {a.sub_calendar_id && (
+                      <p className="text-xs text-stone-400">
+                        {subCalendars.find(s => s.id === a.sub_calendar_id)?.name ?? '?'}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Permission select — colored */}
+                  <select
+                    value={a.permission}
+                    onChange={(e) =>
+                      updateMutation.mutate({ accessId: a.id, permission: e.target.value as Permission })
+                    }
+                    className={`text-xs px-2 py-1 rounded-lg font-semibold border-0 cursor-pointer
+                      focus:outline-none focus:ring-2 focus:ring-lamp-500/20 ${PERMISSION_COLORS[a.permission]}`}
+                  >
+                    {INVITE_PERMISSIONS.map((p) => (
+                      <option key={p} value={p} className="bg-white text-stone-800">
+                        {PERMISSION_LABELS[p]}
+                      </option>
+                    ))}
+                  </select>
+
+                  {/* Revoke */}
+                  <button
+                    onClick={() => deleteMutation.mutate(a.id)}
+                    title={t('users.revokeTooltip')}
+                    className="p-1.5 rounded-lg hover:bg-red-50 text-stone-300 hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 size={15} />
+                  </button>
                 </div>
 
-                {/* Permission select — colored */}
-                <select
-                  value={a.permission}
-                  onChange={(e) =>
-                    updateMutation.mutate({ accessId: a.id, permission: e.target.value as Permission })
-                  }
-                  className={`text-xs px-2 py-1 rounded-lg font-semibold border-0 cursor-pointer
-                    focus:outline-none focus:ring-2 focus:ring-lamp-500/20 ${PERMISSION_COLORS[a.permission]}`}
-                >
-                  {INVITE_PERMISSIONS.map((p) => (
-                    <option key={p} value={p} className="bg-white text-stone-800">
-                      {PERMISSION_LABELS[p]}
-                    </option>
-                  ))}
-                </select>
-
-                {/* Revoke */}
-                <button
-                  onClick={() => deleteMutation.mutate(a.id)}
-                  title={t('users.revokeTooltip')}
-                  className="p-1.5 rounded-lg hover:bg-red-50 text-stone-300 hover:text-red-500 transition-colors"
-                >
-                  <Trash2 size={15} />
-                </button>
+                {/* Group badges row */}
+                {(userGroups.length > 0 || groups.length > 0) && (
+                  <div className="flex items-center gap-1.5 mt-2 ml-11 flex-wrap">
+                    {userGroups.map((g) => (
+                      <span
+                        key={g.id}
+                        className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-medium"
+                      >
+                        {g.name}
+                        <button
+                          onClick={() => a.user_id && removeFromGroupMutation.mutate({ groupId: g.id, userId: a.user_id })}
+                          className="hover:text-red-500 transition-colors"
+                        >
+                          <X size={11} />
+                        </button>
+                      </span>
+                    ))}
+                    {isAddingGroup ? (
+                      <div className="flex items-center gap-1">
+                        <select
+                          value={selectedGroupId}
+                          onChange={(e) => setSelectedGroupId(e.target.value)}
+                          className="text-xs rounded-lg border border-stone-200 px-2 py-0.5 bg-white"
+                          autoFocus
+                        >
+                          <option value="">{t('users.selectGroup')}</option>
+                          {groups
+                            .filter((g) => !userGroups.some((ug) => ug.id === g.id))
+                            .map((g) => (
+                              <option key={g.id} value={g.id}>{g.name}</option>
+                            ))}
+                        </select>
+                        <button
+                          onClick={() => {
+                            if (selectedGroupId && a.user_email) {
+                              addToGroupMutation.mutate({ groupId: selectedGroupId, userEmail: a.user_email })
+                            }
+                          }}
+                          disabled={!selectedGroupId || addToGroupMutation.isPending}
+                          className="text-xs px-2 py-0.5 bg-indigo-500 text-white rounded-lg disabled:opacity-50"
+                        >
+                          OK
+                        </button>
+                        <button
+                          onClick={() => { setAddGroupUserId(null); setSelectedGroupId('') }}
+                          className="text-xs text-stone-400 hover:text-stone-600"
+                        >
+                          <X size={13} />
+                        </button>
+                      </div>
+                    ) : (
+                      groups.filter((g) => !userGroups.some((ug) => ug.id === g.id)).length > 0 && (
+                        <button
+                          onClick={() => { setAddGroupUserId(a.user_id); setSelectedGroupId('') }}
+                          className="inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full border border-dashed border-stone-300 text-stone-400 hover:text-indigo-600 hover:border-indigo-300 transition-colors"
+                        >
+                          <Plus size={11} />
+                          {t('users.addToGroup')}
+                        </button>
+                      )
+                    )}
+                  </div>
+                )}
               </div>
             )
           })}
@@ -264,7 +374,7 @@ export default function UsersTab({ calendar, subCalendars }: Props) {
                 onChange={(e) => setSubCal(e.target.value)}
                 className={selectClass}
               >
-                <option value="">Tous</option>
+                <option value="">{t('groups.allSubCals')}</option>
                 {subCalendars.map((sc) => (
                   <option key={sc.id} value={sc.id}>{sc.name}</option>
                 ))}

@@ -51,7 +51,10 @@
     },
     "disable": "Uitschakelen",
     "enable": "Inschakelen",
-    "copyLink": "Link kopiëren"
+    "copyLink": "Link kopiëren",
+    "autoGroup": "Automatische groep",
+    "noGroup": "Geen groep",
+    "autoGroupHelp": "Ingelogde gebruikers die deze link openen, worden automatisch aan deze groep toegevoegd."
   },
   "users": {
     "inviteTitle": "Gebruiker uitnodigen",
@@ -68,8 +71,13 @@
       "notFound": "Gebruiker niet gevonden of al uitgenodigd",
       "updateError": "Fout bij bijwerken",
       "revoked": "Toegang ingetrokken",
-      "revokeError": "Fout bij intrekken"
-    }
+      "revokeError": "Fout bij intrekken",
+      "addedToGroup": "Aan groep toegevoegd",
+      "addToGroupError": "Fout bij toevoegen aan groep",
+      "removeFromGroupError": "Fout bij verwijderen uit groep"
+    },
+    "selectGroup": "Kies een groep…",
+    "addToGroup": "Groep"
   },
   "groups": {
     "createTitle": "Groep aanmaken",
@@ -77,6 +85,11 @@
     "memberEmailPlaceholder": "E-mail van lid",
     "members": "Leden",
     "groupPermission": "Groepstoestemming",
+    "permissions": "Toestemmingen",
+    "noPermissions": "Geen toestemmingen ingesteld.",
+    "addPermission": "Toevoegen",
+    "allSubCals": "Alle",
+    "permCount": "toest.",
     "level": "Niveau",
     "subCal": "Subkal.",
     "empty": "Geen groepen aangemaakt.",
@@ -92,7 +105,8 @@
       "deleted": "Groep verwijderd",
       "groupDeleteError": "Fout bij verwijderen",
       "created": "Groep aangemaakt",
-      "createError": "Fout bij aanmaken"
+      "createError": "Fout bij aanmaken",
+      "permissionRemoved": "Toestemming verwijderd"
     }
   },
   "tags": {
