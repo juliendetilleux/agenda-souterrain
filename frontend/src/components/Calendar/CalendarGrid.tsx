@@ -171,9 +171,24 @@ export default function CalendarGrid({ calendar, subCalendars, openNewEvent, onN
     )
   }
 
+  // Intercept browser back button to close modal instead of navigating away
+  const modalOpen = !!(selectedEvent || newEventDates)
+  useEffect(() => {
+    if (!modalOpen) return
+    window.history.pushState({ modal: true }, '')
+    const handlePopState = () => {
+      setSelectedEvent(null)
+      setNewEventDates(null)
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [modalOpen])
+
   const closeModal = () => {
     setSelectedEvent(null)
     setNewEventDates(null)
+    // Pop the history entry we pushed when the modal opened
+    if (window.history.state?.modal) window.history.back()
   }
 
   const handleSaved = () => {
