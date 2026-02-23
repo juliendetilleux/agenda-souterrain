@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 from typing import Optional, Dict, Any, List
-from pydantic import BaseModel, EmailStr, field_validator, model_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 from app.schemas.tag import TagOut
 
 
@@ -14,18 +14,18 @@ def _strip_tz(dt: datetime) -> datetime:
 
 class EventCreate(BaseModel):
     sub_calendar_id: uuid.UUID
-    title: str
+    title: str = Field(max_length=500)
     start_dt: datetime
     end_dt: datetime
     all_day: bool = False
-    location: Optional[str] = None
+    location: Optional[str] = Field(None, max_length=500)
     latitude: Optional[float] = None
     longitude: Optional[float] = None
-    notes: Optional[str] = None
-    who: Optional[str] = None
+    notes: Optional[str] = Field(None, max_length=10000)
+    who: Optional[str] = Field(None, max_length=500)
     signup_enabled: bool = False
     signup_max: Optional[int] = None
-    rrule: Optional[str] = None
+    rrule: Optional[str] = Field(None, max_length=500)
     custom_fields: Dict[str, Any] = {}
     tag_ids: List[uuid.UUID] = []
 

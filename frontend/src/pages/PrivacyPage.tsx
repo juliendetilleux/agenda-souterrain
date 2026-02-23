@@ -6,9 +6,9 @@ const COOKIES = [
   { name: 'access_token',  duration: '15 min',    purposeKey: 'cookieAccessToken',  required: true },
   { name: 'refresh_token', duration: '7 d',       purposeKey: 'cookieRefreshToken', required: true },
   { name: 'csrf_token',    duration: 'Session',   purposeKey: 'cookieCsrf',         required: true },
-  { name: 'cookie_consent',duration: '1 an / 1y', purposeKey: 'cookieConsent',      required: true },
-  { name: 'i18nextLng',    duration: '1 an / 1y', purposeKey: 'cookieLanguage',     required: false },
-  { name: 'pwa_dismissed', duration: '30 d',      purposeKey: 'cookiePwa',          required: false },
+  { name: 'cookie-consent', duration: '1 an / 1y', purposeKey: 'cookieConsent',      required: true },
+  { name: 'i18nextLng',     duration: '1 an / 1y', purposeKey: 'cookieLanguage',     required: false },
+  { name: 'pwa-dismissed',  duration: '30 d',      purposeKey: 'cookiePwa',          required: false },
 ]
 
 export default function PrivacyPage() {

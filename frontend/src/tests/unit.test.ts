@@ -1,10 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import {
   canReadLimited, canRead, canAdd, canModifyOwn, canModify, isAdmin,
-  PERMISSION_LABELS,
+  PERMISSION_LABELS, PERMISSION_COLORS, getPermissionLabel,
 } from '../utils/permissions'
 import { formatDtstart, computeDuration } from '../utils/dateHelpers'
-import type { Permission } from '../types'
+import { formatFileSize, isImage, isPdf } from '../utils/files'
+import { getTranslatedContent } from '../utils/translations'
+import type { Permission, EventComment } from '../types'
 
 // ─── Permission hierarchy ─────────────────────────────────────────────────
 
@@ -53,6 +55,28 @@ describe('permission utilities', () => {
       expect(PERMISSION_LABELS[p]).toBeTruthy()
     }
   })
+
+  it('all permissions have colors', () => {
+    const perms: Permission[] = [
+      'no_access', 'read_only_no_details', 'read_only',
+      'add_only', 'modify_own', 'modify', 'administrator',
+    ]
+    for (const p of perms) {
+      expect(PERMISSION_COLORS[p]).toBeTruthy()
+      expect(PERMISSION_COLORS[p]).toContain('bg-')
+      expect(PERMISSION_COLORS[p]).toContain('text-')
+    }
+  })
+
+  it('getPermissionLabel falls back to PERMISSION_LABELS when t returns key', () => {
+    const mockT = (key: string) => key // simulates missing translation
+    expect(getPermissionLabel('read_only', mockT)).toBe(PERMISSION_LABELS['read_only'])
+  })
+
+  it('getPermissionLabel uses translated value when available', () => {
+    const mockT = (key: string) => key === 'permissions.read_only' ? 'Read only' : key
+    expect(getPermissionLabel('read_only', mockT)).toBe('Read only')
+  })
 })
 
 // ─── Date helpers ────────────────────────────────────────────────────────
@@ -88,33 +112,13 @@ describe('computeDuration', () => {
   it('computes multi-hour duration', () => {
     expect(computeDuration('2025-06-15T09:00:00', '2025-06-15T12:30:00')).toBe('03:30')
   })
-})
 
-// ─── Auto timezone detection ──────────────────────────────────────────────
-
-describe('auto timezone', () => {
-  it('Intl.DateTimeFormat returns a non-empty timezone string', () => {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
-    expect(typeof tz).toBe('string')
-    expect(tz.length).toBeGreaterThan(0)
+  it('clamps negative duration to 00:00', () => {
+    expect(computeDuration('2025-06-15T12:00:00', '2025-06-15T10:00:00')).toBe('00:00')
   })
 })
 
-// ─── File size formatting ────────────────────────────────────────────────
-
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} o`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} Ko`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`
-}
-
-function isImage(mimeType: string): boolean {
-  return mimeType.startsWith('image/')
-}
-
-function isPdf(mimeType: string): boolean {
-  return mimeType === 'application/pdf'
-}
+// ─── File utilities (imported from utils/files.ts) ──────────────────────
 
 describe('formatFileSize', () => {
   it('formats bytes', () => {
@@ -132,6 +136,14 @@ describe('formatFileSize', () => {
   it('formats zero', () => {
     expect(formatFileSize(0)).toBe('0 o')
   })
+
+  it('formats boundary value at 1024', () => {
+    expect(formatFileSize(1024)).toBe('1.0 Ko')
+  })
+
+  it('formats boundary value at 1MB', () => {
+    expect(formatFileSize(1024 * 1024)).toBe('1.0 Mo')
+  })
 })
 
 describe('file type detection', () => {
@@ -139,8 +151,16 @@ describe('file type detection', () => {
     expect(isImage('image/jpeg')).toBe(true)
   })
 
+  it('isImage detects png', () => {
+    expect(isImage('image/png')).toBe(true)
+  })
+
   it('isImage rejects pdf', () => {
     expect(isImage('application/pdf')).toBe(false)
+  })
+
+  it('isImage rejects text', () => {
+    expect(isImage('text/plain')).toBe(false)
   })
 
   it('isPdf detects pdf', () => {
@@ -152,38 +172,32 @@ describe('file type detection', () => {
   })
 })
 
-// ─── Chat translation helper ─────────────────────────────────────────────
-
-interface MockComment {
-  content: string
-  translations: Record<string, { content: string }> | null
-}
-
-function getTranslatedContent(
-  comment: MockComment,
-  targetLang: string,
-  sourceLang: string,
-): string {
-  if (targetLang === sourceLang) return comment.content
-  return comment.translations?.[targetLang]?.content ?? comment.content
-}
+// ─── Translation helper (imported from utils/translations.ts) ───────────
 
 describe('getTranslatedContent', () => {
   it('returns original when same language', () => {
-    const comment: MockComment = { content: 'Bonjour', translations: null }
+    const comment = { content: 'Bonjour', translations: null } as unknown as EventComment
     expect(getTranslatedContent(comment, 'fr', 'fr')).toBe('Bonjour')
   })
 
   it('returns translated when available', () => {
-    const comment: MockComment = {
+    const comment = {
       content: 'Bonjour',
       translations: { en: { content: 'Hello' } },
-    }
+    } as unknown as EventComment
     expect(getTranslatedContent(comment, 'en', 'fr')).toBe('Hello')
   })
 
   it('returns original when translation not available', () => {
-    const comment: MockComment = { content: 'Bonjour', translations: null }
+    const comment = { content: 'Bonjour', translations: null } as unknown as EventComment
+    expect(getTranslatedContent(comment, 'en', 'fr')).toBe('Bonjour')
+  })
+
+  it('returns original when translations exist but target lang missing', () => {
+    const comment = {
+      content: 'Bonjour',
+      translations: { de: { content: 'Hallo' } },
+    } as unknown as EventComment
     expect(getTranslatedContent(comment, 'en', 'fr')).toBe('Bonjour')
   })
 })

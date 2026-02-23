@@ -29,10 +29,10 @@ export default class ErrorBoundary extends Component<Props, State> {
         fontFamily: 'sans-serif', textAlign: 'center',
       }}>
         <h1 style={{ fontSize: 24, marginBottom: 8, color: '#292524' }}>
-          Une erreur est survenue
+          Something went wrong
         </h1>
         <p style={{ color: '#78716c', marginBottom: 24 }}>
-          L'application a rencontré un problème inattendu.
+          The application encountered an unexpected error.
         </p>
         <button
           onClick={() => window.location.reload()}
@@ -42,7 +42,7 @@ export default class ErrorBoundary extends Component<Props, State> {
             cursor: 'pointer', fontWeight: 600,
           }}
         >
-          Recharger
+          Reload
         </button>
       </div>
     )

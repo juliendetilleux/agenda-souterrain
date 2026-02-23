@@ -176,6 +176,15 @@
       "unbanError": "Fehler beim Entsperren"
     }
   },
+  "permissions": {
+    "no_access": "Kein Zugang",
+    "read_only_no_details": "Lesen (ohne Details)",
+    "read_only": "Nur lesen",
+    "add_only": "Nur hinzufügen",
+    "modify_own": "Eigene Termine ändern",
+    "modify": "Alles ändern",
+    "administrator": "Administrator"
+  },
   "superadminCalendars": {
     "calendar": "Kalender",
     "owner": "Eigentümer",

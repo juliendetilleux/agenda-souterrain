@@ -55,6 +55,7 @@ function App() {
           path="/"
           element={isAuthenticated ? <HomePage /> : <Navigate to="/login" replace />}
         />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <InstallPrompt />
     </ErrorBoundary>

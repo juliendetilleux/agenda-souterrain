@@ -176,6 +176,15 @@
       "unbanError": "Erreur lors du débannissement"
     }
   },
+  "permissions": {
+    "no_access": "Aucun accès",
+    "read_only_no_details": "Lecture (sans détails)",
+    "read_only": "Lecture seule",
+    "add_only": "Ajout uniquement",
+    "modify_own": "Modifier mes événements",
+    "modify": "Modifier tout",
+    "administrator": "Administrateur"
+  },
   "superadminCalendars": {
     "calendar": "Calendrier",
     "owner": "Propriétaire",

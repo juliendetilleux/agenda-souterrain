@@ -18,6 +18,8 @@ class User(Base):
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
+    password_changed_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+
     is_banned: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     ban_until: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     ban_reason: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)

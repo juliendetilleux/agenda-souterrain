@@ -19,6 +19,7 @@ export const canModifyOwn = (p: Permission) => level(p) >= level('modify_own')
 export const canModify = (p: Permission) => level(p) >= level('modify')
 export const isAdmin = (p: Permission) => p === 'administrator'
 
+/** Fallback labels (FR) — used by tests and non-i18n contexts */
 export const PERMISSION_LABELS: Record<Permission, string> = {
   no_access: 'Aucun accès',
   read_only_no_details: 'Lecture (sans détails)',
@@ -27,6 +28,12 @@ export const PERMISSION_LABELS: Record<Permission, string> = {
   modify_own: 'Modifier mes événements',
   modify: 'Modifier tout',
   administrator: 'Administrateur',
+}
+
+/** Internationalized permission label — pass `t` from useTranslation('settings') */
+export function getPermissionLabel(p: Permission, t: (key: string) => string): string {
+  const translated = t(`permissions.${p}`)
+  return translated !== `permissions.${p}` ? translated : PERMISSION_LABELS[p]
 }
 
 export const PERMISSION_COLORS: Record<Permission, string> = {

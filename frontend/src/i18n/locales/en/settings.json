@@ -176,6 +176,15 @@
       "unbanError": "Error unbanning user"
     }
   },
+  "permissions": {
+    "no_access": "No access",
+    "read_only_no_details": "Read (no details)",
+    "read_only": "Read only",
+    "add_only": "Add only",
+    "modify_own": "Modify own events",
+    "modify": "Modify all",
+    "administrator": "Administrator"
+  },
   "superadminCalendars": {
     "calendar": "Calendar",
     "owner": "Owner",

@@ -18,7 +18,8 @@ from app.utils.security import (
     generate_csrf_token, decode_token,
 )
 from app.utils.cookies import set_auth_cookies, clear_auth_cookies
-from app.routers.deps import get_current_user
+from app.routers.deps import get_current_user, check_ban_status
+from app.config import settings
 from app.rate_limit import limiter
 from app.services.email import send_verification_email, send_password_reset_email
 
@@ -125,22 +126,7 @@ async def login(request: Request, data: UserLogin, db: AsyncSession = Depends(ge
     if not user or not verify_password(data.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Identifiants invalides")
 
-    # Ban check
-    if user.is_banned:
-        if user.ban_until is not None:
-            now = datetime.now(timezone.utc).replace(tzinfo=None)
-            if now >= user.ban_until:
-                user.is_banned = False
-                user.ban_until = None
-                user.ban_reason = None
-                await db.flush()
-            else:
-                raise HTTPException(
-                    status_code=403,
-                    detail=f"Compte suspendu jusqu'au {user.ban_until.strftime('%d/%m/%Y %H:%M')}"
-                )
-        else:
-            raise HTTPException(status_code=403, detail="Compte définitivement suspendu")
+    await check_ban_status(user, db, detailed=True)
 
     refresh_days = (
         settings.REFRESH_TOKEN_REMEMBER_DAYS if data.remember_me
@@ -171,19 +157,7 @@ async def refresh(request: Request, db: AsyncSession = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=401, detail="Utilisateur introuvable")
 
-    # Ban check on refresh
-    if user.is_banned:
-        if user.ban_until is not None:
-            now = datetime.now(timezone.utc).replace(tzinfo=None)
-            if now >= user.ban_until:
-                user.is_banned = False
-                user.ban_until = None
-                user.ban_reason = None
-                await db.flush()
-            else:
-                raise HTTPException(status_code=403, detail="Compte suspendu")
-        else:
-            raise HTTPException(status_code=403, detail="Compte suspendu")
+    await check_ban_status(user, db)
 
     access_token = create_access_token({"sub": str(user.id)})
     new_refresh = create_refresh_token({"sub": str(user.id)})
@@ -238,7 +212,15 @@ async def reset_password(
     if not user:
         raise HTTPException(status_code=404, detail="Utilisateur introuvable")
 
+    # Reject token if password was already changed after it was issued
+    token_iat = payload.get("iat", 0)
+    if user.password_changed_at:
+        changed_ts = user.password_changed_at.replace(tzinfo=timezone.utc).timestamp()
+        if token_iat < changed_ts:
+            raise HTTPException(status_code=400, detail="Token invalide ou expiré")
+
     user.hashed_password = get_password_hash(data.password)
+    user.password_changed_at = datetime.now(timezone.utc).replace(tzinfo=None)
     await db.flush()
     return {"message": "Mot de passe réinitialisé avec succès"}
 

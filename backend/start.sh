@@ -8,7 +8,8 @@ echo "Running database migrations..."
 if alembic upgrade head; then
     echo "Migrations completed successfully."
 else
-    echo "WARNING: Migrations failed (exit code $?). Starting server anyway..."
+    echo "ERROR: Migrations failed (exit code $?). Aborting."
+    exit 1
 fi
 
 echo "Starting server on port ${PORT:-8000}..."

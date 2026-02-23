@@ -8,6 +8,30 @@ from app.models.user import User
 from app.utils.security import decode_token
 
 
+async def check_ban_status(user: User, db: AsyncSession, *, detailed: bool = False) -> None:
+    """Check if user is banned. Lifts expired temporary bans.
+    Raises HTTPException(403) if still banned.
+    If detailed=True, includes ban expiry date in the error message.
+    """
+    if not user.is_banned:
+        return
+    if user.ban_until is not None:
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
+        if now >= user.ban_until:
+            user.is_banned = False
+            user.ban_until = None
+            user.ban_reason = None
+            await db.flush()
+            return
+        if detailed:
+            raise HTTPException(
+                status_code=403,
+                detail=f"Compte suspendu jusqu'au {user.ban_until.strftime('%d/%m/%Y %H:%M')}"
+            )
+        raise HTTPException(status_code=403, detail="Compte suspendu")
+    raise HTTPException(status_code=403, detail="Compte définitivement suspendu" if detailed else "Compte suspendu")
+
+
 async def get_current_user(
     request: Request,
     db: AsyncSession = Depends(get_db),
@@ -33,18 +57,7 @@ async def get_current_user(
     if not user:
         raise HTTPException(status_code=401, detail="Utilisateur introuvable")
 
-    # Ban check
-    if user.is_banned:
-        if user.ban_until is not None:
-            now = datetime.now(timezone.utc).replace(tzinfo=None)
-            if now >= user.ban_until:
-                user.is_banned = False
-                user.ban_until = None
-                user.ban_reason = None
-            else:
-                raise HTTPException(status_code=403, detail="Compte suspendu")
-        else:
-            raise HTTPException(status_code=403, detail="Compte suspendu")
+    await check_ban_status(user, db)
 
     return user
 
