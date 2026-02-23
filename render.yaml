@@ -16,6 +16,10 @@ services:
         sync: false
       - key: RESEND_API_KEY
         sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: TRANSLATION_BACKEND
+        value: mymemory
       - key: SELF_PING_URL
         sync: false
       - key: LIBRETRANSLATE_URL
@@ -32,3 +36,7 @@ services:
         sync: false
       - key: R2_PUBLIC_URL
         sync: false
+      - key: COOKIE_DOMAIN
+        value: .agenda-souterrain.com
+      - key: COOKIE_SECURE
+        value: "true"

@@ -153,6 +153,12 @@ export default function RegisterPage() {
               </Link>
             </p>
           </div>
+
+          <p className="mt-4 text-center text-xs text-stone-400">
+            <Link to="/privacy" className="hover:text-stone-600 transition-colors underline">
+              {tc('privacy')}
+            </Link>
+          </p>
         </div>
       </div>
     </div>

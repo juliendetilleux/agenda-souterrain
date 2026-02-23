@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { CalendarDays, Plus, LogOut } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../store/authStore'
+import { authApi } from '../api/auth'
 import { calendarApi } from '../api/calendars'
 import LanguageSwitcher from '../components/ui/LanguageSwitcher'
 
@@ -26,7 +27,12 @@ export default function HomePage() {
     }
   }, [isLoading, calendars, isSuperadmin, navigate])
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await authApi.logout()
+    } catch {
+      // ignore — clear local state anyway
+    }
     logout()
     navigate('/login')
   }

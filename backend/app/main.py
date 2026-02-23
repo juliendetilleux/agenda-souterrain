@@ -14,6 +14,7 @@ from app.database import get_db
 from app.rate_limit import limiter
 from app.routers import auth, calendars, sub_calendars, events, sharing, admin, tags, comments, uploads
 from app.services.email import log_email_status
+from app.middleware.csrf import CSRFMiddleware
 
 
 @asynccontextmanager
@@ -48,12 +49,14 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(SlowAPIMiddleware)
 app.add_middleware(GZipMiddleware, minimum_size=500)
 
+app.add_middleware(CSRFMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[settings.FRONTEND_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["X-CSRF-Token"],
 )
 
 app.include_router(auth.router, prefix="/v1")

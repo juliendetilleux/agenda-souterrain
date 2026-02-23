@@ -1,3 +1,4 @@
+import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from jose import JWTError, jwt
@@ -45,6 +46,10 @@ def create_password_reset_token(user_id: str) -> str:
     expire = datetime.now(timezone.utc) + timedelta(hours=1)
     to_encode["exp"] = expire
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
+
+def generate_csrf_token() -> str:
+    return secrets.token_urlsafe(32)
 
 
 def decode_token(token: str) -> Optional[dict]:
