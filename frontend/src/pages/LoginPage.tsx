@@ -5,6 +5,7 @@ import { authApi } from '../api/auth'
 import { useAuthStore } from '../store/authStore'
 import LanguageSwitcher from '../components/ui/LanguageSwitcher'
 import toast from 'react-hot-toast'
+import { useCookieConsentStore } from '../store/cookieConsentStore'
 import { version } from '../../package.json'
 
 export default function LoginPage() {
@@ -22,6 +23,7 @@ export default function LoginPage() {
     setLoading(true)
     try {
       const user = await authApi.login(email, password, rememberMe)
+      useCookieConsentStore.getState().acceptAll()
       setUser(user)
       navigate('/')
     } catch {

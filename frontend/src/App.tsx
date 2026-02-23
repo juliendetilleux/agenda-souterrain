@@ -13,7 +13,6 @@ import SettingsPage from './pages/SettingsPage'
 import HomePage from './pages/HomePage'
 import PrivacyPage from './pages/PrivacyPage'
 import InstallPrompt from './components/ui/InstallPrompt'
-import CookieConsent from './components/ui/CookieConsent'
 import ErrorBoundary from './components/ui/ErrorBoundary'
 import VerificationBanner from './components/ui/VerificationBanner'
 
@@ -57,7 +56,6 @@ function App() {
           element={isAuthenticated ? <HomePage /> : <Navigate to="/login" replace />}
         />
       </Routes>
-      <CookieConsent />
       <InstallPrompt />
     </ErrorBoundary>
   )
