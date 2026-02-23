@@ -14,6 +14,13 @@ interface Props {
   canModerate: boolean
 }
 
+/** Resolve relative URLs (e.g. /v1/uploads/...) against the API server */
+function resolveFileUrl(url: string): string {
+  if (url.startsWith('http')) return url
+  const apiBase = import.meta.env.VITE_API_URL || ''
+  return apiBase.replace(/\/v1$/, '') + url
+}
+
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} o`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} Ko`
@@ -135,9 +142,9 @@ export default function AttachmentSection({
               <div key={att.id} className="group flex items-center gap-3 bg-white rounded-lg px-3 py-2 border border-stone-100">
                 {/* Thumbnail or icon */}
                 {isImage(att.mime_type) ? (
-                  <a href={att.url} target="_blank" rel="noopener noreferrer">
+                  <a href={resolveFileUrl(att.url)} target="_blank" rel="noopener noreferrer">
                     <img
-                      src={att.url}
+                      src={resolveFileUrl(att.url)}
                       alt={att.original_filename}
                       className="w-10 h-10 rounded object-cover flex-shrink-0 cursor-pointer
                                  hover:opacity-80 transition-opacity"
@@ -145,7 +152,7 @@ export default function AttachmentSection({
                   </a>
                 ) : (
                   <a
-                    href={att.url}
+                    href={resolveFileUrl(att.url)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex-shrink-0"
@@ -157,7 +164,7 @@ export default function AttachmentSection({
                 {/* File info */}
                 <div className="flex-1 min-w-0">
                   <a
-                    href={att.url}
+                    href={resolveFileUrl(att.url)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm font-medium text-stone-700 truncate block
