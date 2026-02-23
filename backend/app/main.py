@@ -83,4 +83,8 @@ async def health(db: AsyncSession = Depends(get_db)):
         "status": "ok" if db_status == "ok" else "error",
         "db": db_status,
         "admin_email_set": bool(settings.ADMIN_EMAIL),
+        "smtp_configured": bool(settings.SMTP_USER and settings.SMTP_PASSWORD),
+        "smtp_user": (settings.SMTP_USER or "")[:3] + "***" if settings.SMTP_USER else None,
+        "smtp_host": settings.SMTP_HOST,
+        "smtp_port": settings.SMTP_PORT,
     }
