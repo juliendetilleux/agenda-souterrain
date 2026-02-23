@@ -4,12 +4,16 @@ import { useAuthStore } from './store/authStore'
 import { authApi } from './api/auth'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import VerifyEmailPage from './pages/VerifyEmailPage'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 import CalendarPage from './pages/CalendarPage'
 import CreateCalendarPage from './pages/CreateCalendarPage'
 import SettingsPage from './pages/SettingsPage'
 import HomePage from './pages/HomePage'
 import InstallPrompt from './components/ui/InstallPrompt'
 import ErrorBoundary from './components/ui/ErrorBoundary'
+import VerificationBanner from './components/ui/VerificationBanner'
 
 function App() {
   const { token, user, setUser } = useAuthStore()
@@ -25,9 +29,13 @@ function App() {
 
   return (
     <ErrorBoundary>
+      {token && user && !user.is_verified && <VerificationBanner />}
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/c/:slug" element={<CalendarPage />} />
         <Route path="/c/:slug/settings" element={<SettingsPage />} />
         <Route

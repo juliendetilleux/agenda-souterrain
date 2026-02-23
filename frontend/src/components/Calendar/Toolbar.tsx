@@ -143,7 +143,7 @@ export default function Toolbar({ calendar, onNewEvent, onMenuClick }: Props) {
           >
             <ChevronRight size={18} />
           </button>
-          <span className="text-sm sm:text-base font-semibold text-stone-800 capitalize tracking-tight truncate">
+          <span className="hidden sm:inline text-base font-semibold text-stone-800 capitalize tracking-tight truncate">
             {formatTitle()}
           </span>
         </div>
@@ -232,6 +232,13 @@ export default function Toolbar({ calendar, onNewEvent, onMenuClick }: Props) {
             </button>
           )}
         </div>
+      </div>
+
+      {/* Row 1b: date on its own line (mobile only) */}
+      <div className="sm:hidden px-3 pb-1">
+        <span className="text-base font-bold text-stone-800 capitalize tracking-tight">
+          {formatTitle()}
+        </span>
       </div>
 
       {/* Row 2: view switcher */}

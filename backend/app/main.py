@@ -13,12 +13,14 @@ from app.config import settings
 from app.database import get_db
 from app.rate_limit import limiter
 from app.routers import auth, calendars, sub_calendars, events, sharing, admin, tags, comments, uploads
+from app.services.email import log_smtp_status
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan: startup & shutdown logic."""
     # ── Startup ──
+    log_smtp_status()
     ping_task = None
     if settings.SELF_PING_URL:
         async def _ping_loop():

@@ -87,7 +87,7 @@ export default function GeneralTab({ calendar, isSuperadmin }: Props) {
 
   const inputClass =
     'w-full text-sm rounded-lg border border-stone-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lamp-500/20 focus:border-lamp-500 transition-all bg-white'
-  const labelClass = 'block text-[10px] font-semibold text-stone-400 uppercase tracking-wider mb-1'
+  const labelClass = 'block text-xs font-semibold text-stone-400 uppercase tracking-wider mb-1'
 
   return (
     <form onSubmit={handleSubmit}>
@@ -106,7 +106,7 @@ export default function GeneralTab({ calendar, isSuperadmin }: Props) {
           </div>
 
           {/* Timezone + Language */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>{t('general.timezone')}</label>
               <select value={timezone} onChange={(e) => setTimezone(e.target.value)} className={inputClass}>
@@ -126,7 +126,7 @@ export default function GeneralTab({ calendar, isSuperadmin }: Props) {
           </div>
 
           {/* Week start + Default view */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>{t('general.weekStart')}</label>
               <select
@@ -150,7 +150,7 @@ export default function GeneralTab({ calendar, isSuperadmin }: Props) {
           </div>
 
           {/* Time range */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>{t('general.visibleTimeStart')}</label>
               <input
@@ -172,7 +172,7 @@ export default function GeneralTab({ calendar, isSuperadmin }: Props) {
           </div>
 
           {/* Default event duration */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>{t('general.defaultDuration')}</label>
               <input

@@ -1,15 +1,24 @@
 import logging
 from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 from app.database import get_db
 from app.models.user import User
 from app.models.access import PendingInvitation, CalendarAccess
-from app.schemas.user import UserCreate, UserLogin, UserOut, Token, TokenRefresh, make_user_out
-from app.utils.security import verify_password, get_password_hash, create_access_token, create_refresh_token, decode_token
+from app.schemas.user import (
+    UserCreate, UserLogin, UserOut, Token, TokenRefresh,
+    ForgotPasswordRequest, ResetPasswordRequest, make_user_out,
+)
+from app.utils.security import (
+    verify_password, get_password_hash,
+    create_access_token, create_refresh_token,
+    create_verification_token, create_password_reset_token,
+    decode_token,
+)
 from app.routers.deps import get_current_user
 from app.rate_limit import limiter
+from app.services.email import send_verification_email, send_password_reset_email
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +27,12 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/register", response_model=UserOut, status_code=201)
 @limiter.limit("20/minute")
-async def register(request: Request, data: UserCreate, db: AsyncSession = Depends(get_db)):
+async def register(
+    request: Request,
+    data: UserCreate,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+):
     result = await db.execute(select(User).where(User.email == data.email))
     if result.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Email déjà enregistré")
@@ -26,7 +40,7 @@ async def register(request: Request, data: UserCreate, db: AsyncSession = Depend
         email=data.email,
         name=data.name,
         hashed_password=get_password_hash(data.password),
-        is_verified=True,
+        is_verified=False,
     )
     db.add(user)
     await db.flush()
@@ -49,7 +63,56 @@ async def register(request: Request, data: UserCreate, db: AsyncSession = Depend
     if pending_invitations:
         logger.info("Applied %d pending invitation(s) for %s", len(pending_invitations), data.email)
 
+    # Send verification email
+    token = create_verification_token(str(user.id))
+    background_tasks.add_task(send_verification_email, email=user.email, name=user.name, token=token)
+
     return make_user_out(user)
+
+
+@router.post("/verify-email")
+@limiter.limit("10/minute")
+async def verify_email(
+    request: Request,
+    token: str = Query(...),
+    db: AsyncSession = Depends(get_db),
+):
+    payload = decode_token(token)
+    if not payload or payload.get("type") != "email_verification":
+        raise HTTPException(status_code=400, detail="Token de vérification invalide ou expiré")
+
+    user_id = payload.get("sub")
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="Utilisateur introuvable")
+
+    if user.is_verified:
+        return {"message": "Email déjà vérifié"}
+
+    user.is_verified = True
+    await db.flush()
+    return {"message": "Email vérifié avec succès"}
+
+
+@router.post("/resend-verification")
+@limiter.limit("3/minute")
+async def resend_verification(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    current_user: User = Depends(get_current_user),
+):
+    if current_user.is_verified:
+        raise HTTPException(status_code=400, detail="Email déjà vérifié")
+
+    token = create_verification_token(str(current_user.id))
+    background_tasks.add_task(
+        send_verification_email,
+        email=current_user.email,
+        name=current_user.name,
+        token=token,
+    )
+    return {"message": "Email de vérification renvoyé"}
 
 
 @router.post("/login", response_model=Token)
@@ -110,6 +173,47 @@ async def refresh(data: TokenRefresh, db: AsyncSession = Depends(get_db)):
     access_token = create_access_token({"sub": str(user.id)})
     refresh_token = create_refresh_token({"sub": str(user.id)})
     return Token(access_token=access_token, refresh_token=refresh_token)
+
+
+@router.post("/forgot-password")
+@limiter.limit("5/minute")
+async def forgot_password(
+    request: Request,
+    data: ForgotPasswordRequest,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+):
+    """Send a password reset email. Always returns 200 to not reveal if the email exists."""
+    result = await db.execute(select(User).where(User.email == data.email))
+    user = result.scalar_one_or_none()
+
+    if user:
+        token = create_password_reset_token(str(user.id))
+        background_tasks.add_task(send_password_reset_email, email=user.email, token=token)
+
+    return {"message": "Si cette adresse est enregistrée, un email a été envoyé."}
+
+
+@router.post("/reset-password")
+@limiter.limit("10/minute")
+async def reset_password(
+    request: Request,
+    data: ResetPasswordRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    payload = decode_token(data.token)
+    if not payload or payload.get("type") != "password_reset":
+        raise HTTPException(status_code=400, detail="Token invalide ou expiré")
+
+    user_id = payload.get("sub")
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="Utilisateur introuvable")
+
+    user.hashed_password = get_password_hash(data.password)
+    await db.flush()
+    return {"message": "Mot de passe réinitialisé avec succès"}
 
 
 @router.get("/me", response_model=UserOut)

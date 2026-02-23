@@ -105,6 +105,11 @@ export default function LoginPage() {
                              transition-all"
                 />
               </div>
+              <div className="flex justify-end">
+                <Link to="/forgot-password" className="text-xs text-lamp-600 hover:text-lamp-700 transition-colors">
+                  {t('login.forgotPassword')}
+                </Link>
+              </div>
               <button
                 type="submit"
                 disabled={loading}

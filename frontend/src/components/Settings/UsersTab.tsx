@@ -239,9 +239,9 @@ export default function UsersTab({ calendar, subCalendars }: Props) {
             className={inputClass}
           />
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[10px] font-semibold text-stone-400 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-stone-400 uppercase tracking-wider mb-1.5">
                 {t('users.permission')}
               </label>
               <select
@@ -256,7 +256,7 @@ export default function UsersTab({ calendar, subCalendars }: Props) {
             </div>
 
             <div>
-              <label className="block text-[10px] font-semibold text-stone-400 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-stone-400 uppercase tracking-wider mb-1.5">
                 {t('users.subCalendar')}
               </label>
               <select
