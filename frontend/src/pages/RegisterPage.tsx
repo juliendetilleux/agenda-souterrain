@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { authApi } from '../api/auth'
 import LanguageSwitcher from '../components/ui/LanguageSwitcher'
 import toast from 'react-hot-toast'
+import { useCookieConsentStore } from '../store/cookieConsentStore'
 import { version } from '../../package.json'
 
 export default function RegisterPage() {
@@ -13,6 +14,7 @@ export default function RegisterPage() {
   const [name, setName] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [acceptCookies, setAcceptCookies] = useState(false)
   const [passwordError, setPasswordError] = useState('')
   const navigate = useNavigate()
 
@@ -34,6 +36,7 @@ export default function RegisterPage() {
     setLoading(true)
     try {
       await authApi.register(email, name, password)
+      useCookieConsentStore.getState().acceptAll()
       toast.success(t('register.successVerification'))
       navigate('/login')
     } catch {
@@ -135,9 +138,24 @@ export default function RegisterPage() {
                   <p className="mt-1 text-xs text-red-500">{passwordError}</p>
                 )}
               </div>
+              <label className="flex items-start gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={acceptCookies}
+                  onChange={(e) => setAcceptCookies(e.target.checked)}
+                  className="w-3.5 h-3.5 mt-0.5 rounded border-stone-300 text-lamp-500
+                             focus:ring-lamp-500/30 cursor-pointer flex-shrink-0"
+                />
+                <span className="text-xs text-stone-500">
+                  {t('register.acceptCookies')}{' '}
+                  <Link to="/privacy" className="text-lamp-600 hover:text-lamp-700 underline" target="_blank">
+                    {t('register.privacyLink')}
+                  </Link>
+                </span>
+              </label>
               <button
                 type="submit"
-                disabled={loading || !!passwordError}
+                disabled={loading || !!passwordError || !acceptCookies}
                 className="w-full flex justify-center py-2.5 px-4 rounded-xl text-sm font-semibold
                            text-white bg-lamp-500 hover:bg-lamp-600 shadow-sm
                            focus:outline-none focus:ring-2 focus:ring-lamp-500/40
