@@ -10,6 +10,7 @@
     "links": "Links",
     "users": "Benutzer",
     "groups": "Gruppen",
+    "subcalendars": "Unterkalender",
     "tags": "Tags",
     "superadminUsers": "App-Benutzer",
     "superadminCalendars": "App-Kalender"
@@ -107,6 +108,21 @@
       "created": "Gruppe erstellt",
       "createError": "Fehler beim Erstellen",
       "permissionRemoved": "Berechtigung entfernt"
+    }
+  },
+  "subcalendars": {
+    "newSubCalendar": "Neuer Unterkalender",
+    "namePlaceholder": "Name des Unterkalenders",
+    "empty": "Keine Unterkalender",
+    "deleteTitle": "Unterkalender löschen",
+    "deleteMsg": "\"{{name}}\" löschen? Alle zugehörigen Termine werden gelöscht.",
+    "toast": {
+      "created": "Unterkalender erstellt",
+      "createError": "Fehler beim Erstellen",
+      "updated": "Unterkalender aktualisiert",
+      "updateError": "Fehler beim Aktualisieren",
+      "deleted": "Unterkalender gelöscht",
+      "deleteError": "Fehler beim Löschen"
     }
   },
   "tags": {
