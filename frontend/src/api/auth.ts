@@ -15,4 +15,16 @@ export const authApi = {
     api.post<LoginResponse>('/auth/login', { email, password }).then((r) => r.data),
 
   getMe: () => api.get<User>('/auth/me').then((r) => r.data),
+
+  verifyEmail: (token: string) =>
+    api.post<{ message: string }>(`/auth/verify-email?token=${encodeURIComponent(token)}`).then((r) => r.data),
+
+  resendVerification: () =>
+    api.post<{ message: string }>('/auth/resend-verification').then((r) => r.data),
+
+  forgotPassword: (email: string) =>
+    api.post<{ message: string }>('/auth/forgot-password', { email }).then((r) => r.data),
+
+  resetPassword: (token: string, password: string) =>
+    api.post<{ message: string }>('/auth/reset-password', { token, password }).then((r) => r.data),
 }

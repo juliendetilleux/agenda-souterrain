@@ -60,6 +60,24 @@ class BanUserRequest(BaseModel):
         return v
 
 
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    password: str
+
+    @field_validator("password")
+    @classmethod
+    def password_policy(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("Le mot de passe doit contenir au moins 8 caractères")
+        if not any(c.isdigit() for c in v):
+            raise ValueError("Le mot de passe doit contenir au moins un chiffre")
+        return v
+
+
 class Token(BaseModel):
     access_token: str
     refresh_token: str

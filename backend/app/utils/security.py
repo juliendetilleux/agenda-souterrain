@@ -31,6 +31,22 @@ def create_refresh_token(data: dict) -> str:
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
 
+def create_verification_token(user_id: str) -> str:
+    """JWT token for email verification, expires after 24h."""
+    to_encode = {"sub": user_id, "type": "email_verification"}
+    expire = datetime.now(timezone.utc) + timedelta(hours=24)
+    to_encode["exp"] = expire
+    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
+
+def create_password_reset_token(user_id: str) -> str:
+    """JWT token for password reset, expires after 1h."""
+    to_encode = {"sub": user_id, "type": "password_reset"}
+    expire = datetime.now(timezone.utc) + timedelta(hours=1)
+    to_encode["exp"] = expire
+    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
+
 def decode_token(token: str) -> Optional[dict]:
     try:
         return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])

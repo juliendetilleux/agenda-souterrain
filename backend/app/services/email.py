@@ -6,7 +6,7 @@ from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-# ── Email templates per language ─────────────────────────────────────────────
+# ── Invitation templates per language ────────────────────────────────────────
 
 TEMPLATES = {
     "fr": {
@@ -242,15 +242,261 @@ PERMISSION_LABELS = {
     },
 }
 
+# ── Verification email templates ─────────────────────────────────────────────
+
+VERIFICATION_TEMPLATES = {
+    "fr": {
+        "subject": "Confirmez votre adresse email — Agenda Souterrain",
+        "body": """
+<div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px;">
+  <h2 style="color:#292524;">Bienvenue {name} !</h2>
+  <p style="color:#57534e;line-height:1.6;">
+    Merci d'avoir créé votre compte sur <strong>Agenda Souterrain</strong>.
+    Cliquez sur le bouton ci-dessous pour confirmer votre adresse email.
+  </p>
+  <p style="text-align:center;margin:24px 0;">
+    <a href="{verification_url}"
+       style="background:#f59e0b;color:white;padding:12px 28px;border-radius:12px;
+              text-decoration:none;font-weight:600;display:inline-block;">
+      Confirmer mon email
+    </a>
+  </p>
+  <p style="color:#a8a29e;font-size:13px;">
+    Ce lien expire dans 24 heures. Si vous n'avez pas créé de compte, ignorez cet email.
+  </p>
+  <p style="color:#a8a29e;font-size:13px;">Agenda Souterrain — calendrier collaboratif</p>
+</div>""",
+    },
+    "en": {
+        "subject": "Confirm your email address — Agenda Souterrain",
+        "body": """
+<div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px;">
+  <h2 style="color:#292524;">Welcome {name}!</h2>
+  <p style="color:#57534e;line-height:1.6;">
+    Thank you for creating your account on <strong>Agenda Souterrain</strong>.
+    Click the button below to confirm your email address.
+  </p>
+  <p style="text-align:center;margin:24px 0;">
+    <a href="{verification_url}"
+       style="background:#f59e0b;color:white;padding:12px 28px;border-radius:12px;
+              text-decoration:none;font-weight:600;display:inline-block;">
+      Confirm my email
+    </a>
+  </p>
+  <p style="color:#a8a29e;font-size:13px;">
+    This link expires in 24 hours. If you didn't create an account, ignore this email.
+  </p>
+  <p style="color:#a8a29e;font-size:13px;">Agenda Souterrain — collaborative calendar</p>
+</div>""",
+    },
+    "nl": {
+        "subject": "Bevestig uw emailadres — Agenda Souterrain",
+        "body": """
+<div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px;">
+  <h2 style="color:#292524;">Welkom {name}!</h2>
+  <p style="color:#57534e;line-height:1.6;">
+    Bedankt voor het aanmaken van uw account op <strong>Agenda Souterrain</strong>.
+    Klik op de onderstaande knop om uw emailadres te bevestigen.
+  </p>
+  <p style="text-align:center;margin:24px 0;">
+    <a href="{verification_url}"
+       style="background:#f59e0b;color:white;padding:12px 28px;border-radius:12px;
+              text-decoration:none;font-weight:600;display:inline-block;">
+      Email bevestigen
+    </a>
+  </p>
+  <p style="color:#a8a29e;font-size:13px;">
+    Deze link verloopt over 24 uur. Als u geen account heeft aangemaakt, negeer deze email.
+  </p>
+  <p style="color:#a8a29e;font-size:13px;">Agenda Souterrain — collaboratieve kalender</p>
+</div>""",
+    },
+    "de": {
+        "subject": "Bestätigen Sie Ihre E-Mail-Adresse — Agenda Souterrain",
+        "body": """
+<div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px;">
+  <h2 style="color:#292524;">Willkommen {name}!</h2>
+  <p style="color:#57534e;line-height:1.6;">
+    Vielen Dank für die Erstellung Ihres Kontos auf <strong>Agenda Souterrain</strong>.
+    Klicken Sie auf die Schaltfläche unten, um Ihre E-Mail-Adresse zu bestätigen.
+  </p>
+  <p style="text-align:center;margin:24px 0;">
+    <a href="{verification_url}"
+       style="background:#f59e0b;color:white;padding:12px 28px;border-radius:12px;
+              text-decoration:none;font-weight:600;display:inline-block;">
+      E-Mail bestätigen
+    </a>
+  </p>
+  <p style="color:#a8a29e;font-size:13px;">
+    Dieser Link läuft in 24 Stunden ab. Falls Sie kein Konto erstellt haben, ignorieren Sie diese E-Mail.
+  </p>
+  <p style="color:#a8a29e;font-size:13px;">Agenda Souterrain — kollaborativer Kalender</p>
+</div>""",
+    },
+}
+
+# ── Password reset templates ─────────────────────────────────────────────────
+
+PASSWORD_RESET_TEMPLATES = {
+    "fr": {
+        "subject": "Réinitialisation de votre mot de passe — Agenda Souterrain",
+        "body": """
+<div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px;">
+  <h2 style="color:#292524;">Réinitialisation du mot de passe</h2>
+  <p style="color:#57534e;line-height:1.6;">
+    Vous avez demandé la réinitialisation de votre mot de passe.
+    Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe.
+  </p>
+  <p style="text-align:center;margin:24px 0;">
+    <a href="{reset_url}"
+       style="background:#f59e0b;color:white;padding:12px 28px;border-radius:12px;
+              text-decoration:none;font-weight:600;display:inline-block;">
+      Nouveau mot de passe
+    </a>
+  </p>
+  <p style="color:#a8a29e;font-size:13px;">
+    Ce lien expire dans 1 heure. Si vous n'avez pas fait cette demande, ignorez cet email.
+  </p>
+  <p style="color:#a8a29e;font-size:13px;">Agenda Souterrain — calendrier collaboratif</p>
+</div>""",
+    },
+    "en": {
+        "subject": "Reset your password — Agenda Souterrain",
+        "body": """
+<div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px;">
+  <h2 style="color:#292524;">Password Reset</h2>
+  <p style="color:#57534e;line-height:1.6;">
+    You have requested a password reset.
+    Click the button below to choose a new password.
+  </p>
+  <p style="text-align:center;margin:24px 0;">
+    <a href="{reset_url}"
+       style="background:#f59e0b;color:white;padding:12px 28px;border-radius:12px;
+              text-decoration:none;font-weight:600;display:inline-block;">
+      New password
+    </a>
+  </p>
+  <p style="color:#a8a29e;font-size:13px;">
+    This link expires in 1 hour. If you didn't make this request, ignore this email.
+  </p>
+  <p style="color:#a8a29e;font-size:13px;">Agenda Souterrain — collaborative calendar</p>
+</div>""",
+    },
+    "nl": {
+        "subject": "Wachtwoord opnieuw instellen — Agenda Souterrain",
+        "body": """
+<div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px;">
+  <h2 style="color:#292524;">Wachtwoord opnieuw instellen</h2>
+  <p style="color:#57534e;line-height:1.6;">
+    U heeft gevraagd om uw wachtwoord opnieuw in te stellen.
+    Klik op de onderstaande knop om een nieuw wachtwoord te kiezen.
+  </p>
+  <p style="text-align:center;margin:24px 0;">
+    <a href="{reset_url}"
+       style="background:#f59e0b;color:white;padding:12px 28px;border-radius:12px;
+              text-decoration:none;font-weight:600;display:inline-block;">
+      Nieuw wachtwoord
+    </a>
+  </p>
+  <p style="color:#a8a29e;font-size:13px;">
+    Deze link verloopt over 1 uur. Als u dit verzoek niet heeft gedaan, negeer deze email.
+  </p>
+  <p style="color:#a8a29e;font-size:13px;">Agenda Souterrain — collaboratieve kalender</p>
+</div>""",
+    },
+    "de": {
+        "subject": "Passwort zurücksetzen — Agenda Souterrain",
+        "body": """
+<div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px;">
+  <h2 style="color:#292524;">Passwort zurücksetzen</h2>
+  <p style="color:#57534e;line-height:1.6;">
+    Sie haben eine Passwortzurücksetzung angefordert.
+    Klicken Sie auf die Schaltfläche unten, um ein neues Passwort zu wählen.
+  </p>
+  <p style="text-align:center;margin:24px 0;">
+    <a href="{reset_url}"
+       style="background:#f59e0b;color:white;padding:12px 28px;border-radius:12px;
+              text-decoration:none;font-weight:600;display:inline-block;">
+      Neues Passwort
+    </a>
+  </p>
+  <p style="color:#a8a29e;font-size:13px;">
+    Dieser Link läuft in 1 Stunde ab. Falls Sie diese Anfrage nicht gestellt haben, ignorieren Sie diese E-Mail.
+  </p>
+  <p style="color:#a8a29e;font-size:13px;">Agenda Souterrain — kollaborativer Kalender</p>
+</div>""",
+    },
+}
+
+
+# ── Core helpers ─────────────────────────────────────────────────────────────
 
 def _smtp_configured() -> bool:
     return bool(settings.SMTP_USER and settings.SMTP_PASSWORD)
+
+
+def log_smtp_status():
+    """Log SMTP configuration status at startup."""
+    if _smtp_configured():
+        logger.info(
+            "SMTP configured: user=%s, host=%s:%s",
+            settings.SMTP_USER, settings.SMTP_HOST, settings.SMTP_PORT,
+        )
+    else:
+        logger.warning(
+            "SMTP NOT configured — no emails will be sent. "
+            "Check SMTP_USER (current: %r) and SMTP_PASSWORD (set: %s)",
+            settings.SMTP_USER or "<empty>",
+            "yes" if settings.SMTP_PASSWORD else "no",
+        )
 
 
 def _get_permission_label(permission: str, lang: str) -> str:
     labels = PERMISSION_LABELS.get(lang, PERMISSION_LABELS["en"])
     return labels.get(permission, permission)
 
+
+async def _send_email(to: str, subject: str, html_body: str) -> bool:
+    """Send an HTML email. Returns True on success, False on failure."""
+    if not _smtp_configured():
+        logger.warning("SMTP not configured — skipping email to %s", to)
+        return False
+
+    msg = MIMEMultipart("alternative")
+    msg["From"] = settings.SMTP_USER
+    msg["To"] = to
+    msg["Subject"] = subject
+    msg.attach(MIMEText(html_body, "html", "utf-8"))
+
+    logger.info("Sending email to %s (subject: %s)", to, subject[:60])
+    try:
+        await aiosmtplib.send(
+            msg,
+            hostname=settings.SMTP_HOST,
+            port=settings.SMTP_PORT,
+            username=settings.SMTP_USER,
+            password=settings.SMTP_PASSWORD,
+            start_tls=True,
+            timeout=15,
+        )
+        logger.info("Email sent successfully to %s", to)
+        return True
+    except aiosmtplib.SMTPAuthenticationError as e:
+        logger.error(
+            "SMTP authentication failed for %s. "
+            "Check SMTP_USER and SMTP_PASSWORD (Gmail requires an App Password). Error: %s",
+            settings.SMTP_USER, e,
+        )
+        return False
+    except aiosmtplib.SMTPConnectError as e:
+        logger.error("Cannot connect to %s:%s. Error: %s", settings.SMTP_HOST, settings.SMTP_PORT, e)
+        return False
+    except Exception:
+        logger.exception("Failed to send email to %s", to)
+        return False
+
+
+# ── Public send functions ────────────────────────────────────────────────────
 
 async def send_invitation_email(
     recipient_email: str,
@@ -262,10 +508,6 @@ async def send_invitation_email(
     user_exists: bool,
 ) -> bool:
     """Send an invitation email. Returns True on success, False on failure."""
-    if not _smtp_configured():
-        logger.warning("SMTP not configured — skipping invitation email to %s", recipient_email)
-        return False
-
     lang = language if language in TEMPLATES else "en"
     tpl = TEMPLATES[lang]
     perm_label = _get_permission_label(permission, lang)
@@ -286,24 +528,33 @@ async def send_invitation_email(
         subject = tpl["subject_new"].format(**fmt)
         html_body = tpl["body_new"].format(**fmt)
 
-    msg = MIMEMultipart("alternative")
-    msg["From"] = settings.SMTP_USER
-    msg["To"] = recipient_email
-    msg["Subject"] = subject
-    msg.attach(MIMEText(html_body, "html", "utf-8"))
+    return await _send_email(recipient_email, subject, html_body)
 
-    try:
-        await aiosmtplib.send(
-            msg,
-            hostname=settings.SMTP_HOST,
-            port=settings.SMTP_PORT,
-            username=settings.SMTP_USER,
-            password=settings.SMTP_PASSWORD,
-            start_tls=True,
-            timeout=15,
-        )
-        logger.info("Invitation email sent to %s", recipient_email)
-        return True
-    except Exception:
-        logger.exception("Failed to send invitation email to %s", recipient_email)
-        return False
+
+async def send_verification_email(
+    email: str,
+    name: str,
+    token: str,
+    language: str = "fr",
+) -> bool:
+    """Send email verification link. Returns True on success."""
+    lang = language if language in VERIFICATION_TEMPLATES else "en"
+    tpl = VERIFICATION_TEMPLATES[lang]
+    verification_url = f"{settings.FRONTEND_URL}/verify-email?token={token}"
+    subject = tpl["subject"]
+    html_body = tpl["body"].format(name=name, verification_url=verification_url)
+    return await _send_email(email, subject, html_body)
+
+
+async def send_password_reset_email(
+    email: str,
+    token: str,
+    language: str = "fr",
+) -> bool:
+    """Send password reset link. Returns True on success."""
+    lang = language if language in PASSWORD_RESET_TEMPLATES else "en"
+    tpl = PASSWORD_RESET_TEMPLATES[lang]
+    reset_url = f"{settings.FRONTEND_URL}/reset-password?token={token}"
+    subject = tpl["subject"]
+    html_body = tpl["body"].format(reset_url=reset_url)
+    return await _send_email(email, subject, html_body)

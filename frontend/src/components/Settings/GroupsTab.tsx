@@ -129,7 +129,7 @@ function GroupRow({ calendar, group, subCalendars }: { calendar: CalendarConfig;
         <div className="border-t border-stone-100 bg-stone-50 px-4 py-4 space-y-4">
           {/* Members list */}
           <div>
-            <p className="text-[10px] font-semibold text-stone-400 uppercase tracking-wider mb-2">{t('groups.members')}</p>
+            <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">{t('groups.members')}</p>
             {members.length === 0 ? (
               <p className="text-xs text-stone-400 italic">{t('groups.noMembers')}</p>
             ) : (
@@ -171,10 +171,10 @@ function GroupRow({ calendar, group, subCalendars }: { calendar: CalendarConfig;
 
           {/* Set group permission */}
           <div>
-            <p className="text-[10px] font-semibold text-stone-400 uppercase tracking-wider mb-2">{t('groups.groupPermission')}</p>
-            <div className="flex items-end gap-2">
+            <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">{t('groups.groupPermission')}</p>
+            <div className="flex flex-col sm:flex-row sm:items-end gap-2">
               <div>
-                <label className="block text-[10px] text-stone-400 mb-1">{t('groups.level')}</label>
+                <label className="block text-xs text-stone-400 mb-1">{t('groups.level')}</label>
                 <select
                   value={groupPerm}
                   onChange={(e) => setGroupPerm(e.target.value as Permission)}
@@ -186,7 +186,7 @@ function GroupRow({ calendar, group, subCalendars }: { calendar: CalendarConfig;
                 </select>
               </div>
               <div>
-                <label className="block text-[10px] text-stone-400 mb-1">{t('groups.subCal')}</label>
+                <label className="block text-xs text-stone-400 mb-1">{t('groups.subCal')}</label>
                 <select
                   value={groupSubCal}
                   onChange={(e) => setGroupSubCal(e.target.value)}
