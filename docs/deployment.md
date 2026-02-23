@@ -50,10 +50,8 @@ Set in the Render dashboard: https://dashboard.render.com
 | `SECRET_KEY` | *(auto-generated)* | Yes | JWT signing key |
 | `FRONTEND_URL` | `https://agenda-souterrain.pages.dev` | Yes | CORS allowed origin |
 | `ADMIN_EMAIL` | `admin@example.com` | Yes | Superadmin email address |
-| `SMTP_HOST` | `smtp.gmail.com` | Yes | SMTP server for email sending |
-| `SMTP_PORT` | `587` | Yes | SMTP port |
-| `SMTP_USER` | `your@gmail.com` | Yes | SMTP username |
-| `SMTP_PASSWORD` | *(app password)* | Yes | SMTP app password |
+| `RESEND_API_KEY` | `re_xxxxxxxxx` | Yes | Resend API key for email sending |
+| `EMAIL_FROM` | `Agenda Souterrain <noreply@yourdomain.com>` | No | Sender address (default: onboarding@resend.dev) |
 | `STORAGE_BACKEND` | `r2` | Yes | File storage backend |
 | `R2_ENDPOINT` | `https://xxx.r2.cloudflarestorage.com` | Yes | Cloudflare R2 endpoint |
 | `R2_ACCESS_KEY` | *(secret)* | Yes | R2 access key |

@@ -13,14 +13,14 @@ from app.config import settings
 from app.database import get_db
 from app.rate_limit import limiter
 from app.routers import auth, calendars, sub_calendars, events, sharing, admin, tags, comments, uploads
-from app.services.email import log_smtp_status
+from app.services.email import log_email_status
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan: startup & shutdown logic."""
     # ── Startup ──
-    log_smtp_status()
+    log_email_status()
     ping_task = None
     if settings.SELF_PING_URL:
         async def _ping_loop():
@@ -83,47 +83,5 @@ async def health(db: AsyncSession = Depends(get_db)):
         "status": "ok" if db_status == "ok" else "error",
         "db": db_status,
         "admin_email_set": bool(settings.ADMIN_EMAIL),
-        "smtp_configured": bool(settings.SMTP_USER and settings.SMTP_PASSWORD),
-        "smtp_user": (settings.SMTP_USER or "")[:3] + "***" if settings.SMTP_USER else None,
-        "smtp_host": settings.SMTP_HOST,
-        "smtp_port": settings.SMTP_PORT,
+        "email_configured": bool(settings.RESEND_API_KEY),
     }
-
-
-@app.get("/debug/smtp-test")
-async def debug_smtp_test():
-    """Temporary endpoint to diagnose SMTP issues. Remove after debugging."""
-    from email.mime.text import MIMEText
-    from email.mime.multipart import MIMEMultipart
-    import aiosmtplib
-
-    if not (settings.SMTP_USER and settings.SMTP_PASSWORD):
-        return {"error": "SMTP not configured", "smtp_user": settings.SMTP_USER}
-
-    msg = MIMEMultipart("alternative")
-    msg["From"] = settings.SMTP_USER
-    msg["To"] = settings.SMTP_USER  # send to self
-    msg["Subject"] = "SMTP Test — Agenda Souterrain"
-    msg.attach(MIMEText("<p>SMTP fonctionne!</p>", "html", "utf-8"))
-
-    try:
-        await aiosmtplib.send(
-            msg,
-            hostname=settings.SMTP_HOST,
-            port=settings.SMTP_PORT,
-            username=settings.SMTP_USER,
-            password=settings.SMTP_PASSWORD,
-            start_tls=True,
-            timeout=15,
-        )
-        return {"status": "sent", "to": settings.SMTP_USER}
-    except Exception as e:
-        return {
-            "status": "failed",
-            "error_type": type(e).__name__,
-            "error": str(e),
-            "smtp_user": settings.SMTP_USER,
-            "smtp_host": settings.SMTP_HOST,
-            "smtp_port": settings.SMTP_PORT,
-            "password_length": len(settings.SMTP_PASSWORD) if settings.SMTP_PASSWORD else 0,
-        }

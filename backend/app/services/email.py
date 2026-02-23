@@ -1,7 +1,5 @@
 import logging
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-import aiosmtplib
+import httpx
 from app.config import settings
 
 logger = logging.getLogger(__name__)
@@ -431,23 +429,21 @@ PASSWORD_RESET_TEMPLATES = {
 
 # ── Core helpers ─────────────────────────────────────────────────────────────
 
-def _smtp_configured() -> bool:
-    return bool(settings.SMTP_USER and settings.SMTP_PASSWORD)
+def _email_configured() -> bool:
+    return bool(settings.RESEND_API_KEY)
 
 
-def log_smtp_status():
-    """Log SMTP configuration status at startup."""
-    if _smtp_configured():
+def log_email_status():
+    """Log email configuration status at startup."""
+    if _email_configured():
         logger.info(
-            "SMTP configured: user=%s, host=%s:%s",
-            settings.SMTP_USER, settings.SMTP_HOST, settings.SMTP_PORT,
+            "Resend configured: from=%s, api_key=%s***",
+            settings.EMAIL_FROM, settings.RESEND_API_KEY[:8],
         )
     else:
         logger.warning(
-            "SMTP NOT configured — no emails will be sent. "
-            "Check SMTP_USER (current: %r) and SMTP_PASSWORD (set: %s)",
-            settings.SMTP_USER or "<empty>",
-            "yes" if settings.SMTP_PASSWORD else "no",
+            "Resend NOT configured — no emails will be sent. "
+            "Set RESEND_API_KEY in environment variables.",
         )
 
 
@@ -457,40 +453,33 @@ def _get_permission_label(permission: str, lang: str) -> str:
 
 
 async def _send_email(to: str, subject: str, html_body: str) -> bool:
-    """Send an HTML email. Returns True on success, False on failure."""
-    if not _smtp_configured():
-        logger.warning("SMTP not configured — skipping email to %s", to)
+    """Send an HTML email via Resend HTTP API. Returns True on success."""
+    if not _email_configured():
+        logger.warning("Resend not configured — skipping email to %s", to)
         return False
-
-    msg = MIMEMultipart("alternative")
-    msg["From"] = settings.SMTP_USER
-    msg["To"] = to
-    msg["Subject"] = subject
-    msg.attach(MIMEText(html_body, "html", "utf-8"))
 
     logger.info("Sending email to %s (subject: %s)", to, subject[:60])
     try:
-        await aiosmtplib.send(
-            msg,
-            hostname=settings.SMTP_HOST,
-            port=settings.SMTP_PORT,
-            username=settings.SMTP_USER,
-            password=settings.SMTP_PASSWORD,
-            start_tls=True,
-            timeout=15,
-        )
-        logger.info("Email sent successfully to %s", to)
-        return True
-    except aiosmtplib.SMTPAuthenticationError as e:
-        logger.error(
-            "SMTP authentication failed for %s. "
-            "Check SMTP_USER and SMTP_PASSWORD (Gmail requires an App Password). Error: %s",
-            settings.SMTP_USER, e,
-        )
-        return False
-    except aiosmtplib.SMTPConnectError as e:
-        logger.error("Cannot connect to %s:%s. Error: %s", settings.SMTP_HOST, settings.SMTP_PORT, e)
-        return False
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.post(
+                "https://api.resend.com/emails",
+                headers={"Authorization": f"Bearer {settings.RESEND_API_KEY}"},
+                json={
+                    "from": settings.EMAIL_FROM,
+                    "to": [to],
+                    "subject": subject,
+                    "html": html_body,
+                },
+            )
+        if resp.status_code == 200:
+            logger.info("Email sent successfully to %s (id: %s)", to, resp.json().get("id"))
+            return True
+        else:
+            logger.error(
+                "Resend API error %s for %s: %s",
+                resp.status_code, to, resp.text,
+            )
+            return False
     except Exception:
         logger.exception("Failed to send email to %s", to)
         return False
