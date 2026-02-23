@@ -400,7 +400,7 @@ export default function EventModal({
               calendarId={calendar.id}
               eventId={event.id}
               sourceLang={sourceLang}
-              canPost={canAdd(effectivePermission)}
+              canPost={canRead(effectivePermission)}
               canModerate={canModify(effectivePermission)}
             />
           )}
