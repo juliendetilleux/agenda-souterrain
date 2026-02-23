@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Copy, Trash2, Plus, CheckCircle, XCircle } from 'lucide-react'
+import { Copy, Trash2, Plus, CheckCircle, XCircle, Users } from 'lucide-react'
 import { calendarApi } from '../../api/calendars'
 import { PERMISSION_LABELS, PERMISSION_COLORS } from '../../utils/permissions'
 import { useConfirm } from '../../hooks/useConfirm'
@@ -36,10 +36,16 @@ export default function LinksTab({ calendar, subCalendars }: Props) {
   const [newLabel, setNewLabel] = useState('')
   const [newPerm, setNewPerm] = useState<Permission>('read_only')
   const [newSubCal, setNewSubCal] = useState('')
+  const [newGroupId, setNewGroupId] = useState('')
 
   const { data: links = [], isLoading } = useQuery({
     queryKey: ['links', calendar.id],
     queryFn: () => calendarApi.getLinks(calendar.id),
+  })
+
+  const { data: groups = [] } = useQuery({
+    queryKey: ['groups', calendar.id],
+    queryFn: () => calendarApi.getGroups(calendar.id),
   })
 
   const createMutation = useMutation({
@@ -48,19 +54,21 @@ export default function LinksTab({ calendar, subCalendars }: Props) {
         label: newLabel || undefined,
         permission: newPerm,
         sub_calendar_id: newSubCal || undefined,
+        group_id: newGroupId || undefined,
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['links', calendar.id] })
       setNewLabel('')
       setNewPerm('read_only')
       setNewSubCal('')
+      setNewGroupId('')
       toast.success(t('links.toast.created'))
     },
     onError: () => toast.error(t('links.toast.createError')),
   })
 
   const updateMutation = useMutation({
-    mutationFn: ({ linkId, data }: { linkId: string; data: { active?: boolean; permission?: Permission } }) =>
+    mutationFn: ({ linkId, data }: { linkId: string; data: { active?: boolean; permission?: Permission; group_id?: string } }) =>
       calendarApi.updateLink(calendar.id, linkId, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['links', calendar.id] }),
     onError: () => toast.error(t('links.toast.updateError')),
@@ -125,15 +133,21 @@ export default function LinksTab({ calendar, subCalendars }: Props) {
                 )}
               </button>
 
-              {/* Label + permission badge */}
+              {/* Label + permission badge + group badge */}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-stone-800 truncate">
                   {link.label || <span className="text-stone-400 italic font-normal">{t('links.noLabel')}</span>}
                 </p>
-                <div className="flex items-center gap-2 mt-0.5">
+                <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                   {link.permission && (
                     <span className={`text-xs px-2 py-0.5 rounded-lg font-medium ${PERMISSION_COLORS[link.permission]}`}>
                       {PERMISSION_LABELS[link.permission]}
+                    </span>
+                  )}
+                  {link.group_name && (
+                    <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 font-medium">
+                      <Users size={11} />
+                      {link.group_name}
                     </span>
                   )}
                   {!link.active && (
@@ -204,13 +218,33 @@ export default function LinksTab({ calendar, subCalendars }: Props) {
               onChange={(e) => setNewSubCal(e.target.value)}
               className={selectClass}
             >
-              <option value="">Tous</option>
+              <option value="">{t('groups.allSubCals')}</option>
               {subCalendars.map((sc) => (
                 <option key={sc.id} value={sc.id}>{sc.name}</option>
               ))}
             </select>
           </div>
         </div>
+
+        {/* Group selector */}
+        {groups.length > 0 && (
+          <div>
+            <label className="block text-xs font-semibold text-stone-400 uppercase tracking-wider mb-1.5">
+              {t('links.autoGroup')}
+            </label>
+            <select
+              value={newGroupId}
+              onChange={(e) => setNewGroupId(e.target.value)}
+              className={selectClass}
+            >
+              <option value="">{t('links.noGroup')}</option>
+              {groups.map((g) => (
+                <option key={g.id} value={g.id}>{g.name}</option>
+              ))}
+            </select>
+            <p className="text-xs text-stone-400 mt-1">{t('links.autoGroupHelp')}</p>
+          </div>
+        )}
 
         <button
           onClick={() => createMutation.mutate()}

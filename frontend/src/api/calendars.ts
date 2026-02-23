@@ -2,7 +2,8 @@ import api from './client'
 import type {
   CalendarConfig, SubCalendar, CalendarEvent, EventSignup,
   AccessLink, CalendarAccess, Group, GroupMember, MyPermission, Permission, Tag,
-  EventComment, EventAttachment, InviteResult, PendingInvitation
+  EventComment, EventAttachment, InviteResult, PendingInvitation,
+  GroupAccess, ClaimLinkResult, UserGroupMembership,
 } from '../types'
 
 export const calendarApi = {
@@ -81,10 +82,10 @@ export const calendarApi = {
   getLinks: (calId: string) =>
     api.get<AccessLink[]>(`/calendars/${calId}/links`).then((r) => r.data),
 
-  createLink: (calId: string, data: { label?: string; permission: Permission; sub_calendar_id?: string }) =>
+  createLink: (calId: string, data: { label?: string; permission: Permission; sub_calendar_id?: string; group_id?: string }) =>
     api.post<AccessLink>(`/calendars/${calId}/links`, data).then((r) => r.data),
 
-  updateLink: (calId: string, linkId: string, data: { label?: string; active?: boolean; permission?: Permission }) =>
+  updateLink: (calId: string, linkId: string, data: { label?: string; active?: boolean; permission?: Permission; group_id?: string }) =>
     api.put<AccessLink>(`/calendars/${calId}/links/${linkId}`, data).then((r) => r.data),
 
   deleteLink: (calId: string, linkId: string) =>
@@ -130,6 +131,20 @@ export const calendarApi = {
 
   setGroupAccess: (calId: string, groupId: string, data: { permission: Permission; sub_calendar_id?: string }) =>
     api.post(`/calendars/${calId}/groups/${groupId}/access`, data).then((r) => r.data),
+
+  getGroupAccess: (calId: string, groupId: string) =>
+    api.get<GroupAccess[]>(`/calendars/${calId}/groups/${groupId}/access`).then((r) => r.data),
+
+  deleteGroupAccess: (calId: string, groupId: string, accessId: string) =>
+    api.delete(`/calendars/${calId}/groups/${groupId}/access/${accessId}`),
+
+  // ─── Claim link ─────────────────────────────────────────────────────────
+  claimLink: (calId: string, token: string) =>
+    api.post<ClaimLinkResult>(`/calendars/${calId}/claim-link`, null, { params: { token } }).then((r) => r.data),
+
+  // ─── Group memberships ──────────────────────────────────────────────────
+  getGroupMemberships: (calId: string) =>
+    api.get<UserGroupMembership[]>(`/calendars/${calId}/group-memberships`).then((r) => r.data),
 
   // ─── Tags ───────────────────────────────────────────────────────────────
   getTags: (calId: string) =>

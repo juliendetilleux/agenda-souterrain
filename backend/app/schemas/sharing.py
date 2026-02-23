@@ -9,12 +9,14 @@ class AccessLinkCreate(BaseModel):
     label: Optional[str] = None
     permission: Permission = Permission.READ_ONLY
     sub_calendar_id: Optional[uuid.UUID] = None
+    group_id: Optional[uuid.UUID] = None
 
 
 class AccessLinkUpdate(BaseModel):
     label: Optional[str] = None
     active: Optional[bool] = None
     permission: Optional[Permission] = None
+    group_id: Optional[uuid.UUID] = None
 
 
 class AccessLinkOut(BaseModel):
@@ -25,6 +27,8 @@ class AccessLinkOut(BaseModel):
     active: bool
     created_at: datetime
     permission: Optional[Permission] = None  # resolved from CalendarAccess
+    group_id: Optional[uuid.UUID] = None
+    group_name: Optional[str] = None
 
     model_config = {"from_attributes": True}
 
@@ -113,3 +117,27 @@ class PendingInvitationOut(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class GroupAccessOut(BaseModel):
+    id: uuid.UUID
+    permission: Permission
+    sub_calendar_id: Optional[uuid.UUID] = None
+    sub_calendar_name: Optional[str] = None
+
+    model_config = {"from_attributes": True}
+
+
+class ClaimLinkOut(BaseModel):
+    group_id: uuid.UUID
+    group_name: str
+
+
+class GroupBrief(BaseModel):
+    id: uuid.UUID
+    name: str
+
+
+class UserGroupMembership(BaseModel):
+    user_id: uuid.UUID
+    groups: list[GroupBrief]

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Trash2, Plus, ChevronDown, ChevronRight, UserMinus } from 'lucide-react'
+import { Trash2, Plus, ChevronDown, ChevronRight, UserMinus, X } from 'lucide-react'
 import { calendarApi } from '../../api/calendars'
 import { PERMISSION_LABELS, PERMISSION_COLORS } from '../../utils/permissions'
 import { useConfirm } from '../../hooks/useConfirm'
@@ -44,10 +44,17 @@ function GroupRow({ calendar, group, subCalendars }: { calendar: CalendarConfig;
     enabled: expanded,
   })
 
+  const { data: groupAccess = [] } = useQuery({
+    queryKey: ['group-access', calendar.id, group.id],
+    queryFn: () => calendarApi.getGroupAccess(calendar.id, group.id),
+    enabled: expanded,
+  })
+
   const addMemberMutation = useMutation({
     mutationFn: () => calendarApi.addGroupMember(calendar.id, group.id, memberEmail),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['group-members', calendar.id, group.id] })
+      qc.invalidateQueries({ queryKey: ['group-memberships', calendar.id] })
       setMemberEmail('')
       toast.success(t('groups.toast.memberAdded'))
     },
@@ -56,7 +63,10 @@ function GroupRow({ calendar, group, subCalendars }: { calendar: CalendarConfig;
 
   const removeMemberMutation = useMutation({
     mutationFn: (userId: string) => calendarApi.removeGroupMember(calendar.id, group.id, userId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['group-members', calendar.id, group.id] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['group-members', calendar.id, group.id] })
+      qc.invalidateQueries({ queryKey: ['group-memberships', calendar.id] })
+    },
     onError: () => toast.error(t('groups.toast.deleteError')),
   })
 
@@ -67,10 +77,21 @@ function GroupRow({ calendar, group, subCalendars }: { calendar: CalendarConfig;
         sub_calendar_id: groupSubCal || undefined,
       }),
     onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['group-access', calendar.id, group.id] })
       qc.invalidateQueries({ queryKey: ['access', calendar.id] })
       toast.success(t('groups.toast.permissionUpdated'))
     },
     onError: () => toast.error(t('groups.toast.updateError')),
+  })
+
+  const deleteAccessMutation = useMutation({
+    mutationFn: (accessId: string) => calendarApi.deleteGroupAccess(calendar.id, group.id, accessId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['group-access', calendar.id, group.id] })
+      qc.invalidateQueries({ queryKey: ['access', calendar.id] })
+      toast.success(t('groups.toast.permissionRemoved'))
+    },
+    onError: () => toast.error(t('groups.toast.deleteError')),
   })
 
   const deleteGroupMutation = useMutation({
@@ -106,6 +127,11 @@ function GroupRow({ calendar, group, subCalendars }: { calendar: CalendarConfig;
             : <ChevronRight size={15} className="text-stone-400 flex-shrink-0" />
           }
           <span className="text-sm font-semibold text-stone-800">{group.name}</span>
+          {groupAccess.length > 0 && (
+            <span className="text-xs text-stone-400 ml-1">
+              ({groupAccess.length} {t('groups.permCount')})
+            </span>
+          )}
         </button>
 
         <button
@@ -123,7 +149,7 @@ function GroupRow({ calendar, group, subCalendars }: { calendar: CalendarConfig;
       {/* Expanded panel */}
       <div
         className={`transition-all duration-200 overflow-hidden ${
-          expanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+          expanded ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
         <div className="border-t border-stone-100 bg-stone-50 px-4 py-4 space-y-4">
@@ -169,9 +195,33 @@ function GroupRow({ calendar, group, subCalendars }: { calendar: CalendarConfig;
             </div>
           </div>
 
-          {/* Set group permission */}
+          {/* Permissions list */}
           <div>
-            <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">{t('groups.groupPermission')}</p>
+            <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">{t('groups.permissions')}</p>
+            {groupAccess.length === 0 ? (
+              <p className="text-xs text-stone-400 italic mb-2">{t('groups.noPermissions')}</p>
+            ) : (
+              <div className="space-y-1.5 mb-3">
+                {groupAccess.map((ga) => (
+                  <div key={ga.id} className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 border border-stone-100">
+                    <span className={`text-xs px-2 py-0.5 rounded-lg font-medium ${PERMISSION_COLORS[ga.permission]}`}>
+                      {PERMISSION_LABELS[ga.permission]}
+                    </span>
+                    <span className="flex-1 text-xs text-stone-600">
+                      {ga.sub_calendar_name || t('groups.allSubCals')}
+                    </span>
+                    <button
+                      onClick={() => deleteAccessMutation.mutate(ga.id)}
+                      className="p-0.5 rounded hover:text-red-500 text-stone-300 transition-colors"
+                    >
+                      <X size={13} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Add permission */}
             <div className="flex flex-col sm:flex-row sm:items-end gap-2">
               <div>
                 <label className="block text-xs text-stone-400 mb-1">{t('groups.level')}</label>
@@ -192,7 +242,7 @@ function GroupRow({ calendar, group, subCalendars }: { calendar: CalendarConfig;
                   onChange={(e) => setGroupSubCal(e.target.value)}
                   className={selectClass}
                 >
-                  <option value="">Tous</option>
+                  <option value="">{t('groups.allSubCals')}</option>
                   {subCalendars.map((sc) => (
                     <option key={sc.id} value={sc.id}>{sc.name}</option>
                   ))}
@@ -203,7 +253,7 @@ function GroupRow({ calendar, group, subCalendars }: { calendar: CalendarConfig;
                 disabled={setAccessMutation.isPending}
                 className="px-3 py-2 text-sm bg-stone-800 text-white rounded-lg hover:bg-stone-900 disabled:opacity-50 transition-colors font-medium"
               >
-                {tc('apply')}
+                {t('groups.addPermission')}
               </button>
             </div>
           </div>

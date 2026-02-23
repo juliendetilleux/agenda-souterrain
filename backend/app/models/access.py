@@ -46,9 +46,11 @@ class AccessLink(Base):
     token: Mapped[str] = mapped_column(String(100), unique=True, nullable=False, index=True)
     label: Mapped[str] = mapped_column(String(255), nullable=True)
     active: Mapped[bool] = mapped_column(Boolean, default=True)
+    group_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("groups.id", ondelete="SET NULL"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
     calendar: Mapped["Calendar"] = relationship("Calendar", back_populates="access_links")
+    group: Mapped["Group"] = relationship("Group")
     access_entries: Mapped[list["CalendarAccess"]] = relationship("CalendarAccess", back_populates="link")
 
 
