@@ -12,6 +12,7 @@ export default function LoginPage() {
   const { t: tc } = useTranslation('common')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [rememberMe, setRememberMe] = useState(false)
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const { setUser } = useAuthStore()
@@ -20,7 +21,7 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     try {
-      const user = await authApi.login(email, password)
+      const user = await authApi.login(email, password, rememberMe)
       setUser(user)
       navigate('/')
     } catch {
@@ -100,7 +101,17 @@ export default function LoginPage() {
                              transition-all"
                 />
               </div>
-              <div className="flex justify-end">
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="w-3.5 h-3.5 rounded border-stone-300 text-lamp-500
+                               focus:ring-lamp-500/30 cursor-pointer"
+                  />
+                  <span className="text-xs text-stone-500">{t('login.rememberMe')}</span>
+                </label>
                 <Link to="/forgot-password" className="text-xs text-lamp-600 hover:text-lamp-700 transition-colors">
                   {t('login.forgotPassword')}
                 </Link>

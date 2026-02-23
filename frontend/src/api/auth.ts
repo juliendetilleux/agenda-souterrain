@@ -5,8 +5,8 @@ export const authApi = {
   register: (email: string, name: string, password: string) =>
     api.post<User>('/auth/register', { email, name, password }).then((r) => r.data),
 
-  login: (email: string, password: string) =>
-    api.post<User>('/auth/login', { email, password }).then((r) => r.data),
+  login: (email: string, password: string, rememberMe = false) =>
+    api.post<User>('/auth/login', { email, password, remember_me: rememberMe }).then((r) => r.data),
 
   logout: () => api.post('/auth/logout').then((r) => r.data),
 

@@ -142,13 +142,17 @@ async def login(request: Request, data: UserLogin, db: AsyncSession = Depends(ge
         else:
             raise HTTPException(status_code=403, detail="Compte définitivement suspendu")
 
+    refresh_days = (
+        settings.REFRESH_TOKEN_REMEMBER_DAYS if data.remember_me
+        else settings.REFRESH_TOKEN_EXPIRE_DAYS
+    )
     access_token = create_access_token({"sub": str(user.id)})
-    refresh_token = create_refresh_token({"sub": str(user.id)})
+    refresh_token = create_refresh_token({"sub": str(user.id)}, expires_days=refresh_days)
     csrf_token = generate_csrf_token()
 
     user_out = make_user_out(user)
     response = JSONResponse(content=user_out.model_dump(mode="json"))
-    set_auth_cookies(response, access_token, refresh_token, csrf_token)
+    set_auth_cookies(response, access_token, refresh_token, csrf_token, refresh_days=refresh_days)
     return response
 
 
