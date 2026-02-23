@@ -13,20 +13,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
-  const { setAuth } = useAuthStore()
+  const { setUser } = useAuthStore()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     try {
-      const tokens = await authApi.login(email, password)
-      setAuth(tokens.access_token, tokens.refresh_token, {
-        id: '', email, name: email, is_verified: true,
-        is_admin: false, is_superadmin: false, created_at: '',
-        is_banned: false, ban_until: null, ban_reason: null,
-      })
-      const me = await authApi.getMe()
-      setAuth(tokens.access_token, tokens.refresh_token, me)
+      const user = await authApi.login(email, password)
+      setUser(user)
       navigate('/')
     } catch {
       toast.error(t('login.error'))
@@ -129,6 +123,12 @@ export default function LoginPage() {
               </Link>
             </p>
           </div>
+
+          <p className="mt-4 text-center text-xs text-stone-400">
+            <Link to="/privacy" className="hover:text-stone-600 transition-colors underline">
+              {tc('privacy')}
+            </Link>
+          </p>
         </div>
       </div>
     </div>

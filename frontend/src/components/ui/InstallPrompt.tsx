@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Download, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { setPreference } from '../../utils/storage'
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>
@@ -34,12 +35,12 @@ export default function InstallPrompt() {
       setDeferredPrompt(null)
     }
     setDismissed(true)
-    localStorage.setItem('pwa-dismissed', '1')
+    setPreference('pwa-dismissed', '1')
   }
 
   const handleDismiss = () => {
     setDismissed(true)
-    localStorage.setItem('pwa-dismissed', '1')
+    setPreference('pwa-dismissed', '1')
   }
 
   if (!deferredPrompt || dismissed) return null

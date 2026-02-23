@@ -26,6 +26,10 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = "/app/uploads"
     MAX_FILE_SIZE_MB: int = 10
 
+    # Cookies
+    COOKIE_DOMAIN: str = ""          # ".agenda-souterrain.com" in production
+    COOKIE_SECURE: bool = False      # True in production (HTTPS only)
+
     # Self-ping to prevent Render free-tier sleep (set to own /health URL in production)
     SELF_PING_URL: str = ""
 

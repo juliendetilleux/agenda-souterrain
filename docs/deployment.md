@@ -53,6 +53,8 @@ Set in the Render dashboard: https://dashboard.render.com
 | `R2_SECRET_KEY` | *(secret)* | Yes | R2 secret key |
 | `R2_BUCKET` | `agenda-souterrain` | Yes | R2 bucket name |
 | `R2_PUBLIC_URL` | `https://files.agenda-souterrain.com` | Yes | Public URL for uploads |
+| `COOKIE_DOMAIN` | `.agenda-souterrain.com` | Yes | Cookie domain (empty for local dev) |
+| `COOKIE_SECURE` | `true` | Yes | Secure cookies (HTTPS only) — `false` for local dev |
 | `SELF_PING_URL` | `https://api.agenda-souterrain.com/health` | No | Prevents free-tier sleep |
 | `LIBRETRANSLATE_URL` | `https://libretranslate.com` | No | Translation API URL |
 | `TRANSLATION_BACKEND` | `mymemory` | No | Translation service |
@@ -170,7 +172,24 @@ To force a redeploy without code changes, use the Render dashboard "Manual Deplo
 - Render: `FRONTEND_URL` = `https://agenda-souterrain.com`
 - GitHub Secret: `VITE_API_URL` = `https://api.agenda-souterrain.com/v1`
 
-### 7. Resend (Email)
+### 7. Authentication Cookies & CSRF
+
+Authentication uses **HTTP-only cookies** instead of localStorage tokens:
+
+| Cookie | HttpOnly | Path | Max-Age | Purpose |
+|--------|----------|------|---------|---------|
+| `access_token` | Yes | `/` | 15 min | JWT access token |
+| `refresh_token` | Yes | `/v1/auth` | 7 days | JWT refresh token |
+| `csrf_token` | No | `/` | 7 days | CSRF double-submit cookie |
+
+**CSRF Protection**: The backend uses the double-submit cookie pattern. All mutating requests (POST, PUT, PATCH, DELETE) must include an `X-CSRF-Token` header matching the `csrf_token` cookie value. Exempt routes: login, register, forgot-password, reset-password, verify-email.
+
+**Cross-domain setup**:
+- Frontend (`agenda-souterrain.com`) and API (`api.agenda-souterrain.com`) share the `.agenda-souterrain.com` cookie domain
+- `COOKIE_DOMAIN=.agenda-souterrain.com` and `COOKIE_SECURE=true` must be set on Render
+- In local dev, leave `COOKIE_DOMAIN` empty and `COOKIE_SECURE=false`
+
+### 8. Resend (Email)
 
 1. Add domain `agenda-souterrain.com` on [resend.com/domains](https://resend.com/domains)
 2. Add the DNS records Resend gives you (SPF, DKIM, DMARC) in Cloudflare DNS

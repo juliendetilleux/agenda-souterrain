@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { getDateLocale } from '../../utils/locales'
 import { useCalendarStore } from '../../store/calendarStore'
 import { useAuthStore } from '../../store/authStore'
+import { authApi } from '../../api/auth'
 import { calendarApi } from '../../api/calendars'
 import { canAdd, isAdmin } from '../../utils/permissions'
 import LanguageSwitcher from '../ui/LanguageSwitcher'
@@ -30,7 +31,7 @@ export default function Toolbar({ calendar, onNewEvent, onMenuClick }: Props) {
   const { t, i18n } = useTranslation('calendar')
   const { slug } = useParams<{ slug: string }>()
   const { currentView, currentDate, setCurrentView, setCurrentDate, effectivePermission, isOwner } = useCalendarStore()
-  const { token, logout, user } = useAuthStore()
+  const { isAuthenticated, logout, user } = useAuthStore()
   const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState('')
   const [showSearch, setShowSearch] = useState(false)
@@ -41,7 +42,12 @@ export default function Toolbar({ calendar, onNewEvent, onMenuClick }: Props) {
 
   const goToday = () => setCurrentDate(new Date())
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await authApi.logout()
+    } catch {
+      // ignore — clear local state anyway
+    }
     logout()
     navigate('/login')
   }
@@ -221,7 +227,7 @@ export default function Toolbar({ calendar, onNewEvent, onMenuClick }: Props) {
             </button>
           )}
           <LanguageSwitcher />
-          {token && (
+          {isAuthenticated && (
             <button
               onClick={handleLogout}
               title={t('logout')}
