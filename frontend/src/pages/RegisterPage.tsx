@@ -160,6 +160,7 @@ export default function RegisterPage() {
               {tc('privacy')}
             </Link>
           </p>
+          <p className="lg:hidden mt-2 text-center text-xs text-stone-300">v{version}</p>
         </div>
       </div>
     </div>
