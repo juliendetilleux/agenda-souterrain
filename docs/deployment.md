@@ -60,7 +60,7 @@ Set in the Render dashboard: https://dashboard.render.com
 | `R2_SECRET_KEY` | *(secret)* | Yes | R2 secret key |
 | `R2_BUCKET` | `agenda-souterrain` | Yes | R2 bucket name |
 | `R2_PUBLIC_URL` | `https://files.yourdomain.com` | Yes | Public URL for uploads |
-| `SELF_PING_URL` | `https://agenda-souterrain-api.onrender.com/health` | No | Prevents free-tier sleep |
+| `SELF_PING_URL` | `https://as-api-9f3k2.onrender.com/health` | No | Prevents free-tier sleep |
 | `LIBRETRANSLATE_URL` | `https://libretranslate.com` | No | Translation API URL |
 | `TRANSLATION_BACKEND` | `mymemory` | No | Translation service |
 
@@ -70,7 +70,7 @@ Set in: Cloudflare Dashboard > Pages > agenda-souterrain > Settings > Environmen
 
 | Variable | Value | Description |
 |----------|-------|-------------|
-| `VITE_API_URL` | `https://agenda-souterrain-api.onrender.com/v1` | Backend API base URL |
+| `VITE_API_URL` | `https://as-api-9f3k2.onrender.com/v1` | Backend API base URL |
 
 > **Note**: Vite inlines env vars at build time. Variables must be prefixed with `VITE_`.
 
