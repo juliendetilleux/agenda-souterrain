@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+    REFRESH_TOKEN_REMEMBER_DAYS: int = 30
     RESEND_API_KEY: str = ""
     EMAIL_FROM: str = "Agenda Souterrain <onboarding@resend.dev>"
     FRONTEND_URL: str = "http://localhost:5173"

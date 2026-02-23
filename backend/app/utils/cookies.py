@@ -7,8 +7,10 @@ def set_auth_cookies(
     access_token: str,
     refresh_token: str,
     csrf_token: str,
+    refresh_days: int | None = None,
 ) -> None:
     domain = settings.COOKIE_DOMAIN or None
+    refresh_max_age = (refresh_days or settings.REFRESH_TOKEN_EXPIRE_DAYS) * 86400
 
     response.set_cookie(
         key="access_token",
@@ -28,7 +30,7 @@ def set_auth_cookies(
         samesite="lax",
         domain=domain,
         path="/v1/auth",
-        max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400,
+        max_age=refresh_max_age,
     )
     response.set_cookie(
         key="csrf_token",
@@ -38,7 +40,7 @@ def set_auth_cookies(
         samesite="lax",
         domain=domain,
         path="/",
-        max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400,
+        max_age=refresh_max_age,
     )
 
 
