@@ -88,3 +88,42 @@ async def health(db: AsyncSession = Depends(get_db)):
         "smtp_host": settings.SMTP_HOST,
         "smtp_port": settings.SMTP_PORT,
     }
+
+
+@app.get("/debug/smtp-test")
+async def debug_smtp_test():
+    """Temporary endpoint to diagnose SMTP issues. Remove after debugging."""
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+    import aiosmtplib
+
+    if not (settings.SMTP_USER and settings.SMTP_PASSWORD):
+        return {"error": "SMTP not configured", "smtp_user": settings.SMTP_USER}
+
+    msg = MIMEMultipart("alternative")
+    msg["From"] = settings.SMTP_USER
+    msg["To"] = settings.SMTP_USER  # send to self
+    msg["Subject"] = "SMTP Test — Agenda Souterrain"
+    msg.attach(MIMEText("<p>SMTP fonctionne!</p>", "html", "utf-8"))
+
+    try:
+        await aiosmtplib.send(
+            msg,
+            hostname=settings.SMTP_HOST,
+            port=settings.SMTP_PORT,
+            username=settings.SMTP_USER,
+            password=settings.SMTP_PASSWORD,
+            start_tls=True,
+            timeout=15,
+        )
+        return {"status": "sent", "to": settings.SMTP_USER}
+    except Exception as e:
+        return {
+            "status": "failed",
+            "error_type": type(e).__name__,
+            "error": str(e),
+            "smtp_user": settings.SMTP_USER,
+            "smtp_host": settings.SMTP_HOST,
+            "smtp_port": settings.SMTP_PORT,
+            "password_length": len(settings.SMTP_PASSWORD) if settings.SMTP_PASSWORD else 0,
+        }
