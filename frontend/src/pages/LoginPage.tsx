@@ -5,6 +5,7 @@ import { authApi } from '../api/auth'
 import { useAuthStore } from '../store/authStore'
 import LanguageSwitcher from '../components/ui/LanguageSwitcher'
 import toast from 'react-hot-toast'
+import { version } from '../../package.json'
 
 export default function LoginPage() {
   const { t } = useTranslation('auth')
@@ -46,7 +47,7 @@ export default function LoginPage() {
         </div>
         <div className="flex items-center gap-2.5">
           <div className="w-1.5 h-1.5 rounded-full bg-lamp-500" />
-          <p className="text-cave-text text-xs">{tc('copyright')}</p>
+          <p className="text-cave-text text-xs">{tc('copyright')} · v{version}</p>
         </div>
       </div>
 
