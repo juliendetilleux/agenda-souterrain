@@ -11,42 +11,53 @@ import CalendarPage from './pages/CalendarPage'
 import CreateCalendarPage from './pages/CreateCalendarPage'
 import SettingsPage from './pages/SettingsPage'
 import HomePage from './pages/HomePage'
+import PrivacyPage from './pages/PrivacyPage'
 import InstallPrompt from './components/ui/InstallPrompt'
+import CookieConsent from './components/ui/CookieConsent'
 import ErrorBoundary from './components/ui/ErrorBoundary'
 import VerificationBanner from './components/ui/VerificationBanner'
 
 function App() {
-  const { token, user, setUser } = useAuthStore()
-  const isSuperadmin = Boolean(token && user?.is_superadmin)
+  const { isAuthenticated, isLoading, user, setUser, logout } = useAuthStore()
+  const isSuperadmin = Boolean(isAuthenticated && user?.is_superadmin)
 
-  // Refresh user data on app load to keep is_superadmin fresh
+  // Check authentication status on app load via cookie
   useEffect(() => {
-    if (!token) return
     authApi.getMe()
       .then((freshUser) => setUser(freshUser))
-      .catch(() => {})
+      .catch(() => logout())
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f8f7f4]">
+        <div className="w-6 h-6 border-2 border-stone-300 border-t-lamp-500 rounded-full animate-spin" />
+      </div>
+    )
+  }
 
   return (
     <ErrorBoundary>
-      {token && user && !user.is_verified && <VerificationBanner />}
+      {isAuthenticated && user && !user.is_verified && <VerificationBanner />}
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/c/:slug" element={<CalendarPage />} />
         <Route path="/c/:slug/settings" element={<SettingsPage />} />
         <Route
           path="/new"
-          element={isSuperadmin ? <CreateCalendarPage /> : <Navigate to={token ? '/' : '/login'} replace />}
+          element={isSuperadmin ? <CreateCalendarPage /> : <Navigate to={isAuthenticated ? '/' : '/login'} replace />}
         />
         <Route
           path="/"
-          element={token ? <HomePage /> : <Navigate to="/login" replace />}
+          element={isAuthenticated ? <HomePage /> : <Navigate to="/login" replace />}
         />
       </Routes>
+      <CookieConsent />
       <InstallPrompt />
     </ErrorBoundary>
   )

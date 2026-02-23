@@ -25,7 +25,7 @@ from app.utils.permissions import (
 )
 from app.utils.ical import event_to_ical, events_to_ical
 from app.schemas.calendar import slugify
-from app.services.email import TEMPLATES, PERMISSION_LABELS, _smtp_configured, _get_permission_label
+from app.services.email import TEMPLATES, PERMISSION_LABELS, _email_configured, _get_permission_label
 
 
 # ─── Security: password hashing ──────────────────────────────────────────
@@ -211,12 +211,11 @@ def test_slugify_special_chars():
 
 # ─── Email service helpers ──────────────────────────────────────────────────
 
-def test_smtp_configured_false(monkeypatch):
-    """When SMTP_USER or SMTP_PASSWORD is empty, _smtp_configured returns False."""
+def test_email_configured_false(monkeypatch):
+    """When RESEND_API_KEY is empty, _email_configured returns False."""
     from app import config
-    monkeypatch.setattr(config.settings, "SMTP_USER", "")
-    monkeypatch.setattr(config.settings, "SMTP_PASSWORD", "")
-    assert _smtp_configured() is False
+    monkeypatch.setattr(config.settings, "RESEND_API_KEY", "")
+    assert _email_configured() is False
 
 
 def test_get_permission_label_fr():

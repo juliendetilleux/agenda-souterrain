@@ -30,8 +30,8 @@ export default function SettingsPage() {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
-  const { token, user } = useAuthStore()
-  const isSuperadmin = Boolean(token && user?.is_superadmin)
+  const { isAuthenticated, user } = useAuthStore()
+  const isSuperadmin = Boolean(isAuthenticated && user?.is_superadmin)
 
   const { data: calendar, isLoading: calLoading } = useQuery({
     queryKey: ['calendar', slug],

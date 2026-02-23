@@ -17,16 +17,18 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
-    SMTP_HOST: str = "smtp.gmail.com"
-    SMTP_PORT: int = 587
-    SMTP_USER: str = ""
-    SMTP_PASSWORD: str = ""
+    RESEND_API_KEY: str = ""
+    EMAIL_FROM: str = "Agenda Souterrain <onboarding@resend.dev>"
     FRONTEND_URL: str = "http://localhost:5173"
     ADMIN_EMAIL: str = ""
     LIBRETRANSLATE_URL: str = "http://libretranslate:5000"
     TRANSLATION_BACKEND: str = "libretranslate"  # "libretranslate", "mymemory", or "lingva"
     UPLOAD_DIR: str = "/app/uploads"
     MAX_FILE_SIZE_MB: int = 10
+
+    # Cookies
+    COOKIE_DOMAIN: str = ""          # ".agenda-souterrain.com" in production
+    COOKIE_SECURE: bool = False      # True in production (HTTPS only)
 
     # Self-ping to prevent Render free-tier sleep (set to own /health URL in production)
     SELF_PING_URL: str = ""

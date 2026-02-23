@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from typing import Optional
-from fastapi import Depends, HTTPException, Header, Query
+from fastapi import Depends, HTTPException, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.database import get_db
@@ -9,12 +9,21 @@ from app.utils.security import decode_token
 
 
 async def get_current_user(
-    authorization: Optional[str] = Header(None),
+    request: Request,
     db: AsyncSession = Depends(get_db),
 ) -> User:
-    if not authorization or not authorization.startswith("Bearer "):
+    # Priority 1: HTTP-only cookie
+    token = request.cookies.get("access_token")
+
+    # Priority 2: Authorization header (backward compat / API clients)
+    if not token:
+        authorization = request.headers.get("authorization", "")
+        if authorization.startswith("Bearer "):
+            token = authorization.split(" ", 1)[1]
+
+    if not token:
         raise HTTPException(status_code=401, detail="Non authentifié")
-    token = authorization.split(" ", 1)[1]
+
     payload = decode_token(token)
     if not payload or payload.get("type") != "access":
         raise HTTPException(status_code=401, detail="Token invalide")
@@ -41,13 +50,15 @@ async def get_current_user(
 
 
 async def get_optional_user(
-    authorization: Optional[str] = Header(None),
+    request: Request,
     db: AsyncSession = Depends(get_db),
 ) -> Optional[User]:
-    if not authorization or not authorization.startswith("Bearer "):
+    token = request.cookies.get("access_token")
+    authorization = request.headers.get("authorization", "")
+    if not token and not authorization.startswith("Bearer "):
         return None
     try:
-        return await get_current_user(authorization, db)
+        return await get_current_user(request, db)
     except HTTPException:
         return None
 

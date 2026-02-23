@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime, timezone
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 from app.database import get_db
@@ -14,8 +15,9 @@ from app.utils.security import (
     verify_password, get_password_hash,
     create_access_token, create_refresh_token,
     create_verification_token, create_password_reset_token,
-    decode_token,
+    generate_csrf_token, decode_token,
 )
+from app.utils.cookies import set_auth_cookies, clear_auth_cookies
 from app.routers.deps import get_current_user
 from app.rate_limit import limiter
 from app.services.email import send_verification_email, send_password_reset_email
@@ -115,7 +117,7 @@ async def resend_verification(
     return {"message": "Email de vérification renvoyé"}
 
 
-@router.post("/login", response_model=Token)
+@router.post("/login")
 @limiter.limit("20/minute")
 async def login(request: Request, data: UserLogin, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.email == data.email))
@@ -142,12 +144,21 @@ async def login(request: Request, data: UserLogin, db: AsyncSession = Depends(ge
 
     access_token = create_access_token({"sub": str(user.id)})
     refresh_token = create_refresh_token({"sub": str(user.id)})
-    return Token(access_token=access_token, refresh_token=refresh_token)
+    csrf_token = generate_csrf_token()
+
+    user_out = make_user_out(user)
+    response = JSONResponse(content=user_out.model_dump(mode="json"))
+    set_auth_cookies(response, access_token, refresh_token, csrf_token)
+    return response
 
 
-@router.post("/refresh", response_model=Token)
-async def refresh(data: TokenRefresh, db: AsyncSession = Depends(get_db)):
-    payload = decode_token(data.refresh_token)
+@router.post("/refresh")
+async def refresh(request: Request, db: AsyncSession = Depends(get_db)):
+    token = request.cookies.get("refresh_token")
+    if not token:
+        raise HTTPException(status_code=401, detail="Token de rafraîchissement manquant")
+
+    payload = decode_token(token)
     if not payload or payload.get("type") != "refresh":
         raise HTTPException(status_code=401, detail="Token de rafraîchissement invalide")
     user_id = payload.get("sub")
@@ -171,8 +182,20 @@ async def refresh(data: TokenRefresh, db: AsyncSession = Depends(get_db)):
             raise HTTPException(status_code=403, detail="Compte suspendu")
 
     access_token = create_access_token({"sub": str(user.id)})
-    refresh_token = create_refresh_token({"sub": str(user.id)})
-    return Token(access_token=access_token, refresh_token=refresh_token)
+    new_refresh = create_refresh_token({"sub": str(user.id)})
+    csrf_token = generate_csrf_token()
+
+    user_out = make_user_out(user)
+    response = JSONResponse(content=user_out.model_dump(mode="json"))
+    set_auth_cookies(response, access_token, new_refresh, csrf_token)
+    return response
+
+
+@router.post("/logout")
+async def logout():
+    response = JSONResponse(content={"message": "ok"})
+    clear_auth_cookies(response)
+    return response
 
 
 @router.post("/forgot-password")
