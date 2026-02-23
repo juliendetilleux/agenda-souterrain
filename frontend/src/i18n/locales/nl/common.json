@@ -24,5 +24,6 @@
   "installApp": "App installeren",
   "installAppDesc": "Snelle toegang tot uw agenda vanaf het startscherm",
   "install": "Installeren",
-  "privacy": "Privacybeleid"
+  "privacy": "Privacybeleid",
+  "claimedGroup": "U bent toegevoegd aan de groep {{group}}"
 }

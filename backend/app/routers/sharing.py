@@ -8,12 +8,14 @@ from app.database import get_db
 from app.models.user import User
 from app.models.calendar import Calendar
 from app.models.access import AccessLink, CalendarAccess, Group, group_members, Permission, PendingInvitation
+from app.models.sub_calendar import SubCalendar
 from app.schemas.sharing import (
     AccessLinkCreate, AccessLinkUpdate, AccessLinkOut,
     CalendarAccessCreate, CalendarAccessOut, AccessUpdate,
     GroupCreate, GroupOut, GroupMemberOut,
     InviteUser, AddGroupMember, SetGroupAccess, MyPermissionOut,
     InviteResult, PendingInvitationOut,
+    GroupAccessOut, ClaimLinkOut, GroupBrief, UserGroupMembership,
 )
 from app.routers.deps import get_current_user, get_optional_user, get_link_token, require_calendar_admin
 from app.utils.permissions import get_effective_permission, is_admin
@@ -76,12 +78,20 @@ async def list_links(
         for row in perm_result.all():
             if row.link_id not in perm_map:
                 perm_map[row.link_id] = row.permission
+    # Batch-load group names for links with group_id
+    group_ids = {link.group_id for link in links if link.group_id}
+    groups_map: dict[uuid.UUID, str] = {}
+    if group_ids:
+        g_result = await db.execute(select(Group).where(Group.id.in_(group_ids)))
+        groups_map = {g.id: g.name for g in g_result.scalars().all()}
     out = []
     for link in links:
         out.append(AccessLinkOut(
             id=link.id, calendar_id=link.calendar_id, token=link.token,
             label=link.label, active=link.active, created_at=link.created_at,
             permission=perm_map.get(link.id),
+            group_id=link.group_id,
+            group_name=groups_map.get(link.group_id) if link.group_id else None,
         ))
     return out
 
@@ -94,7 +104,20 @@ async def create_link(
     db: AsyncSession = Depends(get_db),
 ):
     await _require_admin(cal_id, current_user, db)
-    link = AccessLink(calendar_id=cal_id, token=secrets.token_urlsafe(32), label=data.label)
+    # Validate group_id belongs to this calendar if provided
+    group_name = None
+    if data.group_id:
+        g_result = await db.execute(
+            select(Group).where(Group.id == data.group_id, Group.calendar_id == cal_id)
+        )
+        group = g_result.scalar_one_or_none()
+        if not group:
+            raise HTTPException(status_code=404, detail="Groupe introuvable")
+        group_name = group.name
+    link = AccessLink(
+        calendar_id=cal_id, token=secrets.token_urlsafe(32),
+        label=data.label, group_id=data.group_id,
+    )
     db.add(link)
     await db.flush()
     access = CalendarAccess(
@@ -107,7 +130,7 @@ async def create_link(
     return AccessLinkOut(
         id=link.id, calendar_id=link.calendar_id, token=link.token,
         label=link.label, active=link.active, created_at=link.created_at,
-        permission=data.permission,
+        permission=data.permission, group_id=link.group_id, group_name=group_name,
     )
 
 
@@ -128,6 +151,17 @@ async def update_link(
         link.label = data.label
     if data.active is not None:
         link.active = data.active
+    if data.group_id is not None:
+        # Validate group_id belongs to this calendar
+        if str(data.group_id) == "00000000-0000-0000-0000-000000000000":
+            link.group_id = None  # special value to unset
+        else:
+            g_result = await db.execute(
+                select(Group).where(Group.id == data.group_id, Group.calendar_id == cal_id)
+            )
+            if not g_result.scalar_one_or_none():
+                raise HTTPException(status_code=404, detail="Groupe introuvable")
+            link.group_id = data.group_id
     if data.permission is not None:
         acc_result = await db.execute(
             select(CalendarAccess).where(CalendarAccess.link_id == link_id).limit(1)
@@ -141,9 +175,15 @@ async def update_link(
         select(CalendarAccess.permission).where(CalendarAccess.link_id == link.id).limit(1)
     )
     perm = perm_result.scalar_one_or_none()
+    # Resolve group name
+    group_name = None
+    if link.group_id:
+        gn_result = await db.execute(select(Group.name).where(Group.id == link.group_id))
+        group_name = gn_result.scalar_one_or_none()
     return AccessLinkOut(
         id=link.id, calendar_id=link.calendar_id, token=link.token,
-        label=link.label, active=link.active, created_at=link.created_at, permission=perm,
+        label=link.label, active=link.active, created_at=link.created_at,
+        permission=perm, group_id=link.group_id, group_name=group_name,
     )
 
 
@@ -519,6 +559,130 @@ async def set_group_access(
         user_id=None, group_id=group_id, link_id=None,
         permission=acc.permission, group_name=group.name,
     )
+
+
+@router.get("/groups/{group_id}/access", response_model=list[GroupAccessOut])
+async def list_group_access(
+    cal_id: uuid.UUID,
+    group_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    await _require_admin(cal_id, current_user, db)
+    result = await db.execute(
+        select(CalendarAccess).where(
+            CalendarAccess.calendar_id == cal_id,
+            CalendarAccess.group_id == group_id,
+        )
+    )
+    entries = result.scalars().all()
+    # Batch-load sub-calendar names
+    sub_cal_ids = {e.sub_calendar_id for e in entries if e.sub_calendar_id}
+    sc_map: dict[uuid.UUID, str] = {}
+    if sub_cal_ids:
+        sc_result = await db.execute(select(SubCalendar).where(SubCalendar.id.in_(sub_cal_ids)))
+        sc_map = {sc.id: sc.name for sc in sc_result.scalars().all()}
+    return [
+        GroupAccessOut(
+            id=e.id, permission=e.permission,
+            sub_calendar_id=e.sub_calendar_id,
+            sub_calendar_name=sc_map.get(e.sub_calendar_id) if e.sub_calendar_id else None,
+        )
+        for e in entries
+    ]
+
+
+@router.delete("/groups/{group_id}/access/{access_id}", status_code=204)
+async def delete_group_access(
+    cal_id: uuid.UUID,
+    group_id: uuid.UUID,
+    access_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    await _require_admin(cal_id, current_user, db)
+    result = await db.execute(
+        select(CalendarAccess).where(
+            CalendarAccess.id == access_id,
+            CalendarAccess.group_id == group_id,
+        )
+    )
+    acc = result.scalar_one_or_none()
+    if not acc:
+        raise HTTPException(status_code=404, detail="Introuvable")
+    await db.delete(acc)
+
+
+# ─── Claim link (auto-join group) ─────────────────────────────────────────────
+
+@router.post("/claim-link", response_model=ClaimLinkOut)
+async def claim_link(
+    cal_id: uuid.UUID,
+    token: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(AccessLink).where(
+            AccessLink.calendar_id == cal_id,
+            AccessLink.token == token,
+            AccessLink.active == True,  # noqa: E712
+        )
+    )
+    link = result.scalar_one_or_none()
+    if not link or not link.group_id:
+        raise HTTPException(status_code=404, detail="Lien invalide ou sans groupe associé")
+    # Check if already a member
+    existing = await db.execute(
+        select(group_members).where(
+            group_members.c.group_id == link.group_id,
+            group_members.c.user_id == current_user.id,
+        )
+    )
+    group_result = await db.execute(select(Group).where(Group.id == link.group_id))
+    group = group_result.scalar_one_or_none()
+    if not group:
+        raise HTTPException(status_code=404, detail="Groupe introuvable")
+    if existing.first():
+        return ClaimLinkOut(group_id=group.id, group_name=group.name)
+    # Add user to group
+    await db.execute(group_members.insert().values(group_id=link.group_id, user_id=current_user.id))
+    return ClaimLinkOut(group_id=group.id, group_name=group.name)
+
+
+# ─── Group memberships (bulk) ─────────────────────────────────────────────────
+
+@router.get("/group-memberships", response_model=list[UserGroupMembership])
+async def list_group_memberships(
+    cal_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    await _require_admin(cal_id, current_user, db)
+    # Get all groups for this calendar
+    groups_result = await db.execute(select(Group).where(Group.calendar_id == cal_id))
+    groups = groups_result.scalars().all()
+    group_ids = [g.id for g in groups]
+    if not group_ids:
+        return []
+    groups_map = {g.id: g.name for g in groups}
+    # Get all memberships in one query
+    members_result = await db.execute(
+        select(group_members.c.user_id, group_members.c.group_id).where(
+            group_members.c.group_id.in_(group_ids)
+        )
+    )
+    # Build user_id → list of groups
+    user_groups: dict[uuid.UUID, list[GroupBrief]] = {}
+    for row in members_result.all():
+        uid = row.user_id
+        if uid not in user_groups:
+            user_groups[uid] = []
+        user_groups[uid].append(GroupBrief(id=row.group_id, name=groups_map[row.group_id]))
+    return [
+        UserGroupMembership(user_id=uid, groups=grps)
+        for uid, grps in user_groups.items()
+    ]
 
 
 # ─── Legacy ────────────────────────────────────────────────────────────────────

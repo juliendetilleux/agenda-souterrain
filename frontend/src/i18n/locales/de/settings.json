@@ -51,7 +51,10 @@
     },
     "disable": "Deaktivieren",
     "enable": "Aktivieren",
-    "copyLink": "Link kopieren"
+    "copyLink": "Link kopieren",
+    "autoGroup": "Automatische Gruppe",
+    "noGroup": "Keine Gruppe",
+    "autoGroupHelp": "Angemeldete Benutzer, die diesen Link öffnen, werden automatisch dieser Gruppe hinzugefügt."
   },
   "users": {
     "inviteTitle": "Benutzer einladen",
@@ -68,8 +71,13 @@
       "notFound": "Benutzer nicht gefunden oder bereits eingeladen",
       "updateError": "Fehler beim Aktualisieren",
       "revoked": "Zugang widerrufen",
-      "revokeError": "Fehler beim Widerrufen"
-    }
+      "revokeError": "Fehler beim Widerrufen",
+      "addedToGroup": "Zur Gruppe hinzugefügt",
+      "addToGroupError": "Fehler beim Hinzufügen zur Gruppe",
+      "removeFromGroupError": "Fehler beim Entfernen aus der Gruppe"
+    },
+    "selectGroup": "Gruppe auswählen…",
+    "addToGroup": "Gruppe"
   },
   "groups": {
     "createTitle": "Gruppe erstellen",
@@ -77,6 +85,11 @@
     "memberEmailPlaceholder": "E-Mail des Mitglieds",
     "members": "Mitglieder",
     "groupPermission": "Gruppenberechtigung",
+    "permissions": "Berechtigungen",
+    "noPermissions": "Keine Berechtigungen festgelegt.",
+    "addPermission": "Hinzufügen",
+    "allSubCals": "Alle",
+    "permCount": "Ber.",
     "level": "Stufe",
     "subCal": "Unterk.",
     "empty": "Keine Gruppen erstellt.",
@@ -92,7 +105,8 @@
       "deleted": "Gruppe gelöscht",
       "groupDeleteError": "Fehler beim Löschen",
       "created": "Gruppe erstellt",
-      "createError": "Fehler beim Erstellen"
+      "createError": "Fehler beim Erstellen",
+      "permissionRemoved": "Berechtigung entfernt"
     }
   },
   "tags": {

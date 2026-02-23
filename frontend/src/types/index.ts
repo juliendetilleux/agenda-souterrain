@@ -110,6 +110,8 @@ export interface AccessLink {
   active: boolean
   created_at: string
   permission: Permission | null
+  group_id: string | null
+  group_name: string | null
 }
 
 export interface CalendarAccess {
@@ -162,6 +164,28 @@ export interface PendingInvitation {
   permission: Permission
   sub_calendar_id: string | null
   created_at: string
+}
+
+export interface GroupAccess {
+  id: string
+  permission: Permission
+  sub_calendar_id: string | null
+  sub_calendar_name: string | null
+}
+
+export interface ClaimLinkResult {
+  group_id: string
+  group_name: string
+}
+
+export interface GroupBrief {
+  id: string
+  name: string
+}
+
+export interface UserGroupMembership {
+  user_id: string
+  groups: GroupBrief[]
 }
 
 export type CalendarView =
