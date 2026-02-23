@@ -99,6 +99,7 @@ export interface EventAttachment {
   stored_filename: string
   mime_type: string
   file_size: number
+  url: string
   created_at: string
 }
 
