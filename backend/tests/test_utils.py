@@ -10,6 +10,9 @@ from app.utils.security import (
     verify_password,
     create_access_token,
     create_refresh_token,
+    create_verification_token,
+    create_password_reset_token,
+    generate_csrf_token,
     decode_token,
 )
 from app.utils.permissions import (
@@ -237,3 +240,75 @@ def test_templates_all_languages():
     for lang in ("fr", "en", "nl", "de"):
         assert lang in TEMPLATES, f"Missing language: {lang}"
         assert set(TEMPLATES[lang].keys()) == required_keys, f"Missing keys for {lang}"
+
+
+# ─── Verification / Password reset tokens ────────────────────────────────
+
+def test_create_verification_token_type():
+    token = create_verification_token("user-123")
+    payload = decode_token(token)
+    assert payload is not None
+    assert payload["type"] == "email_verification"
+    assert payload["sub"] == "user-123"
+    assert "exp" in payload
+
+
+def test_create_password_reset_token_type():
+    token = create_password_reset_token("user-456")
+    payload = decode_token(token)
+    assert payload is not None
+    assert payload["type"] == "password_reset"
+    assert payload["sub"] == "user-456"
+    assert "exp" in payload
+
+
+# ─── CSRF token ──────────────────────────────────────────────────────────
+
+def test_generate_csrf_token_length():
+    token = generate_csrf_token()
+    assert len(token) >= 32
+
+
+def test_generate_csrf_token_uniqueness():
+    tokens = {generate_csrf_token() for _ in range(10)}
+    assert len(tokens) == 10
+
+
+# ─── Event with rrule iCal ──────────────────────────────────────────────
+
+def test_event_to_ical_with_rrule():
+    event = _make_event(rrule="FREQ=WEEKLY;BYDAY=MO")
+    ical_bytes = event_to_ical(event)
+    ical_str = ical_bytes.decode()
+    assert "RRULE:FREQ=WEEKLY;BYDAY=MO" in ical_str
+
+
+def test_event_to_ical_with_location():
+    event = _make_event(location="Salle 42, Paris")
+    ical_bytes = event_to_ical(event)
+    ical_str = ical_bytes.decode()
+    assert "Salle 42" in ical_str
+
+
+def test_event_to_ical_with_geo():
+    event = _make_event(latitude=48.8566, longitude=2.3522)
+    ical_bytes = event_to_ical(event)
+    ical_str = ical_bytes.decode()
+    assert "GEO:48.8566;2.3522" in ical_str
+
+
+# ─── Slugify edge cases ──────────────────────────────────────────────────
+
+def test_slugify_empty():
+    assert slugify("") == "calendrier"
+
+
+def test_slugify_long_title():
+    """Slug should be truncated to 80 chars max."""
+    title = "A" * 100
+    result = slugify(title)
+    assert len(result) <= 80
+
+
+def test_slugify_numbers():
+    assert slugify("Calendrier 2025") == "calendrier-2025"

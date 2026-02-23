@@ -175,7 +175,7 @@ export default function CalendarGrid({ calendar, subCalendars, openNewEvent, onN
   const modalOpen = !!(selectedEvent || newEventDates)
   useEffect(() => {
     if (!modalOpen) return
-    window.history.pushState({ modal: true }, '')
+    if (!window.history.state?.modal) window.history.pushState({ modal: true }, '')
     const handlePopState = () => {
       setSelectedEvent(null)
       setNewEventDates(null)

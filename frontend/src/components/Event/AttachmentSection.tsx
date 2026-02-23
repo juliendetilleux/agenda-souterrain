@@ -21,19 +21,7 @@ function resolveFileUrl(url: string): string {
   return apiBase.replace(/\/v1$/, '') + url
 }
 
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} o`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} Ko`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`
-}
-
-function isImage(mimeType: string): boolean {
-  return mimeType.startsWith('image/')
-}
-
-function isPdf(mimeType: string): boolean {
-  return mimeType === 'application/pdf'
-}
+import { formatFileSize, isImage, isPdf } from '../../utils/files'
 
 function getFileIcon(mimeType: string) {
   if (isImage(mimeType)) return Image

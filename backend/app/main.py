@@ -54,8 +54,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[settings.FRONTEND_URL],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "X-CSRF-Token", "Authorization"],
     expose_headers=["X-CSRF-Token"],
 )
 
@@ -85,6 +85,4 @@ async def health(db: AsyncSession = Depends(get_db)):
     return {
         "status": "ok" if db_status == "ok" else "error",
         "db": db_status,
-        "admin_email_set": bool(settings.ADMIN_EMAIL),
-        "email_configured": bool(settings.RESEND_API_KEY),
     }

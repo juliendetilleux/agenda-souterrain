@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Trash2, Plus, ChevronDown, ChevronRight, UserMinus, X } from 'lucide-react'
 import { calendarApi } from '../../api/calendars'
-import { PERMISSION_LABELS, PERMISSION_COLORS } from '../../utils/permissions'
+import { getPermissionLabel, PERMISSION_COLORS } from '../../utils/permissions'
 import { useConfirm } from '../../hooks/useConfirm'
 import ConfirmModal from '../ui/ConfirmModal'
 import type { CalendarConfig, SubCalendar, Permission, Group } from '../../types'
@@ -205,7 +205,7 @@ function GroupRow({ calendar, group, subCalendars }: { calendar: CalendarConfig;
                 {groupAccess.map((ga) => (
                   <div key={ga.id} className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 border border-stone-100">
                     <span className={`text-xs px-2 py-0.5 rounded-lg font-medium ${PERMISSION_COLORS[ga.permission]}`}>
-                      {PERMISSION_LABELS[ga.permission]}
+                      {getPermissionLabel(ga.permission, t)}
                     </span>
                     <span className="flex-1 text-xs text-stone-600">
                       {ga.sub_calendar_name || t('groups.allSubCals')}
@@ -231,7 +231,7 @@ function GroupRow({ calendar, group, subCalendars }: { calendar: CalendarConfig;
                   className={selectClass}
                 >
                   {GROUP_PERMISSIONS.map((p) => (
-                    <option key={p} value={p}>{PERMISSION_LABELS[p]}</option>
+                    <option key={p} value={p}>{getPermissionLabel(p, t)}</option>
                   ))}
                 </select>
               </div>

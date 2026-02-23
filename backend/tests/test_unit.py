@@ -342,3 +342,182 @@ def test_invite_user_valid():
 def test_invite_user_invalid_email():
     with pytest.raises(ValidationError):
         InviteUser(email="not-an-email")
+
+
+# ─── CalendarUpdate validation ──────────────────────────────────────────────
+
+from app.schemas.calendar import CalendarUpdate
+
+def test_calendar_update_invalid_timezone():
+    with pytest.raises(ValidationError, match="Fuseau horaire invalide"):
+        CalendarUpdate(timezone="Fake/Zone")
+
+
+def test_calendar_update_valid_timezone():
+    c = CalendarUpdate(timezone="America/New_York")
+    assert c.timezone == "America/New_York"
+
+
+def test_calendar_update_invalid_language():
+    with pytest.raises(ValidationError, match="Langue invalide"):
+        CalendarUpdate(language="xx")
+
+
+def test_calendar_update_valid_language():
+    c = CalendarUpdate(language="en")
+    assert c.language == "en"
+
+
+def test_calendar_update_none_fields_ok():
+    """CalendarUpdate with all None fields should not raise."""
+    c = CalendarUpdate()
+    assert c.title is None
+    assert c.timezone is None
+    assert c.language is None
+
+
+# ─── Event latitude/longitude validation ─────────────────────────────────
+
+def test_event_create_latitude_out_of_range():
+    with pytest.raises(ValidationError, match="latitude"):
+        EventCreate(
+            sub_calendar_id=SC_ID,
+            title="Test",
+            start_dt=datetime(2025, 6, 15, 10, 0),
+            end_dt=datetime(2025, 6, 15, 11, 0),
+            latitude=91.0,
+        )
+
+
+def test_event_create_latitude_negative_out_of_range():
+    with pytest.raises(ValidationError, match="latitude"):
+        EventCreate(
+            sub_calendar_id=SC_ID,
+            title="Test",
+            start_dt=datetime(2025, 6, 15, 10, 0),
+            end_dt=datetime(2025, 6, 15, 11, 0),
+            latitude=-91.0,
+        )
+
+
+def test_event_create_longitude_out_of_range():
+    with pytest.raises(ValidationError, match="longitude"):
+        EventCreate(
+            sub_calendar_id=SC_ID,
+            title="Test",
+            start_dt=datetime(2025, 6, 15, 10, 0),
+            end_dt=datetime(2025, 6, 15, 11, 0),
+            longitude=181.0,
+        )
+
+
+def test_event_create_valid_coordinates():
+    e = EventCreate(
+        sub_calendar_id=SC_ID,
+        title="Geo Test",
+        start_dt=datetime(2025, 6, 15, 10, 0),
+        end_dt=datetime(2025, 6, 15, 11, 0),
+        latitude=48.8566,
+        longitude=2.3522,
+    )
+    assert e.latitude == 48.8566
+    assert e.longitude == 2.3522
+
+
+# ─── BanUserRequest ─────────────────────────────────────────────────────
+
+from app.schemas.user import BanUserRequest
+
+def test_ban_user_request_strip_timezone():
+    """BanUserRequest should strip timezone from 'until' datetime."""
+    from datetime import timezone as tz
+    aware_dt = datetime(2025, 6, 15, 12, 0, tzinfo=tz.utc)
+    ban = BanUserRequest(permanent=False, until=aware_dt, reason="test")
+    assert ban.until is not None
+    assert ban.until.tzinfo is None
+
+
+def test_ban_user_request_permanent_default():
+    ban = BanUserRequest()
+    assert ban.permanent is True
+    assert ban.until is None
+
+
+# ─── ResetPasswordRequest ────────────────────────────────────────────────
+
+from app.schemas.user import ResetPasswordRequest
+
+def test_reset_password_weak():
+    with pytest.raises(ValidationError, match="8 caractères"):
+        ResetPasswordRequest(token="some-token", password="abc")
+
+
+def test_reset_password_no_digit():
+    with pytest.raises(ValidationError, match="un chiffre"):
+        ResetPasswordRequest(token="some-token", password="abcdefgh")
+
+
+def test_reset_password_valid():
+    r = ResetPasswordRequest(token="some-token", password="securepass1")
+    assert r.password == "securepass1"
+
+
+# ─── UserLogin remember_me ──────────────────────────────────────────────
+
+from app.schemas.user import UserLogin
+
+def test_user_login_remember_me_default():
+    u = UserLogin(email="a@b.com", password="test1234")
+    assert u.remember_me is False
+
+
+def test_user_login_remember_me_true():
+    u = UserLogin(email="a@b.com", password="test1234", remember_me=True)
+    assert u.remember_me is True
+
+
+# ─── SignupCreate note field ─────────────────────────────────────────────
+
+def test_signup_with_note():
+    s = SignupCreate(name="Test", email="a@b.com", note="Je viendrai avec un ami")
+    assert s.note == "Je viendrai avec un ami"
+
+
+def test_signup_without_note():
+    s = SignupCreate(name="Test", email="a@b.com")
+    assert s.note is None
+
+
+# ─── Event max_length validation ─────────────────────────────────────────
+
+def test_event_title_too_long():
+    with pytest.raises(ValidationError):
+        EventCreate(
+            sub_calendar_id=SC_ID,
+            title="A" * 501,
+            start_dt=datetime(2025, 6, 15, 10, 0),
+            end_dt=datetime(2025, 6, 15, 11, 0),
+        )
+
+
+def test_event_notes_max_length():
+    """Notes at exactly 10000 chars should be valid."""
+    e = EventCreate(
+        sub_calendar_id=SC_ID,
+        title="Test",
+        start_dt=datetime(2025, 6, 15, 10, 0),
+        end_dt=datetime(2025, 6, 15, 11, 0),
+        notes="A" * 10000,
+    )
+    assert len(e.notes) == 10000
+
+
+def test_event_notes_too_long():
+    with pytest.raises(ValidationError):
+        EventCreate(
+            sub_calendar_id=SC_ID,
+            title="Test",
+            start_dt=datetime(2025, 6, 15, 10, 0),
+            end_dt=datetime(2025, 6, 15, 11, 0),
+            notes="A" * 10001,
+        )

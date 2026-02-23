@@ -20,14 +20,7 @@ interface Props {
 
 const DATE_LOCALES: Record<string, Locale> = { fr, en: enUS, nl, de }
 
-function getTranslatedContent(
-  comment: EventComment,
-  targetLang: string,
-  sourceLang: string,
-): string {
-  if (targetLang === sourceLang) return comment.content
-  return comment.translations?.[targetLang]?.content ?? comment.content
-}
+import { getTranslatedContent } from '../../utils/translations'
 
 export default function ChatSection({
   calendarId, eventId, sourceLang, canPost, canModerate,

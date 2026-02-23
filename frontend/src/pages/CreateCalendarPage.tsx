@@ -6,7 +6,7 @@ import LanguageSwitcher from '../components/ui/LanguageSwitcher'
 import toast from 'react-hot-toast'
 
 export default function CreateCalendarPage() {
-  const { t } = useTranslation('home')
+  const { t, i18n } = useTranslation('home')
   const { t: tc } = useTranslation('common')
   const [title, setTitle] = useState('')
   const [loading, setLoading] = useState(false)
@@ -17,7 +17,7 @@ export default function CreateCalendarPage() {
     setLoading(true)
     try {
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Paris'
-      const cal = await calendarApi.create({ title, timezone: tz, language: 'fr' })
+      const cal = await calendarApi.create({ title, timezone: tz, language: i18n.language.slice(0, 2) })
       toast.success(t('newCalendar.success'))
       navigate(`/c/${cal.slug}`)
     } catch {
