@@ -133,7 +133,10 @@ async def login(request: Request, data: UserLogin, db: AsyncSession = Depends(ge
         else settings.REFRESH_TOKEN_EXPIRE_DAYS
     )
     access_token = create_access_token({"sub": str(user.id)})
-    refresh_token = create_refresh_token({"sub": str(user.id)}, expires_days=refresh_days)
+    refresh_data = {"sub": str(user.id)}
+    if data.remember_me:
+        refresh_data["rm"] = True
+    refresh_token = create_refresh_token(refresh_data, expires_days=refresh_days)
     csrf_token = generate_csrf_token()
 
     user_out = make_user_out(user)
@@ -159,13 +162,21 @@ async def refresh(request: Request, db: AsyncSession = Depends(get_db)):
 
     await check_ban_status(user, db)
 
+    remember_me = payload.get("rm", False)
+    refresh_days = (
+        settings.REFRESH_TOKEN_REMEMBER_DAYS if remember_me
+        else settings.REFRESH_TOKEN_EXPIRE_DAYS
+    )
     access_token = create_access_token({"sub": str(user.id)})
-    new_refresh = create_refresh_token({"sub": str(user.id)})
+    refresh_data = {"sub": str(user.id)}
+    if remember_me:
+        refresh_data["rm"] = True
+    new_refresh = create_refresh_token(refresh_data, expires_days=refresh_days)
     csrf_token = generate_csrf_token()
 
     user_out = make_user_out(user)
     response = JSONResponse(content=user_out.model_dump(mode="json"))
-    set_auth_cookies(response, access_token, new_refresh, csrf_token)
+    set_auth_cookies(response, access_token, new_refresh, csrf_token, refresh_days=refresh_days)
     return response
 
 
