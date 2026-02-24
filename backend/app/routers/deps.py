@@ -69,10 +69,15 @@ async def get_optional_user(
     token = request.cookies.get("access_token")
     authorization = request.headers.get("authorization", "")
     if not token and not authorization.startswith("Bearer "):
+        # No access token — but if a refresh_token cookie exists, the user
+        # has an active session whose access_token cookie expired (browser
+        # deletes it after max_age). Return 401 so the frontend interceptor
+        # can refresh the token and retry, instead of silently degrading
+        # permissions to NO_ACCESS.
+        if request.cookies.get("refresh_token"):
+            raise HTTPException(status_code=401, detail="Token expiré")
         return None
-    # Credentials present → let 401 propagate so the frontend interceptor
-    # can refresh the token and retry (instead of silently returning None
-    # which causes permission to degrade to NO_ACCESS).
+    # Credentials present → let 401 propagate for the same reason.
     return await get_current_user(request, db)
 
 
