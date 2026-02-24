@@ -50,9 +50,13 @@ function App() {
         }
         // Re-fetch permissions so effectivePermission stays current
         queryClient.invalidateQueries({ queryKey: ['my-permission'] })
-      } catch {
-        useAuthStore.getState().logout()
-        window.location.href = '/login'
+      } catch (err) {
+        // Only logout on auth errors (expired refresh token). Network errors
+        // are transient — the next refresh cycle will retry automatically.
+        if (axios.isAxiosError(err) && err.response && [401, 403].includes(err.response.status)) {
+          useAuthStore.getState().logout()
+          window.location.href = '/login'
+        }
       } finally {
         refreshing.current = false
       }
