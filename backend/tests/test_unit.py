@@ -283,6 +283,7 @@ def test_attachment_out_model():
         stored_filename="abc123.jpg",
         mime_type="image/jpeg",
         file_size=1024,
+        url="https://example.com/files/abc123.jpg",
         created_at=datetime(2026, 1, 1, 12, 0),
     )
     assert a.original_filename == "photo.jpg"

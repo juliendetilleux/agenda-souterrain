@@ -39,10 +39,17 @@ api.interceptors.response.use(
       return Promise.reject(error)
     }
 
-    // Don't try to refresh for auth endpoints (login, register, etc.)
-    if (originalRequest.url?.startsWith('/auth/')) {
+    // Don't refresh for endpoints where 401 means bad credentials, not expired token
+    const skipRefresh = ['/auth/login', '/auth/register', '/auth/refresh']
+    if (skipRefresh.some((path) => originalRequest.url === path)) {
       return Promise.reject(error)
     }
+
+    // Prevent infinite retry loop (e.g. user deleted from DB)
+    if ((originalRequest as any)._retried) {
+      return Promise.reject(error)
+    }
+    ;(originalRequest as any)._retried = true
 
     if (isRefreshing) {
       return new Promise((resolve, reject) => {

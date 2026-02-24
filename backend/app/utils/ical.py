@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from icalendar import Calendar as ICalendar, Event as ICalEvent
+from icalendar import Calendar as ICalendar, Event as ICalEvent, vRecur
 from app.models.event import Event
 
 
@@ -38,6 +38,6 @@ def _add_event(cal: ICalendar, event: Event) -> None:
     if event.latitude is not None and event.longitude is not None:
         ical_event.add("geo", (event.latitude, event.longitude))
     if event.rrule:
-        ical_event.add("rrule", event.rrule)
+        ical_event.add("rrule", vRecur.from_ical(event.rrule))
     ical_event.add("dtstamp", datetime.now(timezone.utc))
     cal.add_component(ical_event)
