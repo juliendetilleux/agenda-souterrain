@@ -29,7 +29,7 @@ def set_auth_cookies(
         secure=settings.COOKIE_SECURE,
         samesite="lax",
         domain=domain,
-        path="/v1/auth",
+        path="/",
         max_age=refresh_max_age,
     )
     response.set_cookie(
@@ -49,7 +49,7 @@ def clear_auth_cookies(response: JSONResponse) -> None:
 
     for name, path in [
         ("access_token", "/"),
-        ("refresh_token", "/v1/auth"),
+        ("refresh_token", "/"),
         ("csrf_token", "/"),
     ]:
         response.delete_cookie(key=name, domain=domain, path=path)
