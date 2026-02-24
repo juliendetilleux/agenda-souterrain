@@ -1,22 +1,23 @@
-import { useEffect, useRef } from 'react'
+import { lazy, Suspense, useEffect, useRef } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import axios from 'axios'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from './store/authStore'
 import { authApi } from './api/auth'
-import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
-import VerifyEmailPage from './pages/VerifyEmailPage'
-import ForgotPasswordPage from './pages/ForgotPasswordPage'
-import ResetPasswordPage from './pages/ResetPasswordPage'
-import CalendarPage from './pages/CalendarPage'
-import CreateCalendarPage from './pages/CreateCalendarPage'
-import SettingsPage from './pages/SettingsPage'
-import HomePage from './pages/HomePage'
-import PrivacyPage from './pages/PrivacyPage'
-import InstallPrompt from './components/ui/InstallPrompt'
 import ErrorBoundary from './components/ui/ErrorBoundary'
 import VerificationBanner from './components/ui/VerificationBanner'
+
+const LoginPage = lazy(() => import('./pages/LoginPage'))
+const RegisterPage = lazy(() => import('./pages/RegisterPage'))
+const VerifyEmailPage = lazy(() => import('./pages/VerifyEmailPage'))
+const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'))
+const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'))
+const CalendarPage = lazy(() => import('./pages/CalendarPage'))
+const CreateCalendarPage = lazy(() => import('./pages/CreateCalendarPage'))
+const SettingsPage = lazy(() => import('./pages/SettingsPage'))
+const HomePage = lazy(() => import('./pages/HomePage'))
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage'))
+const InstallPrompt = lazy(() => import('./components/ui/InstallPrompt'))
 
 function App() {
   const queryClient = useQueryClient()
@@ -80,29 +81,37 @@ function App() {
     )
   }
 
+  const fallback = (
+    <div className="min-h-screen flex items-center justify-center bg-[#f8f7f4]">
+      <div className="w-6 h-6 border-2 border-stone-300 border-t-lamp-500 rounded-full animate-spin" />
+    </div>
+  )
+
   return (
     <ErrorBoundary>
       {isAuthenticated && user && !user.is_verified && <VerificationBanner />}
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/verify-email" element={<VerifyEmailPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/privacy" element={<PrivacyPage />} />
-        <Route path="/c/:slug" element={<CalendarPage />} />
-        <Route path="/c/:slug/settings" element={<SettingsPage />} />
-        <Route
-          path="/new"
-          element={isSuperadmin ? <CreateCalendarPage /> : <Navigate to={isAuthenticated ? '/' : '/login'} replace />}
-        />
-        <Route
-          path="/"
-          element={isAuthenticated ? <HomePage /> : <Navigate to="/login" replace />}
-        />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-      <InstallPrompt />
+      <Suspense fallback={fallback}>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/c/:slug" element={<CalendarPage />} />
+          <Route path="/c/:slug/settings" element={<SettingsPage />} />
+          <Route
+            path="/new"
+            element={isSuperadmin ? <CreateCalendarPage /> : <Navigate to={isAuthenticated ? '/' : '/login'} replace />}
+          />
+          <Route
+            path="/"
+            element={isAuthenticated ? <HomePage /> : <Navigate to="/login" replace />}
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+        <InstallPrompt />
+      </Suspense>
     </ErrorBoundary>
   )
 }
