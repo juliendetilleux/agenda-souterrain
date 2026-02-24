@@ -99,7 +99,7 @@ export default function SettingsPage() {
     setSearchParams({ tab: key }, { replace: true })
   }
 
-  if (calLoading || permLoading) {
+  if ((calLoading && !calendar) || (permLoading && !myPerm)) {
     return (
       <div className="flex items-center justify-center h-screen bg-[#f8f7f4]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-lamp-500" />
