@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { CalendarDays, Plus, LogOut } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../store/authStore'
@@ -12,6 +12,7 @@ export default function HomePage() {
   const { t } = useTranslation('home')
   const { t: tc } = useTranslation('common')
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const { user, logout } = useAuthStore()
   const isSuperadmin = Boolean(user?.is_superadmin)
 
@@ -104,6 +105,10 @@ export default function HomePage() {
               <button
                 key={cal.id}
                 onClick={() => navigate(`/c/${cal.slug}`)}
+                onMouseEnter={() => queryClient.prefetchQuery({
+                  queryKey: ['calendar', cal.slug],
+                  queryFn: () => calendarApi.getBySlug(cal.slug),
+                })}
                 className="group text-left bg-white rounded-2xl border border-stone-100 p-5
                            hover:border-lamp-300 hover:shadow-md transition-all duration-150"
               >

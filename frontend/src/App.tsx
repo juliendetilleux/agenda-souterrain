@@ -37,11 +37,14 @@ function App() {
       if (refreshing.current) return
       refreshing.current = true
       try {
-        await axios.post(
+        const response = await axios.post(
           `${import.meta.env.VITE_API_URL || '/v1'}/auth/refresh`,
           {},
           { withCredentials: true },
         )
+        if (response.data) {
+          useAuthStore.getState().setUser(response.data)
+        }
       } catch {
         useAuthStore.getState().logout()
         window.location.href = '/login'
