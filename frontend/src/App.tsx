@@ -1,5 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
+import axios from 'axios'
 import { useAuthStore } from './store/authStore'
 import { authApi } from './api/auth'
 import LoginPage from './pages/LoginPage'
@@ -26,6 +27,43 @@ function App() {
       .then((freshUser) => setUser(freshUser))
       .catch(() => logout())
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Proactive token refresh: keeps access_token alive before it expires (15 min)
+  const refreshing = useRef(false)
+  useEffect(() => {
+    if (!isAuthenticated) return
+
+    const silentRefresh = async () => {
+      if (refreshing.current) return
+      refreshing.current = true
+      try {
+        await axios.post(
+          `${import.meta.env.VITE_API_URL || '/v1'}/auth/refresh`,
+          {},
+          { withCredentials: true },
+        )
+      } catch {
+        useAuthStore.getState().logout()
+        window.location.href = '/login'
+      } finally {
+        refreshing.current = false
+      }
+    }
+
+    // Refresh every 13 minutes (2 min before the 15-min access_token expiry)
+    const interval = setInterval(silentRefresh, 13 * 60 * 1000)
+
+    // Also refresh when the tab becomes visible again (timer may have been throttled)
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') silentRefresh()
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
+  }, [isAuthenticated]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (isLoading) {
     return (
