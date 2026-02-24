@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import axios from 'axios'
+import { useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from './store/authStore'
 import { authApi } from './api/auth'
 import LoginPage from './pages/LoginPage'
@@ -18,6 +19,7 @@ import ErrorBoundary from './components/ui/ErrorBoundary'
 import VerificationBanner from './components/ui/VerificationBanner'
 
 function App() {
+  const queryClient = useQueryClient()
   const { isAuthenticated, isLoading, user, setUser, logout } = useAuthStore()
   const isSuperadmin = Boolean(isAuthenticated && user?.is_superadmin)
 
@@ -45,6 +47,8 @@ function App() {
         if (response.data) {
           useAuthStore.getState().setUser(response.data)
         }
+        // Re-fetch permissions so effectivePermission stays current
+        queryClient.invalidateQueries({ queryKey: ['my-permission'] })
       } catch {
         useAuthStore.getState().logout()
         window.location.href = '/login'
