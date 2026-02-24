@@ -11,7 +11,7 @@ import { getFcLocale } from '../../utils/locales'
 import type { EventClickArg, DateSelectArg, EventDropArg, EventContentArg } from '@fullcalendar/core'
 import type { EventResizeDoneArg, DateClickArg } from '@fullcalendar/interaction'
 import { format } from 'date-fns'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query'
 import { calendarApi } from '../../api/calendars'
 import { useCalendarStore } from '../../store/calendarStore'
 import { canModifyOwn } from '../../utils/permissions'
@@ -63,6 +63,7 @@ export default function CalendarGrid({ calendar, subCalendars, openNewEvent, onN
       })
     },
     enabled: !!calendar.id,
+    placeholderData: keepPreviousData,
   })
 
   // Trigger background translations for events in current language
