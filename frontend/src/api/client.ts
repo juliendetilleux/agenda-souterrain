@@ -55,11 +55,14 @@ api.interceptors.response.use(
 
     isRefreshing = true
     try {
-      await axios.post(
+      const refreshResponse = await axios.post(
         `${import.meta.env.VITE_API_URL || '/v1'}/auth/refresh`,
         {},
         { withCredentials: true },
       )
+      if (refreshResponse.data) {
+        useAuthStore.getState().setUser(refreshResponse.data)
+      }
       refreshQueue.forEach((p) => p.resolve())
       refreshQueue = []
       return api.request(originalRequest)

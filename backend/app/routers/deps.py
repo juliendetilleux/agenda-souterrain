@@ -70,10 +70,10 @@ async def get_optional_user(
     authorization = request.headers.get("authorization", "")
     if not token and not authorization.startswith("Bearer "):
         return None
-    try:
-        return await get_current_user(request, db)
-    except HTTPException:
-        return None
+    # Credentials present → let 401 propagate so the frontend interceptor
+    # can refresh the token and retry (instead of silently returning None
+    # which causes permission to degrade to NO_ACCESS).
+    return await get_current_user(request, db)
 
 
 async def get_link_token(token: Optional[str] = Query(None)) -> Optional[str]:
