@@ -66,11 +66,8 @@ body {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   font-weight: 500;
   letter-spacing: 0.01em;
-  border-top: none !important;
-  border-right: none !important;
-  border-bottom: none !important;
-  border-left-width: 4px !important;
-  border-left-style: solid !important;
+  border: none !important;
+  border-left: 4px solid var(--fc-event-border-color, currentColor) !important;
 }
 
 .fc-event:hover {
