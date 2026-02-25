@@ -19,7 +19,7 @@ body {
 :root {
   --fc-border-color: #e5e2d9;           /* grès clair */
   --fc-today-bg-color: #fef3c7;         /* ambre très clair */
-  --fc-event-border-color: currentColor;
+  --fc-event-border-color: transparent;
   --fc-page-bg-color: #f8f7f4;          /* calcaire */
   --fc-neutral-bg-color: #f8f7f4;
   --fc-list-event-hover-bg-color: #fef3c7;
@@ -66,8 +66,8 @@ body {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   font-weight: 500;
   letter-spacing: 0.01em;
-  border: none !important;
-  border-left: 4px solid var(--fc-event-border-color, currentColor) !important;
+  border-width: 0 0 0 4px !important;
+  border-style: solid !important;
 }
 
 .fc-event:hover {
