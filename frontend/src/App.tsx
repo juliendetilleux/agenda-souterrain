@@ -30,7 +30,14 @@ function App() {
   useEffect(() => {
     authApi.getMe()
       .then((freshUser) => setUser(freshUser))
-      .catch(() => logout())
+      .catch(() => {
+        // The 401 interceptor handles token refresh automatically.
+        // If refresh failed, it already called logout(). If it's just a
+        // network error and we have a cached user, keep the session alive.
+        if (!useAuthStore.getState().user) {
+          logout()
+        }
+      })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Capture beforeinstallprompt for PWA install button (shared via pwaStore)
