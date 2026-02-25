@@ -41,7 +41,7 @@ api.interceptors.response.use(
 
     // Don't refresh for endpoints where 401 means bad credentials, not expired token
     const skipRefresh = ['/auth/login', '/auth/register', '/auth/refresh']
-    if (skipRefresh.some((path) => originalRequest.url === path)) {
+    if (skipRefresh.some((path) => originalRequest.url?.endsWith(path))) {
       return Promise.reject(error)
     }
 
