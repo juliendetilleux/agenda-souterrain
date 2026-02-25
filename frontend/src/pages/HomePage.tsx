@@ -105,10 +105,22 @@ export default function HomePage() {
               <button
                 key={cal.id}
                 onClick={() => navigate(`/c/${cal.slug}`)}
-                onMouseEnter={() => queryClient.prefetchQuery({
-                  queryKey: ['calendar', cal.slug],
-                  queryFn: () => calendarApi.getBySlug(cal.slug),
-                })}
+                onMouseEnter={() => {
+                  queryClient.prefetchQuery({
+                    queryKey: ['calendar', cal.slug],
+                    queryFn: () => calendarApi.getBySlug(cal.slug),
+                  })
+                  const now = new Date()
+                  const start = new Date(now); start.setMonth(start.getMonth() - 1)
+                  const end = new Date(now); end.setMonth(end.getMonth() + 2)
+                  queryClient.prefetchQuery({
+                    queryKey: ['events', cal.id, now.toISOString().slice(0, 7)],
+                    queryFn: () => calendarApi.getEvents(cal.id, {
+                      start_dt: start.toISOString(),
+                      end_dt: end.toISOString(),
+                    }),
+                  })
+                }}
                 className="group text-left bg-white rounded-2xl border border-stone-100 p-5
                            hover:border-lamp-300 hover:shadow-md transition-all duration-150"
               >

@@ -232,7 +232,7 @@ export default function Toolbar({ calendar, onNewEvent, onMenuClick }: Props) {
               onClick={handleLogout}
               title={t('logout')}
               aria-label={t('logout')}
-              className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-400 hover:text-red-500 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-400 hover:text-red-500 transition-colors hidden md:block"
             >
               <LogOut size={18} />
             </button>

@@ -93,12 +93,14 @@ export default function CalendarGrid({ calendar, subCalendars, openNewEvent, onN
       return e.tags?.some((t) => selectedTagFilters.includes(t.id))
     })
     .map((e) => {
+      const color = subCalMap[e.sub_calendar_id]?.color ?? '#3788d8'
       const base = {
         id: e.id,
         title: getTranslatedTitle(e, i18n.language.slice(0, 2), calendar.language || 'fr'),
         allDay: e.all_day,
-        backgroundColor: subCalMap[e.sub_calendar_id]?.color ?? '#3788d8',
-        borderColor: 'transparent',
+        backgroundColor: color + '20',
+        borderColor: color,
+        textColor: color,
         extendedProps: { event: e },
       }
 
