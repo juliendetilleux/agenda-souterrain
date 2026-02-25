@@ -1,6 +1,5 @@
 import { lazy, Suspense, useEffect, useRef } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import axios from 'axios'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from './store/authStore'
 import { usePwaStore } from './store/pwaStore'
@@ -64,22 +63,17 @@ function App() {
       if (refreshing.current) return
       refreshing.current = true
       try {
-        const response = await axios.post(
-          `${import.meta.env.VITE_API_URL || '/v1'}/auth/refresh`,
-          {},
-          { withCredentials: true },
-        )
-        if (response.data) {
-          useAuthStore.getState().setUser(response.data)
-        }
-        // Re-fetch permissions so effectivePermission stays current
+        // Use authApi.getMe() through the api client so the 401 interceptor
+        // handles token refresh. This prevents a race condition where both
+        // silentRefresh AND React Query refetches trigger separate /auth/refresh
+        // calls with independent flags, causing double refresh → potential logout.
+        const freshUser = await authApi.getMe()
+        useAuthStore.getState().setUser(freshUser)
         queryClient.invalidateQueries({ queryKey: ['my-permission'] })
-      } catch (err) {
-        // Only logout on auth errors (expired refresh token). Network errors
-        // are transient — the next refresh cycle will retry automatically.
-        if (axios.isAxiosError(err) && err.response && [401, 403].includes(err.response.status)) {
-          useAuthStore.getState().logout()
-        }
+      } catch {
+        // The interceptor already handles 401 → refresh → retry/logout.
+        // If getMe() still fails after retry, the session is truly expired
+        // and the interceptor has already called logout().
       } finally {
         refreshing.current = false
       }
