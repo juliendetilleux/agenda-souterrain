@@ -99,6 +99,8 @@
     "deleteMsg": "Supprimer le groupe \"{{name}}\" ? Les accès associés seront perdus.",
     "toast": {
       "memberAdded": "Membre ajouté",
+      "invitationPending": "Invitation envoyée, l'utilisateur sera ajouté à sa création de compte",
+      "addError": "Erreur lors de l'ajout",
       "userNotFound": "Utilisateur introuvable",
       "deleteError": "Erreur lors de la suppression",
       "permissionUpdated": "Permission mise à jour",

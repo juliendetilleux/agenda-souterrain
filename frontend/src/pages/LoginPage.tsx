@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { authApi } from '../api/auth'
 import { useAuthStore } from '../store/authStore'
@@ -16,6 +16,8 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false)
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const redirect = searchParams.get('redirect')
   const { setUser } = useAuthStore()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,7 +27,7 @@ export default function LoginPage() {
       const user = await authApi.login(email, password, rememberMe)
       useCookieConsentStore.getState().acceptAll()
       setUser(user)
-      navigate('/')
+      navigate(redirect || '/')
     } catch {
       toast.error(t('login.error'))
     } finally {
@@ -132,7 +134,7 @@ export default function LoginPage() {
 
             <p className="mt-6 text-center text-sm text-stone-400">
               {t('login.noAccount')}{' '}
-              <Link to="/register" className="text-lamp-600 hover:text-lamp-700 font-medium transition-colors">
+              <Link to={`/register${redirect ? `?redirect=${encodeURIComponent(redirect)}` : ''}`} className="text-lamp-600 hover:text-lamp-700 font-medium transition-colors">
                 {t('login.register')}
               </Link>
             </p>

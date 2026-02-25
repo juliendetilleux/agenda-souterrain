@@ -164,7 +164,13 @@ export interface PendingInvitation {
   email: string
   permission: Permission
   sub_calendar_id: string | null
+  group_id: string | null
   created_at: string
+}
+
+export interface AddGroupMemberResult {
+  status: 'added' | 'pending'
+  email: string
 }
 
 export interface GroupAccess {

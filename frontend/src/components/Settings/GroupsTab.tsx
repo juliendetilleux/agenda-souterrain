@@ -52,13 +52,17 @@ function GroupRow({ calendar, group, subCalendars }: { calendar: CalendarConfig;
 
   const addMemberMutation = useMutation({
     mutationFn: () => calendarApi.addGroupMember(calendar.id, group.id, memberEmail),
-    onSuccess: () => {
+    onSuccess: (result) => {
       qc.invalidateQueries({ queryKey: ['group-members', calendar.id, group.id] })
       qc.invalidateQueries({ queryKey: ['group-memberships', calendar.id] })
       setMemberEmail('')
-      toast.success(t('groups.toast.memberAdded'))
+      if (result.status === 'pending') {
+        toast.success(t('groups.toast.invitationPending'))
+      } else {
+        toast.success(t('groups.toast.memberAdded'))
+      }
     },
-    onError: () => toast.error(t('groups.toast.userNotFound')),
+    onError: () => toast.error(t('groups.toast.addError')),
   })
 
   const removeMemberMutation = useMutation({

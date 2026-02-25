@@ -13,7 +13,7 @@ from app.schemas.sharing import (
     AccessLinkCreate, AccessLinkUpdate, AccessLinkOut,
     CalendarAccessCreate, CalendarAccessOut, AccessUpdate,
     GroupCreate, GroupOut, GroupMemberOut,
-    InviteUser, AddGroupMember, SetGroupAccess, MyPermissionOut,
+    InviteUser, AddGroupMember, AddGroupMemberResult, SetGroupAccess, MyPermissionOut,
     InviteResult, PendingInvitationOut,
     GroupAccessOut, ClaimLinkOut, GroupBrief, UserGroupMembership,
 )
@@ -480,7 +480,7 @@ async def list_group_members(
     return result.scalars().all()
 
 
-@router.post("/groups/{group_id}/members", response_model=GroupMemberOut, status_code=201)
+@router.post("/groups/{group_id}/members", response_model=AddGroupMemberResult, status_code=201)
 async def add_group_member(
     cal_id: uuid.UUID,
     group_id: uuid.UUID,
@@ -492,17 +492,44 @@ async def add_group_member(
     group_result = await db.execute(select(Group).where(Group.id == group_id))
     if not group_result.scalar_one_or_none():
         raise HTTPException(status_code=404, detail="Groupe introuvable")
-    target = await _find_user_by_email(data.email, db)
-    existing = await db.execute(
-        select(group_members).where(
-            group_members.c.group_id == group_id,
-            group_members.c.user_id == target.id,
+
+    # Look up user
+    result = await db.execute(select(User).where(User.email == data.email))
+    target = result.scalar_one_or_none()
+
+    if target:
+        # User exists — add directly to group
+        existing = await db.execute(
+            select(group_members).where(
+                group_members.c.group_id == group_id,
+                group_members.c.user_id == target.id,
+            )
         )
-    )
-    if existing.first():
-        raise HTTPException(status_code=409, detail="Déjà membre du groupe")
-    await db.execute(group_members.insert().values(group_id=group_id, user_id=target.id))
-    return GroupMemberOut(id=target.id, email=target.email, name=target.name)
+        if existing.first():
+            raise HTTPException(status_code=409, detail="Déjà membre du groupe")
+        await db.execute(group_members.insert().values(group_id=group_id, user_id=target.id))
+        return AddGroupMemberResult(status="added", email=target.email)
+    else:
+        # User does NOT exist — create PendingInvitation with group_id
+        existing = await db.execute(
+            select(PendingInvitation).where(
+                PendingInvitation.calendar_id == cal_id,
+                PendingInvitation.email == data.email,
+                PendingInvitation.group_id == group_id,
+            )
+        )
+        if existing.scalar_one_or_none():
+            raise HTTPException(status_code=409, detail="Une invitation est déjà en attente pour cet email")
+        pending = PendingInvitation(
+            calendar_id=cal_id,
+            email=data.email,
+            permission=Permission.READ_ONLY,
+            group_id=group_id,
+            invited_by=current_user.id,
+        )
+        db.add(pending)
+        await db.flush()
+        return AddGroupMemberResult(status="pending", email=data.email)
 
 
 @router.delete("/groups/{group_id}/members/{user_id}", status_code=204)
