@@ -19,7 +19,7 @@ body {
 :root {
   --fc-border-color: #e5e2d9;           /* grès clair */
   --fc-today-bg-color: #fef3c7;         /* ambre très clair */
-  --fc-event-border-color: transparent;
+  --fc-event-border-color: currentColor;
   --fc-page-bg-color: #f8f7f4;          /* calcaire */
   --fc-neutral-bg-color: #f8f7f4;
   --fc-list-event-hover-bg-color: #fef3c7;
@@ -57,7 +57,7 @@ body {
   margin: 2px;
 }
 
-/* Events */
+/* Events — left border stripe for sub-calendar color */
 .fc-event {
   cursor: pointer;
   font-size: 0.72rem;
@@ -66,7 +66,11 @@ body {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   font-weight: 500;
   letter-spacing: 0.01em;
-  border: none !important;
+  border-top: none !important;
+  border-right: none !important;
+  border-bottom: none !important;
+  border-left-width: 4px !important;
+  border-left-style: solid !important;
 }
 
 .fc-event:hover {

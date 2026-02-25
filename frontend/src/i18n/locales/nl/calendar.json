@@ -30,7 +30,10 @@
     "error": "Fout",
     "deleteSubCalendarTitle": "Subkalender verwijderen",
     "deleteSubCalendarMsg": "\"{{name}}\" en alle evenementen verwijderen?",
-    "installApp": "App installeren"
+    "installApp": "App installeren",
+    "installInstructionsIos": "Tik op de deelknop en dan \"Zet op beginscherm\"",
+    "installInstructionsGeneric": "Tik op het browsermenu en dan \"App installeren\" of \"Toevoegen aan startscherm\"",
+    "installInstructionsClose": "Begrepen"
   },
   "dayLettersMon": ["M", "D", "W", "D", "V", "Z", "Z"],
   "dayLettersSun": ["Z", "M", "D", "W", "D", "V", "Z"]

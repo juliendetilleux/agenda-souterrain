@@ -100,6 +100,7 @@ export default function UsersTab({ calendar, subCalendars }: Props) {
     onSuccess: (result) => {
       qc.invalidateQueries({ queryKey: ['access', calendar.id] })
       qc.invalidateQueries({ queryKey: ['pending-invitations', calendar.id] })
+      qc.invalidateQueries({ queryKey: ['my-permission', calendar.id] })
       setEmail('')
       setPerm('read_only')
       setSubCal('')
@@ -115,7 +116,10 @@ export default function UsersTab({ calendar, subCalendars }: Props) {
   const updateMutation = useMutation({
     mutationFn: ({ accessId, permission }: { accessId: string; permission: Permission }) =>
       calendarApi.updateAccess(calendar.id, accessId, permission),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['access', calendar.id] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['access', calendar.id] })
+      qc.invalidateQueries({ queryKey: ['my-permission', calendar.id] })
+    },
     onError: () => toast.error(t('users.toast.updateError')),
   })
 
@@ -123,6 +127,7 @@ export default function UsersTab({ calendar, subCalendars }: Props) {
     mutationFn: (accessId: string) => calendarApi.deleteAccess(calendar.id, accessId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['access', calendar.id] })
+      qc.invalidateQueries({ queryKey: ['my-permission', calendar.id] })
       toast.success(t('users.toast.revoked'))
     },
     onError: () => toast.error(t('users.toast.revokeError')),

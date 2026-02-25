@@ -485,10 +485,11 @@ async def add_group_member(
     cal_id: uuid.UUID,
     group_id: uuid.UUID,
     data: AddGroupMember,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    await _require_admin(cal_id, current_user, db)
+    cal = await _require_admin(cal_id, current_user, db)
     group_result = await db.execute(select(Group).where(Group.id == group_id))
     if not group_result.scalar_one_or_none():
         raise HTTPException(status_code=404, detail="Groupe introuvable")
@@ -508,6 +509,19 @@ async def add_group_member(
         if existing.first():
             raise HTTPException(status_code=409, detail="Déjà membre du groupe")
         await db.execute(group_members.insert().values(group_id=group_id, user_id=target.id))
+
+        if cal.enable_email_notifications:
+            background_tasks.add_task(
+                send_invitation_email,
+                recipient_email=target.email,
+                recipient_name=target.name,
+                inviter_name=current_user.name or current_user.email,
+                calendar_title=cal.title,
+                permission=Permission.READ_ONLY.value,
+                language=cal.language,
+                user_exists=True,
+            )
+
         return AddGroupMemberResult(status="added", email=target.email)
     else:
         # User does NOT exist — create PendingInvitation with group_id
@@ -529,6 +543,19 @@ async def add_group_member(
         )
         db.add(pending)
         await db.flush()
+
+        if cal.enable_email_notifications:
+            background_tasks.add_task(
+                send_invitation_email,
+                recipient_email=data.email,
+                recipient_name=None,
+                inviter_name=current_user.name or current_user.email,
+                calendar_title=cal.title,
+                permission=Permission.READ_ONLY.value,
+                language=cal.language,
+                user_exists=False,
+            )
+
         return AddGroupMemberResult(status="pending", email=data.email)
 
 

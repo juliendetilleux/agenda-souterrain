@@ -83,6 +83,7 @@ function GroupRow({ calendar, group, subCalendars }: { calendar: CalendarConfig;
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['group-access', calendar.id, group.id] })
       qc.invalidateQueries({ queryKey: ['access', calendar.id] })
+      qc.invalidateQueries({ queryKey: ['my-permission', calendar.id] })
       toast.success(t('groups.toast.permissionUpdated'))
     },
     onError: () => toast.error(t('groups.toast.updateError')),
@@ -93,6 +94,7 @@ function GroupRow({ calendar, group, subCalendars }: { calendar: CalendarConfig;
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['group-access', calendar.id, group.id] })
       qc.invalidateQueries({ queryKey: ['access', calendar.id] })
+      qc.invalidateQueries({ queryKey: ['my-permission', calendar.id] })
       toast.success(t('groups.toast.permissionRemoved'))
     },
     onError: () => toast.error(t('groups.toast.deleteError')),

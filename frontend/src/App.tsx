@@ -35,14 +35,15 @@ function App() {
 
   // Capture beforeinstallprompt for PWA install button (shared via pwaStore)
   useEffect(() => {
-    const { setDeferredPrompt, setDismissed } = usePwaStore.getState()
+    const { setDeferredPrompt, setIsStandalone } = usePwaStore.getState()
     const handler = (e: Event) => {
       e.preventDefault()
       setDeferredPrompt(e as BeforeInstallPromptEvent)
     }
     window.addEventListener('beforeinstallprompt', handler)
-    if (window.matchMedia?.('(display-mode: standalone)').matches) {
-      setDismissed(true)
+    if (window.matchMedia?.('(display-mode: standalone)').matches ||
+        (navigator as any).standalone === true) {
+      setIsStandalone(true)
     }
     return () => window.removeEventListener('beforeinstallprompt', handler)
   }, [])

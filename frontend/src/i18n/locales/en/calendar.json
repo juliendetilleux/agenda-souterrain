@@ -30,7 +30,10 @@
     "error": "Error",
     "deleteSubCalendarTitle": "Delete sub-calendar",
     "deleteSubCalendarMsg": "Delete \"{{name}}\" and all its events?",
-    "installApp": "Install app"
+    "installApp": "Install app",
+    "installInstructionsIos": "Tap the Share button, then \"Add to Home Screen\"",
+    "installInstructionsGeneric": "Tap your browser menu, then \"Install app\" or \"Add to Home Screen\"",
+    "installInstructionsClose": "Got it"
   },
   "dayLettersMon": ["M", "T", "W", "T", "F", "S", "S"],
   "dayLettersSun": ["S", "M", "T", "W", "T", "F", "S"]
