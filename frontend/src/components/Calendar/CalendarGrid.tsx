@@ -20,6 +20,15 @@ import type { CalendarConfig, SubCalendar, CalendarEvent } from '../../types'
 import EventModal from '../Event/EventModal'
 import { useAutoTranslate, getTranslatedTitle } from '../../hooks/useAutoTranslate'
 
+function hexToRgba(hex: string, alpha: number): string {
+  const h = hex.replace('#', '')
+  const full = h.length === 3 ? h.split('').map(c => c + c).join('') : h
+  const r = parseInt(full.slice(0, 2), 16)
+  const g = parseInt(full.slice(2, 4), 16)
+  const b = parseInt(full.slice(4, 6), 16)
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
+
 interface Props {
   calendar: CalendarConfig
   subCalendars: SubCalendar[]
@@ -98,7 +107,7 @@ export default function CalendarGrid({ calendar, subCalendars, openNewEvent, onN
         id: e.id,
         title: getTranslatedTitle(e, i18n.language.slice(0, 2), calendar.language || 'fr'),
         allDay: e.all_day,
-        backgroundColor: color + '20',
+        backgroundColor: hexToRgba(color, 0.15),
         borderColor: color,
         textColor: color,
         extendedProps: { event: e },
