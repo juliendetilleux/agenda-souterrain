@@ -30,7 +30,10 @@
     "error": "Fehler",
     "deleteSubCalendarTitle": "Unterkalender löschen",
     "deleteSubCalendarMsg": "\"{{name}}\" und alle Termine löschen?",
-    "installApp": "App installieren"
+    "installApp": "App installieren",
+    "installInstructionsIos": "Tippen Sie auf \"Teilen\", dann \"Zum Home-Bildschirm\"",
+    "installInstructionsGeneric": "Tippen Sie auf das Browser-Menü, dann \"App installieren\" oder \"Zum Startbildschirm hinzufügen\"",
+    "installInstructionsClose": "Verstanden"
   },
   "dayLettersMon": ["M", "D", "M", "D", "F", "S", "S"],
   "dayLettersSun": ["S", "M", "D", "M", "D", "F", "S"]

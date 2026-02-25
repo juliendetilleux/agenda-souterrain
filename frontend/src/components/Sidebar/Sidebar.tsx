@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { ChevronLeft, ChevronRight, Download, PanelLeftClose, PanelLeftOpen, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Download, LogOut, PanelLeftClose, PanelLeftOpen, X } from 'lucide-react'
 import {
   format,
   addMonths,
@@ -16,8 +17,10 @@ import {
 import { useTranslation } from 'react-i18next'
 import { getDateLocale } from '../../utils/locales'
 import { useCalendarStore } from '../../store/calendarStore'
+import { useAuthStore } from '../../store/authStore'
 import { usePwaStore } from '../../store/pwaStore'
 import { calendarApi } from '../../api/calendars'
+import { authApi } from '../../api/auth'
 import type { CalendarConfig, SubCalendar } from '../../types'
 
 interface Props {
@@ -30,6 +33,8 @@ export default function Sidebar({ calendar, subCalendars, onClose }: Props) {
   const { t, i18n } = useTranslation('calendar')
   const { currentDate, setCurrentDate, visibleSubCalendarIds, toggleSubCalendar, selectedTagFilters, toggleTagFilter } =
     useCalendarStore()
+  const { isAuthenticated, logout } = useAuthStore()
+  const navigate = useNavigate()
   const dateLocale = getDateLocale(i18n.language)
   const [miniDate, setMiniDate] = useState(new Date())
   const [collapsed, setCollapsed] = useState(false)
@@ -39,18 +44,28 @@ export default function Sidebar({ calendar, subCalendars, onClose }: Props) {
     queryFn: () => calendarApi.getTags(calendar.id),
   })
 
-  const { deferredPrompt, dismissed, setDeferredPrompt, setDismissed } = usePwaStore()
-  const canInstall = !!deferredPrompt && !dismissed
+  const { deferredPrompt, isStandalone, setDeferredPrompt } = usePwaStore()
+  const [showInstructions, setShowInstructions] = useState(false)
+
+  const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.userAgent.includes('Mac') && 'ontouchend' in document)
+
+  const handleLogout = async () => {
+    try { await authApi.logout() } catch { /* clear local state anyway */ }
+    logout()
+    navigate('/login')
+  }
 
   const handleInstall = async () => {
-    if (!deferredPrompt) return
-    deferredPrompt.prompt()
-    const { outcome } = await deferredPrompt.userChoice
-    if (outcome === 'accepted') {
-      setDeferredPrompt(null)
+    if (deferredPrompt) {
+      deferredPrompt.prompt()
+      const { outcome } = await deferredPrompt.userChoice
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null)
+      }
+      return
     }
-    setDismissed(true)
-    localStorage.setItem('pwa-dismissed', '1')
+    setShowInstructions((v) => !v)
   }
 
   // Mini calendar grid
@@ -237,7 +252,7 @@ export default function Sidebar({ calendar, subCalendars, onClose }: Props) {
       )}
 
       {/* Install PWA button */}
-      {canInstall && (
+      {!isStandalone && (
         <>
           <div className="border-t border-cave-700 mx-3" />
           <div className="px-3 py-3">
@@ -247,6 +262,37 @@ export default function Sidebar({ calendar, subCalendars, onClose }: Props) {
             >
               <Download size={14} />
               {t('sidebar.installApp')}
+            </button>
+            {showInstructions && (
+              <div className="mt-2 px-3 py-2.5 bg-cave-800 rounded-lg text-xs text-cave-text leading-relaxed">
+                <p>
+                  {isIos
+                    ? t('sidebar.installInstructionsIos')
+                    : t('sidebar.installInstructionsGeneric')}
+                </p>
+                <button
+                  onClick={() => setShowInstructions(false)}
+                  className="mt-2 text-lamp-400 hover:text-lamp-300 font-medium transition-colors"
+                >
+                  {t('sidebar.installInstructionsClose')}
+                </button>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* Logout button */}
+      {isAuthenticated && (
+        <>
+          <div className="border-t border-cave-700 mx-3" />
+          <div className="px-3 py-3">
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 w-full px-3 py-2 text-sm font-medium text-cave-text hover:text-red-400 hover:bg-cave-800 rounded-lg transition-colors"
+            >
+              <LogOut size={14} />
+              {t('logout')}
             </button>
           </div>
         </>

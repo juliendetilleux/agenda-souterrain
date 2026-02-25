@@ -30,7 +30,10 @@
     "error": "Erreur",
     "deleteSubCalendarTitle": "Supprimer le sous-calendrier",
     "deleteSubCalendarMsg": "Supprimer \"{{name}}\" et tous ses événements ?",
-    "installApp": "Installer l'application"
+    "installApp": "Installer l'application",
+    "installInstructionsIos": "Appuyez sur le bouton Partager, puis \"Sur l'écran d'accueil\"",
+    "installInstructionsGeneric": "Appuyez sur le menu du navigateur, puis \"Installer l'appli\" ou \"Ajouter à l'écran d'accueil\"",
+    "installInstructionsClose": "Compris"
   },
   "dayLettersMon": ["L", "M", "M", "J", "V", "S", "D"],
   "dayLettersSun": ["D", "L", "M", "M", "J", "V", "S"]
