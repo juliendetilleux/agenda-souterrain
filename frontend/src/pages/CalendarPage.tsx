@@ -48,18 +48,25 @@ export default function CalendarPage() {
     enabled: !!calendar?.id,
   })
 
-  // Load effective permission for this caller
+  // Load effective permission for this caller (cached in localStorage for instant restore)
   const { data: myPerm } = useQuery({
     queryKey: ['my-permission', calendar?.id],
     queryFn: () => calendarApi.getMyPermission(calendar!.id),
     enabled: !!calendar?.id,
+    placeholderData: () => {
+      try {
+        const raw = localStorage.getItem(`perm-${calendar?.id}`)
+        return raw ? JSON.parse(raw) : undefined
+      } catch { return undefined }
+    },
   })
 
   useEffect(() => {
-    if (myPerm) {
+    if (myPerm && calendar?.id) {
       setPermission(myPerm.permission, myPerm.is_owner)
+      localStorage.setItem(`perm-${calendar.id}`, JSON.stringify(myPerm))
     }
-  }, [myPerm, setPermission])
+  }, [myPerm, setPermission, calendar?.id])
 
   useEffect(() => {
     if (subCalendars.length > 0) {
