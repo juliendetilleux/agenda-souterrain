@@ -29,7 +29,8 @@
     "deleteError": "Löschen nicht möglich",
     "error": "Fehler",
     "deleteSubCalendarTitle": "Unterkalender löschen",
-    "deleteSubCalendarMsg": "\"{{name}}\" und alle Termine löschen?"
+    "deleteSubCalendarMsg": "\"{{name}}\" und alle Termine löschen?",
+    "installApp": "App installieren"
   },
   "dayLettersMon": ["M", "D", "M", "D", "F", "S", "S"],
   "dayLettersSun": ["S", "M", "D", "M", "D", "F", "S"]

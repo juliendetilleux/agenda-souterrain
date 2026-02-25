@@ -29,7 +29,8 @@
     "deleteError": "Kan niet verwijderen",
     "error": "Fout",
     "deleteSubCalendarTitle": "Subkalender verwijderen",
-    "deleteSubCalendarMsg": "\"{{name}}\" en alle evenementen verwijderen?"
+    "deleteSubCalendarMsg": "\"{{name}}\" en alle evenementen verwijderen?",
+    "installApp": "App installeren"
   },
   "dayLettersMon": ["M", "D", "W", "D", "V", "Z", "Z"],
   "dayLettersSun": ["Z", "M", "D", "W", "D", "V", "Z"]
