@@ -231,7 +231,7 @@ export default function Sidebar({ calendar, subCalendars, onClose }: Props) {
                 >
                   <input
                     type="checkbox"
-                    checked={selectedTagFilters.includes(tag.id)}
+                    checked={!selectedTagFilters.includes(tag.id)}
                     onChange={() => toggleTagFilter(tag.id)}
                     className="rounded flex-shrink-0 w-3.5 h-3.5 cursor-pointer"
                     style={{ accentColor: tag.color }}
