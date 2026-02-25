@@ -1,31 +1,11 @@
-import { useState, useEffect } from 'react'
 import { Download, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { setPreference } from '../../utils/storage'
-
-interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
-}
+import { usePwaStore } from '../../store/pwaStore'
 
 export default function InstallPrompt() {
   const { t } = useTranslation('common')
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
-  const [dismissed, setDismissed] = useState(() => localStorage.getItem('pwa-dismissed') === '1')
-
-  useEffect(() => {
-    const handler = (e: Event) => {
-      e.preventDefault()
-      setDeferredPrompt(e as BeforeInstallPromptEvent)
-    }
-    window.addEventListener('beforeinstallprompt', handler)
-
-    // Hide if already installed
-    const matchMedia = window.matchMedia?.('(display-mode: standalone)')
-    if (matchMedia?.matches) setDismissed(true)
-
-    return () => window.removeEventListener('beforeinstallprompt', handler)
-  }, [])
+  const { deferredPrompt, dismissed, setDeferredPrompt, setDismissed } = usePwaStore()
 
   const handleInstall = async () => {
     if (!deferredPrompt) return

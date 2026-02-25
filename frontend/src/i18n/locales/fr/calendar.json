@@ -29,7 +29,8 @@
     "deleteError": "Impossible de supprimer",
     "error": "Erreur",
     "deleteSubCalendarTitle": "Supprimer le sous-calendrier",
-    "deleteSubCalendarMsg": "Supprimer \"{{name}}\" et tous ses événements ?"
+    "deleteSubCalendarMsg": "Supprimer \"{{name}}\" et tous ses événements ?",
+    "installApp": "Installer l'application"
   },
   "dayLettersMon": ["L", "M", "M", "J", "V", "S", "D"],
   "dayLettersSun": ["D", "L", "M", "M", "J", "V", "S"]

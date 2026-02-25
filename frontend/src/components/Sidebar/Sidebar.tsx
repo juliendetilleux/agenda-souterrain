@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Download, PanelLeftClose, PanelLeftOpen, X } from 'lucide-react'
 import {
   format,
   addMonths,
@@ -16,6 +16,7 @@ import {
 import { useTranslation } from 'react-i18next'
 import { getDateLocale } from '../../utils/locales'
 import { useCalendarStore } from '../../store/calendarStore'
+import { usePwaStore } from '../../store/pwaStore'
 import { calendarApi } from '../../api/calendars'
 import type { CalendarConfig, SubCalendar } from '../../types'
 
@@ -37,6 +38,20 @@ export default function Sidebar({ calendar, subCalendars, onClose }: Props) {
     queryKey: ['tags', calendar.id],
     queryFn: () => calendarApi.getTags(calendar.id),
   })
+
+  const { deferredPrompt, dismissed, setDeferredPrompt, setDismissed } = usePwaStore()
+  const canInstall = !!deferredPrompt && !dismissed
+
+  const handleInstall = async () => {
+    if (!deferredPrompt) return
+    deferredPrompt.prompt()
+    const { outcome } = await deferredPrompt.userChoice
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null)
+    }
+    setDismissed(true)
+    localStorage.setItem('pwa-dismissed', '1')
+  }
 
   // Mini calendar grid
   const start = startOfMonth(miniDate)
@@ -217,6 +232,22 @@ export default function Sidebar({ calendar, subCalendars, onClose }: Props) {
                 </div>
               ))}
             </div>
+          </div>
+        </>
+      )}
+
+      {/* Install PWA button */}
+      {canInstall && (
+        <>
+          <div className="border-t border-cave-700 mx-3" />
+          <div className="px-3 py-3">
+            <button
+              onClick={handleInstall}
+              className="flex items-center gap-2 w-full px-3 py-2 text-sm font-medium text-cave-text hover:text-cave-text-active hover:bg-cave-800 rounded-lg transition-colors"
+            >
+              <Download size={14} />
+              {t('sidebar.installApp')}
+            </button>
           </div>
         </>
       )}
