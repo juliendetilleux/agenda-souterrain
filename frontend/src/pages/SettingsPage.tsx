@@ -52,13 +52,20 @@ export default function SettingsPage() {
     queryKey: ['my-permission', calendar?.id],
     queryFn: () => calendarApi.getMyPermission(calendar!.id),
     enabled: !!calendar?.id,
+    placeholderData: () => {
+      try {
+        const raw = localStorage.getItem(`perm-${calendar?.id}`)
+        return raw ? JSON.parse(raw) : undefined
+      } catch { return undefined }
+    },
   })
 
-  // Store permissions in Zustand (same pattern as CalendarPage) to prevent
-  // falling back to 'no_access' during query refetch after background return
   useEffect(() => {
-    if (myPerm) setPermission(myPerm.permission, myPerm.is_owner)
-  }, [myPerm, setPermission])
+    if (myPerm && calendar?.id) {
+      setPermission(myPerm.permission, myPerm.is_owner)
+      localStorage.setItem(`perm-${calendar.id}`, JSON.stringify(myPerm))
+    }
+  }, [myPerm, setPermission, calendar?.id])
 
   const isCalendarAdmin = isOwner || isAdmin(effectivePermission) || isSuperadmin
 
