@@ -95,10 +95,11 @@ export default function SettingsPage() {
     const validKeys = visibleTabs.map((tb) => tb.key)
     if (urlTab && validKeys.includes(urlTab)) {
       setActiveTab(urlTab)
-    } else {
+    } else if (!validKeys.includes(activeTab)) {
+      // Only reset if current tab is no longer valid (e.g. permissions changed)
       setActiveTab(visibleTabs[0].key)
     }
-  }, [visibleTabs, urlTab])
+  }, [visibleTabs, urlTab]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleTabChange = (key: TabKey) => {
     setActiveTab(key)

@@ -3,6 +3,8 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import axios from 'axios'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from './store/authStore'
+import { usePwaStore } from './store/pwaStore'
+import type { BeforeInstallPromptEvent } from './store/pwaStore'
 import { authApi } from './api/auth'
 import ErrorBoundary from './components/ui/ErrorBoundary'
 import VerificationBanner from './components/ui/VerificationBanner'
@@ -30,6 +32,20 @@ function App() {
       .then((freshUser) => setUser(freshUser))
       .catch(() => logout())
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Capture beforeinstallprompt for PWA install button (shared via pwaStore)
+  useEffect(() => {
+    const { setDeferredPrompt, setDismissed } = usePwaStore.getState()
+    const handler = (e: Event) => {
+      e.preventDefault()
+      setDeferredPrompt(e as BeforeInstallPromptEvent)
+    }
+    window.addEventListener('beforeinstallprompt', handler)
+    if (window.matchMedia?.('(display-mode: standalone)').matches) {
+      setDismissed(true)
+    }
+    return () => window.removeEventListener('beforeinstallprompt', handler)
+  }, [])
 
   // Proactive token refresh: keeps access_token alive before it expires (15 min)
   const refreshing = useRef(false)

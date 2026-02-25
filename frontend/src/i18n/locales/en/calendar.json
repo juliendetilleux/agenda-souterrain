@@ -29,7 +29,8 @@
     "deleteError": "Unable to delete",
     "error": "Error",
     "deleteSubCalendarTitle": "Delete sub-calendar",
-    "deleteSubCalendarMsg": "Delete \"{{name}}\" and all its events?"
+    "deleteSubCalendarMsg": "Delete \"{{name}}\" and all its events?",
+    "installApp": "Install app"
   },
   "dayLettersMon": ["M", "T", "W", "T", "F", "S", "S"],
   "dayLettersSun": ["S", "M", "T", "W", "T", "F", "S"]
