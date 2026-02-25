@@ -99,7 +99,8 @@ export default function CalendarGrid({ calendar, subCalendars, openNewEvent, onN
     .filter((e) => visibleSubCalendarIds.includes(e.sub_calendar_id))
     .filter((e) => {
       if (selectedTagFilters.length === 0) return true
-      return e.tags?.some((t) => selectedTagFilters.includes(t.id))
+      if (!e.tags?.length) return true
+      return e.tags.some((t) => !selectedTagFilters.includes(t.id))
     })
     .map((e) => {
       const color = subCalMap[e.sub_calendar_id]?.color ?? '#3788d8'
