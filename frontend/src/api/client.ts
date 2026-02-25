@@ -77,7 +77,6 @@ api.interceptors.response.use(
       refreshQueue.forEach((p) => p.reject(refreshError))
       refreshQueue = []
       useAuthStore.getState().logout()
-      window.location.href = '/login'
       return Promise.reject(refreshError)
     } finally {
       isRefreshing = false
