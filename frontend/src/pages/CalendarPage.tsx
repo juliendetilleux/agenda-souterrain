@@ -1,4 +1,4 @@
-import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
+import { useParams, useSearchParams, useNavigate, useLocation } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -17,9 +17,18 @@ export default function CalendarPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
   const { initSubCalendars, setAccessToken, setPermission, isOwner, effectivePermission, sidebarOpen, setSidebarOpen, toggleSidebar } = useCalendarStore()
+  const location = useLocation()
   const { isAuthenticated } = useAuthStore()
   const [openNewEvent, setOpenNewEvent] = useState(false)
   const claimAttempted = useRef(false)
+
+  // If unauthenticated user arrives with ?token=, redirect to login to claim after auth
+  useEffect(() => {
+    const token = searchParams.get('token')
+    if (token && !isAuthenticated) {
+      navigate(`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`, { replace: true })
+    }
+  }, [isAuthenticated, searchParams, navigate, location.pathname, location.search])
 
   // Resolve ?token= from URL (access link authentication)
   useEffect(() => {

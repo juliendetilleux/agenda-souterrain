@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { authApi } from '../api/auth'
 import LanguageSwitcher from '../components/ui/LanguageSwitcher'
@@ -17,6 +17,8 @@ export default function RegisterPage() {
   const [acceptCookies, setAcceptCookies] = useState(false)
   const [passwordError, setPasswordError] = useState('')
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const redirect = searchParams.get('redirect')
 
   const validatePassword = (v: string) => {
     if (v.length < 8) return t('register.minChars')
@@ -38,7 +40,7 @@ export default function RegisterPage() {
       await authApi.register(email, name, password)
       useCookieConsentStore.getState().acceptAll()
       toast.success(t('register.successVerification'))
-      navigate('/login')
+      navigate(`/login${redirect ? `?redirect=${encodeURIComponent(redirect)}` : ''}`)
     } catch {
       toast.error(t('register.error'))
     } finally {
@@ -167,7 +169,7 @@ export default function RegisterPage() {
 
             <p className="mt-6 text-center text-sm text-stone-400">
               {t('register.hasAccount')}{' '}
-              <Link to="/login" className="text-lamp-600 hover:text-lamp-700 font-medium transition-colors">
+              <Link to={`/login${redirect ? `?redirect=${encodeURIComponent(redirect)}` : ''}`} className="text-lamp-600 hover:text-lamp-700 font-medium transition-colors">
                 {t('register.login')}
               </Link>
             </p>

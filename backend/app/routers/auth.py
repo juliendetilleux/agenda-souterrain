@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 from app.database import get_db
 from app.models.user import User
-from app.models.access import PendingInvitation, CalendarAccess
+from app.models.access import PendingInvitation, CalendarAccess, group_members
 from app.schemas.user import (
     UserCreate, UserLogin, UserOut, Token, TokenRefresh,
     ForgotPasswordRequest, ResetPasswordRequest, make_user_out,
@@ -62,6 +62,18 @@ async def register(
             sub_calendar_id=inv.sub_calendar_id,
         )
         db.add(access)
+        # If invitation includes a group, also add user to that group
+        if inv.group_id:
+            existing_member = await db.execute(
+                select(group_members).where(
+                    group_members.c.group_id == inv.group_id,
+                    group_members.c.user_id == user.id,
+                )
+            )
+            if not existing_member.first():
+                await db.execute(
+                    group_members.insert().values(group_id=inv.group_id, user_id=user.id)
+                )
         await db.delete(inv)
     if pending_invitations:
         logger.info("Applied %d pending invitation(s) for %s", len(pending_invitations), data.email)

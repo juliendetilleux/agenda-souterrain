@@ -3,7 +3,7 @@ import type {
   CalendarConfig, SubCalendar, CalendarEvent, EventSignup,
   AccessLink, CalendarAccess, Group, GroupMember, MyPermission, Permission, Tag,
   EventComment, EventAttachment, InviteResult, PendingInvitation,
-  GroupAccess, ClaimLinkResult, UserGroupMembership,
+  GroupAccess, ClaimLinkResult, UserGroupMembership, AddGroupMemberResult,
 } from '../types'
 
 export const calendarApi = {
@@ -124,7 +124,7 @@ export const calendarApi = {
     api.get<GroupMember[]>(`/calendars/${calId}/groups/${groupId}/members`).then((r) => r.data),
 
   addGroupMember: (calId: string, groupId: string, email: string) =>
-    api.post<GroupMember>(`/calendars/${calId}/groups/${groupId}/members`, { email }).then((r) => r.data),
+    api.post<AddGroupMemberResult>(`/calendars/${calId}/groups/${groupId}/members`, { email }).then((r) => r.data),
 
   removeGroupMember: (calId: string, groupId: string, userId: string) =>
     api.delete(`/calendars/${calId}/groups/${groupId}/members/${userId}`),
