@@ -248,6 +248,18 @@ export default function CalendarGrid({ calendar, subCalendars, openNewEvent, onN
         select={handleDateSelect}
         dateClick={handleDateClick}
         eventContent={renderEventContent}
+        eventDidMount={(info) => {
+          if (info.event.backgroundColor) {
+            info.el.style.setProperty('background-color', info.event.backgroundColor, 'important')
+          }
+          if (info.event.borderColor) {
+            info.el.style.setProperty('border-color', info.event.borderColor, 'important')
+          }
+          if (info.event.textColor) {
+            const mainEl = info.el.querySelector('.fc-event-main') as HTMLElement | null
+            if (mainEl) mainEl.style.setProperty('color', info.event.textColor, 'important')
+          }
+        }}
         eventClick={handleEventClick}
         eventDrop={handleEventDrop}
         eventResize={handleEventResize}
