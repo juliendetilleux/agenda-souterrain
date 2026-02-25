@@ -55,7 +55,6 @@ function App() {
         // are transient — the next refresh cycle will retry automatically.
         if (axios.isAxiosError(err) && err.response && [401, 403].includes(err.response.status)) {
           useAuthStore.getState().logout()
-          window.location.href = '/login'
         }
       } finally {
         refreshing.current = false
