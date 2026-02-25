@@ -84,5 +84,6 @@ class PendingInvitation(Base):
     email: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     permission: Mapped[Permission] = mapped_column(SAEnum(Permission), nullable=False, default=Permission.READ_ONLY)
     sub_calendar_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("sub_calendars.id", ondelete="SET NULL"), nullable=True)
+    group_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("groups.id", ondelete="SET NULL"), nullable=True)
     invited_by: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))

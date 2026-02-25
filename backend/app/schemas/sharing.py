@@ -91,6 +91,11 @@ class AddGroupMember(BaseModel):
     email: EmailStr
 
 
+class AddGroupMemberResult(BaseModel):
+    status: Literal["added", "pending"]
+    email: str
+
+
 class SetGroupAccess(BaseModel):
     permission: Permission
     sub_calendar_id: Optional[uuid.UUID] = None
@@ -114,6 +119,7 @@ class PendingInvitationOut(BaseModel):
     email: str
     permission: Permission
     sub_calendar_id: Optional[uuid.UUID] = None
+    group_id: Optional[uuid.UUID] = None
     created_at: datetime
 
     model_config = {"from_attributes": True}

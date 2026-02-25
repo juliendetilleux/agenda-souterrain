@@ -99,6 +99,8 @@
     "deleteMsg": "Delete group \"{{name}}\"? Associated access will be lost.",
     "toast": {
       "memberAdded": "Member added",
+      "invitationPending": "Invitation sent, user will be added on registration",
+      "addError": "Error adding member",
       "userNotFound": "User not found",
       "deleteError": "Error deleting",
       "permissionUpdated": "Permission updated",

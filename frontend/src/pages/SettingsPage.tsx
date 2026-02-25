@@ -5,9 +5,9 @@ import { ArrowLeft, Settings, Link2, UserPlus, UsersRound, Layers, Tag, ShieldCh
 import { useTranslation } from 'react-i18next'
 import { calendarApi } from '../api/calendars'
 import { useAuthStore } from '../store/authStore'
+import { useCalendarStore } from '../store/calendarStore'
 import { isAdmin } from '../utils/permissions'
 import LanguageSwitcher from '../components/ui/LanguageSwitcher'
-import type { Permission } from '../types'
 import GeneralTab from '../components/Settings/GeneralTab'
 import LinksTab from '../components/Settings/LinksTab'
 import UsersTab from '../components/Settings/UsersTab'
@@ -46,14 +46,20 @@ export default function SettingsPage() {
     enabled: !!calendar?.id,
   })
 
+  const { setPermission, effectivePermission, isOwner } = useCalendarStore()
+
   const { data: myPerm, isLoading: permLoading } = useQuery({
     queryKey: ['my-permission', calendar?.id],
     queryFn: () => calendarApi.getMyPermission(calendar!.id),
     enabled: !!calendar?.id,
   })
 
-  const effectivePermission: Permission = myPerm?.permission ?? 'no_access'
-  const isOwner = myPerm?.is_owner ?? false
+  // Store permissions in Zustand (same pattern as CalendarPage) to prevent
+  // falling back to 'no_access' during query refetch after background return
+  useEffect(() => {
+    if (myPerm) setPermission(myPerm.permission, myPerm.is_owner)
+  }, [myPerm, setPermission])
+
   const isCalendarAdmin = isOwner || isAdmin(effectivePermission) || isSuperadmin
 
   // Build visible tabs based on permissions

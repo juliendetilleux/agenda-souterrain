@@ -99,6 +99,8 @@
     "deleteMsg": "Groep \"{{name}}\" verwijderen? Bijbehorende toegang gaat verloren.",
     "toast": {
       "memberAdded": "Lid toegevoegd",
+      "invitationPending": "Uitnodiging verzonden, gebruiker wordt toegevoegd bij registratie",
+      "addError": "Fout bij toevoegen",
       "userNotFound": "Gebruiker niet gevonden",
       "deleteError": "Fout bij verwijderen",
       "permissionUpdated": "Toestemming bijgewerkt",
