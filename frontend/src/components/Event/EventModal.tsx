@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { X, Trash2, FileText, User, Repeat, Tag, Download } from 'lucide-react'
 import { useConfirm } from '../../hooks/useConfirm'
@@ -10,7 +10,7 @@ import { useCalendarStore } from '../../store/calendarStore'
 import { useAuthStore } from '../../store/authStore'
 import { canAdd, canModify, canModifyOwn, canRead } from '../../utils/permissions'
 import type { CalendarConfig, SubCalendar, CalendarEvent } from '../../types'
-import LocationPicker from './LocationPicker'
+const LocationPicker = lazy(() => import('./LocationPicker'))
 import ChatSection from './ChatSection'
 import AttachmentSection from './AttachmentSection'
 import { getTranslatedTitle, getTranslatedNotes } from '../../hooks/useAutoTranslate'
@@ -305,14 +305,16 @@ export default function EventModal({
           {/* Section 2: Optional fields */}
           <div className="bg-stone-50 rounded-xl p-4 space-y-3">
             {/* Location with map */}
-            <LocationPicker
-              location={location}
-              latitude={latitude}
-              longitude={longitude}
-              readOnly={!canEdit}
-              onLocationChange={setLocation}
-              onCoordsChange={(lat, lng) => { setLatitude(lat); setLongitude(lng) }}
-            />
+            <Suspense fallback={<div className="h-10 flex items-center text-xs text-stone-400">...</div>}>
+              <LocationPicker
+                location={location}
+                latitude={latitude}
+                longitude={longitude}
+                readOnly={!canEdit}
+                onLocationChange={setLocation}
+                onCoordsChange={(lat, lng) => { setLatitude(lat); setLongitude(lng) }}
+              />
+            </Suspense>
 
             {/* Who */}
             <div className="flex items-center gap-3">
