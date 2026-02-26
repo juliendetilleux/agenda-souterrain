@@ -22,7 +22,7 @@ const InstallPrompt = lazy(() => import('./components/ui/InstallPrompt'))
 
 function App() {
   const queryClient = useQueryClient()
-  const { isAuthenticated, isLoading, user, setUser, logout } = useAuthStore()
+  const { isAuthenticated, isLoading, user, setUser, clearSession } = useAuthStore()
   const isSuperadmin = Boolean(isAuthenticated && user?.is_superadmin)
 
   // Check authentication status on app load via cookie
@@ -34,7 +34,7 @@ function App() {
         // If refresh failed, it already called logout(). If it's just a
         // network error and we have a cached user, keep the session alive.
         if (!useAuthStore.getState().user) {
-          logout()
+          clearSession()
         }
       })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps

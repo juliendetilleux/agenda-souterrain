@@ -76,7 +76,7 @@ api.interceptors.response.use(
     } catch (refreshError) {
       refreshQueue.forEach((p) => p.reject(refreshError))
       refreshQueue = []
-      useAuthStore.getState().logout()
+      useAuthStore.getState().clearSession()
       return Promise.reject(refreshError)
     } finally {
       isRefreshing = false
