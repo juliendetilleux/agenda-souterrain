@@ -1,7 +1,7 @@
 {
   "name": "agenda-souterrain",
   "private": true,
-  "version": "1.8.0",
+  "version": "1.9.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -47,6 +47,7 @@
     "tailwindcss": "^3.4.11",
     "typescript": "^5.5.4",
     "vite": "^5.4.7",
+    "vite-plugin-pwa": "^1.2.0",
     "vitest": "^2.1.1"
   }
 }

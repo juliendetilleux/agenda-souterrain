@@ -49,5 +49,9 @@
     "deleted": "Datei gelöscht",
     "uploadError": "Fehler beim Hochladen",
     "deleteError": "Fehler beim Löschen der Datei"
+  },
+  "validation": {
+    "titleTooLong": "Der Titel darf nicht länger als 500 Zeichen sein",
+    "notesTooLong": "Die Notizen dürfen nicht länger als 10.000 Zeichen sein"
   }
 }

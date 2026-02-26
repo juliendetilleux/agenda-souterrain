@@ -25,5 +25,11 @@
   "installAppDesc": "Quick access to your calendar from the home screen",
   "install": "Install",
   "privacy": "Privacy policy",
-  "claimedGroup": "You have been added to the group {{group}}"
+  "claimedGroup": "You have been added to the group {{group}}",
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "message": "The application encountered an unexpected error.",
+    "retry": "Try again",
+    "reload": "Reload page"
+  }
 }
