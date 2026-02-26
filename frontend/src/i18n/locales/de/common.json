@@ -25,5 +25,11 @@
   "installAppDesc": "Schneller Zugriff auf Ihren Kalender vom Startbildschirm",
   "install": "Installieren",
   "privacy": "Datenschutzerklärung",
-  "claimedGroup": "Sie wurden der Gruppe {{group}} hinzugefügt"
+  "claimedGroup": "Sie wurden der Gruppe {{group}} hinzugefügt",
+  "errorBoundary": {
+    "title": "Ein Fehler ist aufgetreten",
+    "message": "Die Anwendung hat einen unerwarteten Fehler festgestellt.",
+    "retry": "Erneut versuchen",
+    "reload": "Seite neu laden"
+  }
 }

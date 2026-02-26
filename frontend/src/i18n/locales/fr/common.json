@@ -25,5 +25,11 @@
   "installAppDesc": "Accédez rapidement à votre agenda depuis l'écran d'accueil",
   "install": "Installer",
   "privacy": "Politique de confidentialité",
-  "claimedGroup": "Vous avez été ajouté au groupe {{group}}"
+  "claimedGroup": "Vous avez été ajouté au groupe {{group}}",
+  "errorBoundary": {
+    "title": "Une erreur est survenue",
+    "message": "L'application a rencontré un problème inattendu.",
+    "retry": "Réessayer",
+    "reload": "Recharger la page"
+  }
 }

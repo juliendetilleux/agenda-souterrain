@@ -25,5 +25,11 @@
   "installAppDesc": "Snelle toegang tot uw agenda vanaf het startscherm",
   "install": "Installeren",
   "privacy": "Privacybeleid",
-  "claimedGroup": "U bent toegevoegd aan de groep {{group}}"
+  "claimedGroup": "U bent toegevoegd aan de groep {{group}}",
+  "errorBoundary": {
+    "title": "Er ging iets mis",
+    "message": "De applicatie heeft een onverwachte fout ondervonden.",
+    "retry": "Opnieuw proberen",
+    "reload": "Pagina herladen"
+  }
 }
