@@ -52,7 +52,7 @@ export default function CalendarPage() {
   const { data: myPerm } = useQuery({
     queryKey: ['my-permission', calendar?.id],
     queryFn: () => calendarApi.getMyPermission(calendar!.id),
-    enabled: !!calendar?.id,
+    enabled: !!calendar?.id && isAuthenticated,
     placeholderData: () => {
       try {
         const raw = localStorage.getItem(`perm-${calendar?.id}`)

@@ -253,14 +253,6 @@ export default function CalendarGrid({ calendar, subCalendars, openNewEvent, onN
     }
   }, [])
 
-  useEffect(() => {
-    const api = calRef.current?.getApi()
-    if (api) {
-      api.setOption('selectable', canModifyOwn(effectivePermission))
-      api.setOption('editable', canModifyOwn(effectivePermission))
-    }
-  }, [effectivePermission])
-
   return (
     <div className="flex-1 overflow-auto p-3">
       <FullCalendar
