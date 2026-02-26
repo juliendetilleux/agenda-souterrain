@@ -57,6 +57,13 @@ async def get_current_user(
     if not user:
         raise HTTPException(status_code=401, detail="Utilisateur introuvable")
 
+    # Invalidate tokens issued before last password change
+    if user.password_changed_at:
+        token_iat = payload.get("iat", 0)
+        changed_ts = user.password_changed_at.replace(tzinfo=timezone.utc).timestamp()
+        if token_iat < changed_ts:
+            raise HTTPException(status_code=401, detail="Token invalide")
+
     await check_ban_status(user, db)
 
     return user

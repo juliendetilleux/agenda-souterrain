@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, useMemo, useCallback } from 'react'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
@@ -93,42 +93,48 @@ export default function CalendarGrid({ calendar, subCalendars, openNewEvent, onN
     }
   }, [currentView, currentDate])
 
-  const subCalMap = Object.fromEntries(subCalendars.map((sc) => [sc.id, sc]))
+  const subCalMap = useMemo(
+    () => Object.fromEntries(subCalendars.map((sc) => [sc.id, sc])),
+    [subCalendars]
+  )
 
-  const fcEvents = events
-    .filter((e) => visibleSubCalendarIds.includes(e.sub_calendar_id))
-    .filter((e) => {
-      if (selectedTagFilters.length === 0) return true
-      if (!e.tags?.length) return true
-      return e.tags.some((t) => !selectedTagFilters.includes(t.id))
-    })
-    .map((e) => {
-      const color = subCalMap[e.sub_calendar_id]?.color ?? '#3788d8'
-      const base = {
-        id: e.id,
-        title: getTranslatedTitle(e, i18n.language.slice(0, 2), calendar.language || 'fr'),
-        allDay: e.all_day,
-        backgroundColor: hexToRgba(color, 0.15),
-        borderColor: color,
-        textColor: color,
-        extendedProps: { event: e },
-      }
+  const fcEvents = useMemo(() =>
+    events
+      .filter((e) => visibleSubCalendarIds.includes(e.sub_calendar_id))
+      .filter((e) => {
+        if (selectedTagFilters.length === 0) return true
+        if (!e.tags?.length) return true
+        return e.tags.some((t) => !selectedTagFilters.includes(t.id))
+      })
+      .map((e) => {
+        const color = subCalMap[e.sub_calendar_id]?.color ?? '#3788d8'
+        const base = {
+          id: e.id,
+          title: getTranslatedTitle(e, i18n.language.slice(0, 2), calendar.language || 'fr'),
+          allDay: e.all_day,
+          backgroundColor: hexToRgba(color, 0.15),
+          borderColor: color,
+          textColor: color,
+          extendedProps: { event: e },
+        }
 
-      if (e.rrule) {
+        if (e.rrule) {
+          return {
+            ...base,
+            rrule: `DTSTART:${formatDtstart(e.start_dt, e.all_day)}\nRRULE:${e.rrule}`,
+            duration: computeDuration(e.start_dt, e.end_dt),
+            editable: false,
+          }
+        }
+
         return {
           ...base,
-          rrule: `DTSTART:${formatDtstart(e.start_dt, e.all_day)}\nRRULE:${e.rrule}`,
-          duration: computeDuration(e.start_dt, e.end_dt),
-          editable: false,
+          start: e.start_dt,
+          end: e.end_dt,
         }
-      }
-
-      return {
-        ...base,
-        start: e.start_dt,
-        end: e.end_dt,
-      }
-    })
+      }),
+    [events, visibleSubCalendarIds, selectedTagFilters, subCalMap, i18n.language, calendar.language]
+  )
 
   const handleEventClick = (arg: EventClickArg) => {
     setSelectedEvent(arg.event.extendedProps.event as CalendarEvent)
@@ -209,7 +215,7 @@ export default function CalendarGrid({ calendar, subCalendars, openNewEvent, onN
     qc.invalidateQueries({ queryKey: ['events', calendar.id] })
   }
 
-  const renderEventContent = (arg: EventContentArg) => {
+  const renderEventContent = useCallback((arg: EventContentArg) => {
     const ev = arg.event.extendedProps.event as CalendarEvent | undefined
     const tags = ev?.tags ?? []
     return (
@@ -232,12 +238,32 @@ export default function CalendarGrid({ calendar, subCalendars, openNewEvent, onN
         )}
       </div>
     )
-  }
+  }, [])
+
+  const handleEventDidMount = useCallback((info: { event: any; el: HTMLElement }) => {
+    if (info.event.backgroundColor) {
+      info.el.style.setProperty('background-color', info.event.backgroundColor, 'important')
+    }
+    if (info.event.borderColor) {
+      info.el.style.setProperty('border-color', info.event.borderColor, 'important')
+    }
+    if (info.event.textColor) {
+      const mainEl = info.el.querySelector('.fc-event-main') as HTMLElement | null
+      if (mainEl) mainEl.style.setProperty('color', info.event.textColor, 'important')
+    }
+  }, [])
+
+  useEffect(() => {
+    const api = calRef.current?.getApi()
+    if (api) {
+      api.setOption('selectable', canModifyOwn(effectivePermission))
+      api.setOption('editable', canModifyOwn(effectivePermission))
+    }
+  }, [effectivePermission])
 
   return (
     <div className="flex-1 overflow-auto p-3">
       <FullCalendar
-        key={effectivePermission}
         ref={calRef}
         plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin, multiMonthPlugin, rrulePlugin]}
         initialView={currentView}
@@ -249,18 +275,7 @@ export default function CalendarGrid({ calendar, subCalendars, openNewEvent, onN
         select={handleDateSelect}
         dateClick={handleDateClick}
         eventContent={renderEventContent}
-        eventDidMount={(info) => {
-          if (info.event.backgroundColor) {
-            info.el.style.setProperty('background-color', info.event.backgroundColor, 'important')
-          }
-          if (info.event.borderColor) {
-            info.el.style.setProperty('border-color', info.event.borderColor, 'important')
-          }
-          if (info.event.textColor) {
-            const mainEl = info.el.querySelector('.fc-event-main') as HTMLElement | null
-            if (mainEl) mainEl.style.setProperty('color', info.event.textColor, 'important')
-          }
-        }}
+        eventDidMount={handleEventDidMount}
         eventClick={handleEventClick}
         eventDrop={handleEventDrop}
         eventResize={handleEventResize}

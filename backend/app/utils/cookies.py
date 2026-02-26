@@ -11,6 +11,7 @@ def set_auth_cookies(
 ) -> None:
     domain = settings.COOKIE_DOMAIN or None
     refresh_max_age = (refresh_days or settings.REFRESH_TOKEN_EXPIRE_DAYS) * 86400
+    access_max_age = settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
 
     response.set_cookie(
         key="access_token",
@@ -20,7 +21,7 @@ def set_auth_cookies(
         samesite="lax",
         domain=domain,
         path="/",
-        max_age=refresh_max_age,
+        max_age=access_max_age,
     )
     response.set_cookie(
         key="refresh_token",
