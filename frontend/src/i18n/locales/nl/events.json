@@ -49,5 +49,9 @@
     "deleted": "Bestand verwijderd",
     "uploadError": "Fout bij uploaden",
     "deleteError": "Fout bij verwijderen van bestand"
+  },
+  "validation": {
+    "titleTooLong": "De titel mag niet meer dan 500 tekens bevatten",
+    "notesTooLong": "De notities mogen niet meer dan 10.000 tekens bevatten"
   }
 }

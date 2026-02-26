@@ -250,18 +250,26 @@ export default function EventModal({
           className="px-6 pb-6 space-y-4"
         >
           {/* Title */}
-          <input
-            type="text"
-            value={!titleEdited && !isNew && event ? getTranslatedTitle(event, targetLang, sourceLang) : title}
-            onChange={(e) => { setTitle(e.target.value); setTitleEdited(true) }}
-            required
-            readOnly={!canEdit}
-            placeholder={t('titlePlaceholder')}
-            className={`w-full text-xl font-semibold border-0 border-b-2 border-stone-100 pb-3
-              focus:outline-none placeholder:text-stone-300 text-stone-900 tracking-tight ${
-              canEdit ? 'focus:border-lamp-400' : 'bg-white text-stone-600 cursor-default'
-            }`}
-          />
+          <div>
+            <input
+              type="text"
+              value={!titleEdited && !isNew && event ? getTranslatedTitle(event, targetLang, sourceLang) : title}
+              onChange={(e) => { setTitle(e.target.value); setTitleEdited(true) }}
+              required
+              maxLength={500}
+              readOnly={!canEdit}
+              placeholder={t('titlePlaceholder')}
+              className={`w-full text-xl font-semibold border-0 border-b-2 border-stone-100 pb-3
+                focus:outline-none placeholder:text-stone-300 text-stone-900 tracking-tight ${
+                canEdit ? 'focus:border-lamp-400' : 'bg-white text-stone-600 cursor-default'
+              }`}
+            />
+            {title.length > 450 && (
+              <p className={`text-xs mt-1 ${title.length >= 500 ? 'text-red-500' : 'text-stone-400'}`}>
+                {title.length}/500{title.length >= 500 ? ` — ${t('validation.titleTooLong')}` : ''}
+              </p>
+            )}
+          </div>
 
           {/* Section 1: Sub-cal + dates */}
           <div className="bg-stone-50 rounded-xl p-4 space-y-3">
@@ -358,17 +366,25 @@ export default function EventModal({
             {/* Notes */}
             <div className="flex items-start gap-3">
               <FileText size={15} className="text-stone-400 flex-shrink-0 mt-2.5" />
-              <textarea
-                value={!notesEdited && !isNew && event ? (getTranslatedNotes(event, targetLang, sourceLang) ?? '') : notes}
-                onChange={(e) => { setNotes(e.target.value); setNotesEdited(true) }}
-                readOnly={!canEdit}
-                placeholder={t('notesPlaceholder')}
-                rows={3}
-                className={`flex-1 text-sm rounded-lg border border-stone-200 px-3 py-2 focus:outline-none
-                  focus:ring-2 focus:ring-lamp-500/20 focus:border-lamp-500 transition-all resize-none ${
-                  !canEdit ? 'bg-stone-100 text-stone-400 cursor-default' : 'bg-white'
-                }`}
-              />
+              <div className="flex-1">
+                <textarea
+                  value={!notesEdited && !isNew && event ? (getTranslatedNotes(event, targetLang, sourceLang) ?? '') : notes}
+                  onChange={(e) => { setNotes(e.target.value); setNotesEdited(true) }}
+                  readOnly={!canEdit}
+                  maxLength={10000}
+                  placeholder={t('notesPlaceholder')}
+                  rows={3}
+                  className={`w-full text-sm rounded-lg border border-stone-200 px-3 py-2 focus:outline-none
+                    focus:ring-2 focus:ring-lamp-500/20 focus:border-lamp-500 transition-all resize-none ${
+                    !canEdit ? 'bg-stone-100 text-stone-400 cursor-default' : 'bg-white'
+                  }`}
+                />
+                {notes.length > 9000 && (
+                  <p className={`text-xs mt-1 ${notes.length >= 10000 ? 'text-red-500' : 'text-stone-400'}`}>
+                    {notes.length.toLocaleString()}/10 000{notes.length >= 10000 ? ` — ${t('validation.notesTooLong')}` : ''}
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* Recurrence */}
