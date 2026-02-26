@@ -15,6 +15,7 @@ from app.rate_limit import limiter
 from app.routers import auth, calendars, sub_calendars, events, sharing, admin, tags, comments, uploads
 from app.services.email import log_email_status
 from app.middleware.csrf import CSRFMiddleware
+from app.middleware.security_headers import SecurityHeadersMiddleware
 
 
 @asynccontextmanager
@@ -46,6 +47,7 @@ app = FastAPI(title="Agenda Souterrain API", version="1.0.0", docs_url="/docs", 
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(SlowAPIMiddleware)
 app.add_middleware(GZipMiddleware, minimum_size=500)
 
