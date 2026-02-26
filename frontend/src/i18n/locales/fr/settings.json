@@ -114,6 +114,7 @@
   },
   "subcalendars": {
     "newSubCalendar": "Nouveau sous-calendrier",
+    "newItem": "Nouveau sous-calendrier",
     "namePlaceholder": "Nom du sous-calendrier",
     "empty": "Aucun sous-calendrier",
     "deleteTitle": "Supprimer le sous-calendrier",
@@ -129,6 +130,7 @@
   },
   "tags": {
     "newTag": "Nouvelle étiquette",
+    "newItem": "Nouvelle étiquette",
     "namePlaceholder": "Nom de l'étiquette",
     "empty": "Aucune étiquette",
     "deleteTitle": "Supprimer l'étiquette",
