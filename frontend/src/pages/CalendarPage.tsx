@@ -16,7 +16,7 @@ export default function CalendarPage() {
   const { slug } = useParams<{ slug: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
-  const { initSubCalendars, setAccessToken, setPermission, isOwner, effectivePermission, sidebarOpen, setSidebarOpen, toggleSidebar } = useCalendarStore()
+  const { initSubCalendars, setAccessToken, setPermission, resetFilters, isOwner, effectivePermission, sidebarOpen, setSidebarOpen, toggleSidebar } = useCalendarStore()
   const location = useLocation()
   const { isAuthenticated } = useAuthStore()
   const [openNewEvent, setOpenNewEvent] = useState(false)
@@ -67,6 +67,13 @@ export default function CalendarPage() {
       localStorage.setItem(`perm-${calendar.id}`, JSON.stringify(myPerm))
     }
   }, [myPerm, setPermission, calendar?.id])
+
+  // Reset stale filters whenever the user navigates to a different calendar
+  useEffect(() => {
+    if (calendar?.id) {
+      resetFilters()
+    }
+  }, [calendar?.id, resetFilters])
 
   useEffect(() => {
     if (subCalendars.length > 0) {
