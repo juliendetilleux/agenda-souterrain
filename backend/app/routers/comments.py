@@ -34,6 +34,33 @@ ALLOWED_MIME_TYPES = {
     "application/zip", "application/x-7z-compressed",
 }
 
+MAGIC_SIGNATURES = {
+    b"\xff\xd8\xff": "image/jpeg",
+    b"\x89PNG\r\n\x1a\n": "image/png",
+    b"GIF87a": "image/gif",
+    b"GIF89a": "image/gif",
+    b"RIFF": "image/webp",
+    b"%PDF": "application/pdf",
+    b"PK\x03\x04": "application/zip",
+    b"7z\xbc\xaf\x27\x1c": "application/x-7z-compressed",
+}
+
+
+def _detect_mime(content: bytes) -> str | None:
+    """Detect MIME type from file magic bytes. Returns None if unknown."""
+    for sig, mime in MAGIC_SIGNATURES.items():
+        if content[:len(sig)] == sig:
+            if sig == b"RIFF" and content[8:12] != b"WEBP":
+                return None
+            return mime
+    if b"\x00" not in content[:512]:
+        try:
+            content[:512].decode("utf-8")
+            return "text/plain"
+        except UnicodeDecodeError:
+            pass
+    return None
+
 
 async def _get_event(event_id: uuid.UUID, db: AsyncSession) -> Event:
     result = await db.execute(select(Event).where(Event.id == event_id))
@@ -224,10 +251,6 @@ async def upload_attachment(
 
     await _get_event(event_id, db)
 
-    # Validate MIME type
-    if file.content_type not in ALLOWED_MIME_TYPES:
-        raise HTTPException(status_code=400, detail=f"Type de fichier non autorise: {file.content_type}")
-
     # Read file content and check size
     content = await file.read()
     max_bytes = settings.MAX_FILE_SIZE_MB * 1024 * 1024
@@ -237,13 +260,22 @@ async def upload_attachment(
             detail=f"Fichier trop volumineux (max {settings.MAX_FILE_SIZE_MB} Mo)"
         )
 
+    # Validate MIME type via magic bytes (not client-provided content_type)
+    detected_mime = _detect_mime(content)
+    if detected_mime == "application/zip" and file.content_type in ALLOWED_MIME_TYPES:
+        detected_mime = file.content_type
+    if detected_mime == "text/plain" and file.content_type in ("text/csv", "text/plain"):
+        detected_mime = file.content_type
+    if not detected_mime or detected_mime not in ALLOWED_MIME_TYPES:
+        raise HTTPException(status_code=400, detail="Type de fichier non autorisé")
+
     # Generate unique stored filename
     ext = os.path.splitext(file.filename or "file")[1]
     stored_filename = f"{uuid.uuid4().hex}{ext}"
 
     # Write file via storage backend
     try:
-        await storage.save(stored_filename, content, content_type=file.content_type or "application/octet-stream")
+        await storage.save(stored_filename, content, content_type=detected_mime)
     except Exception:
         raise HTTPException(status_code=500, detail="Erreur lors de la sauvegarde du fichier")
 
@@ -252,7 +284,7 @@ async def upload_attachment(
         user_id=user.id,
         original_filename=file.filename or "file",
         stored_filename=stored_filename,
-        mime_type=file.content_type or "application/octet-stream",
+        mime_type=detected_mime,
         file_size=len(content),
     )
     db.add(attachment)
