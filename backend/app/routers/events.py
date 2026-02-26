@@ -99,6 +99,11 @@ async def list_events(
     return events
 
 
+def _escape_like(term: str) -> str:
+    """Escape special LIKE/ILIKE characters."""
+    return term.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+
+
 @router.get("/search", response_model=List[EventOut])
 async def search_events(
     cal_id: uuid.UUID,
@@ -119,9 +124,9 @@ async def search_events(
             and_(
                 Event.sub_calendar_id.in_(sc_ids),
                 or_(
-                    Event.title.ilike(f"%{q}%"),
-                    Event.location.ilike(f"%{q}%"),
-                    Event.notes.ilike(f"%{q}%"),
+                    Event.title.ilike(f"%{_escape_like(q)}%"),
+                    Event.location.ilike(f"%{_escape_like(q)}%"),
+                    Event.notes.ilike(f"%{_escape_like(q)}%"),
                 ),
             )
         )

@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import type { User } from '../types'
+import { authApi } from '../api/auth'
 
 const storedUser = ((): User | null => {
   try {
@@ -14,7 +15,8 @@ interface AuthState {
   isLoading: boolean
   setUser: (user: User) => void
   setLoading: (loading: boolean) => void
-  logout: () => void
+  clearSession: () => void
+  logout: () => Promise<void>
 }
 
 export const useAuthStore = create<AuthState>()((set) => ({
@@ -26,7 +28,12 @@ export const useAuthStore = create<AuthState>()((set) => ({
     set({ user, isAuthenticated: true, isLoading: false })
   },
   setLoading: (loading) => set({ isLoading: loading }),
-  logout: () => {
+  clearSession: () => {
+    localStorage.removeItem('auth-user')
+    set({ user: null, isAuthenticated: false, isLoading: false })
+  },
+  logout: async () => {
+    try { await authApi.logout() } catch { /* best-effort */ }
     localStorage.removeItem('auth-user')
     set({ user: null, isAuthenticated: false, isLoading: false })
   },

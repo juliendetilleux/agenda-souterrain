@@ -20,7 +20,6 @@ import { useCalendarStore } from '../../store/calendarStore'
 import { useAuthStore } from '../../store/authStore'
 import { usePwaStore } from '../../store/pwaStore'
 import { calendarApi } from '../../api/calendars'
-import { authApi } from '../../api/auth'
 import type { CalendarConfig, SubCalendar } from '../../types'
 
 interface Props {
@@ -51,8 +50,7 @@ export default function Sidebar({ calendar, subCalendars, onClose }: Props) {
     (navigator.userAgent.includes('Mac') && 'ontouchend' in document)
 
   const handleLogout = async () => {
-    try { await authApi.logout() } catch { /* clear local state anyway */ }
-    logout()
+    await logout()
     navigate('/login')
   }
 

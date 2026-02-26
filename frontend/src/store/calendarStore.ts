@@ -25,6 +25,7 @@ interface CalendarState {
   clearTagFilters: () => void
   setSidebarOpen: (open: boolean) => void
   toggleSidebar: () => void
+  resetFilters: () => void
 }
 
 export const useCalendarStore = create<CalendarState>((set, get) => ({
@@ -60,4 +61,11 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
   clearTagFilters: () => set({ selectedTagFilters: [] }),
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
   toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
+  resetFilters: () => set({
+    selectedTagFilters: [],
+    visibleSubCalendarIds: [],
+    effectivePermission: 'no_access',
+    isOwner: false,
+    sidebarOpen: false,
+  }),
 }))

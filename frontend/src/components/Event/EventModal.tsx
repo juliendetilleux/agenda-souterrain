@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { X, Trash2, FileText, User, Repeat, Tag, Download } from 'lucide-react'
 import { useConfirm } from '../../hooks/useConfirm'
@@ -10,7 +10,7 @@ import { useCalendarStore } from '../../store/calendarStore'
 import { useAuthStore } from '../../store/authStore'
 import { canAdd, canModify, canModifyOwn, canRead } from '../../utils/permissions'
 import type { CalendarConfig, SubCalendar, CalendarEvent } from '../../types'
-import LocationPicker from './LocationPicker'
+const LocationPicker = lazy(() => import('./LocationPicker'))
 import ChatSection from './ChatSection'
 import AttachmentSection from './AttachmentSection'
 import { getTranslatedTitle, getTranslatedNotes } from '../../hooks/useAutoTranslate'
@@ -56,15 +56,6 @@ export default function EventModal({
     canModify(effectivePermission) ||
     (canModifyOwn(effectivePermission) && isOwner)
 
-  // Close on Escape key
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [onClose])
-
   const { confirmState, confirm, handleConfirm, handleCancel } = useConfirm()
   const [title, setTitle] = useState(event?.title ?? '')
   const [titleEdited, setTitleEdited] = useState(false)
@@ -100,6 +91,41 @@ export default function EventModal({
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
     event?.tags?.map((tg) => tg.id) ?? []
   )
+
+  const isDirty = (() => {
+    if (isNew) {
+      return !!(title || location || notes || who || rrule || selectedTagIds.length > 0)
+    }
+    if (!event) return false
+    return (
+      (titleEdited && title !== event.title) ||
+      subCalId !== event.sub_calendar_id ||
+      location !== (event.location ?? '') ||
+      (notesEdited && notes !== (event.notes ?? '')) ||
+      who !== (event.who ?? '') ||
+      rrule !== (event.rrule ?? '') ||
+      allDay !== event.all_day ||
+      JSON.stringify(selectedTagIds.sort()) !== JSON.stringify((event.tags?.map(t => t.id) ?? []).sort())
+    )
+  })()
+
+  const guardedClose = () => {
+    if (isDirty && canEdit) {
+      if (!window.confirm('Vous avez des modifications non sauvegardées. Quitter quand même ?')) {
+        return
+      }
+    }
+    onClose()
+  }
+
+  // Close on Escape key — no dependency array so guardedClose always reflects latest isDirty
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') guardedClose()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  })
 
   const { data: availableTags = [] } = useQuery({
     queryKey: ['tags', calendar.id],
@@ -210,7 +236,7 @@ export default function EventModal({
             {isNew ? t('newEvent') : canEdit ? t('editEvent') : t('eventDetails')}
           </h2>
           <button
-            onClick={onClose}
+            onClick={guardedClose}
             className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-400 hover:text-stone-600 transition-colors"
           >
             <X size={20} />
@@ -305,14 +331,16 @@ export default function EventModal({
           {/* Section 2: Optional fields */}
           <div className="bg-stone-50 rounded-xl p-4 space-y-3">
             {/* Location with map */}
-            <LocationPicker
-              location={location}
-              latitude={latitude}
-              longitude={longitude}
-              readOnly={!canEdit}
-              onLocationChange={setLocation}
-              onCoordsChange={(lat, lng) => { setLatitude(lat); setLongitude(lng) }}
-            />
+            <Suspense fallback={<div className="h-10 flex items-center text-xs text-stone-400">...</div>}>
+              <LocationPicker
+                location={location}
+                latitude={latitude}
+                longitude={longitude}
+                readOnly={!canEdit}
+                onLocationChange={setLocation}
+                onCoordsChange={(lat, lng) => { setLatitude(lat); setLongitude(lng) }}
+              />
+            </Suspense>
 
             {/* Who */}
             <div className="flex items-center gap-3">
@@ -445,7 +473,7 @@ export default function EventModal({
             <div className="flex gap-2">
               <button
                 type="button"
-                onClick={onClose}
+                onClick={guardedClose}
                 className="px-4 py-2 text-sm text-stone-500 hover:text-stone-700 font-medium
                            transition-colors rounded-lg hover:bg-stone-100"
               >
