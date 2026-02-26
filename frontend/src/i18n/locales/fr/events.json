@@ -49,5 +49,9 @@
     "deleted": "Fichier supprimé",
     "uploadError": "Erreur lors de l'envoi du fichier",
     "deleteError": "Erreur lors de la suppression du fichier"
+  },
+  "validation": {
+    "titleTooLong": "Le titre ne doit pas dépasser 500 caractères",
+    "notesTooLong": "Les notes ne doivent pas dépasser 10 000 caractères"
   }
 }

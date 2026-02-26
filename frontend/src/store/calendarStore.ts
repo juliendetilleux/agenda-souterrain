@@ -64,8 +64,6 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
   resetFilters: () => set({
     selectedTagFilters: [],
     visibleSubCalendarIds: [],
-    effectivePermission: 'no_access',
-    isOwner: false,
     sidebarOpen: false,
   }),
 }))

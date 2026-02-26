@@ -60,55 +60,47 @@ async def get_effective_permission(
 ) -> Permission:
     """
     Returns the highest applicable permission for this caller on this calendar.
-    Resolution order:
-      1. Calendar owner -> ADMINISTRATOR
-      2. User-direct CalendarAccess entries
-      3. Group-based CalendarAccess entries (via user's group memberships)
-      4. AccessLink-based CalendarAccess entries (via link_token)
-    Sub-calendar scope: entries with sub_calendar_id=NULL (global) OR exact match.
+    Optimized: 2-3 queries instead of 4-6.
     """
-    # 1. Owner -> ADMINISTRATOR
-    if user:
-        cal_result = await db.execute(select(Calendar).where(Calendar.id == calendar_id))
-        cal = cal_result.scalar_one_or_none()
-        if cal and cal.owner_id == user.id:
-            return Permission.ADMINISTRATOR
-
-    perms: list[Permission] = []
-
     # Sub-calendar scope filter
     sc_filter = or_(
         CalendarAccess.sub_calendar_id == None,  # noqa: E711
         CalendarAccess.sub_calendar_id == sub_calendar_id,
     )
 
-    # 2. User-direct entries
+    perms: list[Permission] = []
+
+    # Query 1: Owner check + all user-based permissions (direct + group) in one query
     if user:
+        # Owner check
+        cal_result = await db.execute(
+            select(Calendar.owner_id).where(Calendar.id == calendar_id)
+        )
+        owner_id = cal_result.scalar_one_or_none()
+        if owner_id == user.id:
+            return Permission.ADMINISTRATOR
+
+        # Single query: direct user grants + group-based grants via subquery
+        group_ids_subq = (
+            select(group_members.c.group_id)
+            .where(group_members.c.user_id == user.id)
+            .correlate_except(group_members)
+            .scalar_subquery()
+        )
+
         result = await db.execute(
             select(CalendarAccess.permission).where(
                 CalendarAccess.calendar_id == calendar_id,
-                CalendarAccess.user_id == user.id,
                 sc_filter,
+                or_(
+                    CalendarAccess.user_id == user.id,
+                    CalendarAccess.group_id.in_(group_ids_subq),
+                ),
             )
         )
         perms.extend(result.scalars().all())
 
-        # 3. Group-based entries
-        group_ids_result = await db.execute(
-            select(group_members.c.group_id).where(group_members.c.user_id == user.id)
-        )
-        group_ids = [row[0] for row in group_ids_result.all()]
-        if group_ids:
-            result = await db.execute(
-                select(CalendarAccess.permission).where(
-                    CalendarAccess.calendar_id == calendar_id,
-                    CalendarAccess.group_id.in_(group_ids),
-                    sc_filter,
-                )
-            )
-            perms.extend(result.scalars().all())
-
-    # 4. AccessLink-based entries
+    # Query 2 (only if link_token): link-based permissions
     if link_token:
         link_result = await db.execute(
             select(AccessLink).where(
