@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 export default defineConfig({
   plugins: [
@@ -22,6 +23,9 @@ export default defineConfig({
       },
       manifest: false, // Already have manifest.json in public/
     }),
+    ...(process.env.ANALYZE === 'true'
+      ? [visualizer({ open: true, gzipSize: true, filename: 'dist/stats.html' })]
+      : []),
   ],
   server: {
     port: 5173,
@@ -54,5 +58,7 @@ export default defineConfig({
   },
   test: {
     exclude: ['tests/e2e/**', 'node_modules/**'],
+    environment: 'jsdom',
+    setupFiles: ['./src/tests/setup.ts'],
   },
 })
